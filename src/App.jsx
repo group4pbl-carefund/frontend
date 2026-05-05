@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import LandingPage from './pages/landingPage';
+import Login from './pages/login';
+import Register from './pages/register';
 
 function App() {
   return (
@@ -9,6 +11,8 @@ function App() {
       <Routes>
         {/* Route untuk halaman utama (Landing Page) */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         
         {/* Nanti kamu bisa menambahkan route halaman lain di bawah sini */}
         {/* Contoh: */}
