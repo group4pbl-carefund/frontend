@@ -7,7 +7,6 @@ import RegisterPage from './pages/registerPage';
 import UserProfilePage from './pages/userProfilePage';
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <Router>
