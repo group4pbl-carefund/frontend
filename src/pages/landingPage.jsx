@@ -40,7 +40,7 @@ const LandingPage = () => {
   return (
     <MainLayout>
       {/* HERO SECTION*/}
-      <section
+      <section 
         className="relative flex flex-col justify-center px-8 py-24 md:py-32"
         style={{
           backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1532629345422-7515f3d16bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')",
@@ -83,7 +83,7 @@ const LandingPage = () => {
       </section>
 
       {/* PROGRAM DONASI AKTIF */}
-      <section className="px-8 py-16 md:px-16 lg:px-24 bg-white">
+     <section className="px-8 py-16 md:px-16 lg:px-24 bg-white">
         <div className="mb-8">
           <h2 className="text-4xl font-bold text-slate-900">Program donasi aktif</h2>
           <p className="text-md text-slate-600 mt-1">Pilih program yang ingin Anda dukung</p>
@@ -92,7 +92,7 @@ const LandingPage = () => {
         {/* Gunakan .map() untuk merender kartu berdasarkan data array di atas */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {campaignData.map((campaign) => (
-            <CampaignCard
+            <CampaignCard 
               key={campaign.id}
               imageSrc={campaign.imageSrc}
               category={campaign.category}
