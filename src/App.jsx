@@ -5,6 +5,8 @@ import LandingPage from './pages/landingPage';
 import LoginPage from './pages/loginPage';
 import RegisterPage from './pages/registerPage';
 import UserProfilePage from './pages/userProfilePage';
+import EducationPage from './pages/educationPage';
+import ArtikelDetail from './pages/articleDetail';
 
 function App() {
 
@@ -16,6 +18,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/user-profile" element={<UserProfilePage />} />
+        <Route path="/edukasi" element={<EducationPage />} />
+        <Route path="/edukasi/:id" element={<ArtikelDetail />} />
 
         {/* Nanti kamu bisa menambahkan route halaman lain di bawah sini */}
         {/* Contoh: */}
