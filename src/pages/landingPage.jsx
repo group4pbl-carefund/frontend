@@ -40,7 +40,7 @@ const LandingPage = () => {
   return (
     <MainLayout>
       {/* HERO SECTION*/}
-      <section 
+      <section
         className="relative flex flex-col justify-center px-8 py-24 md:py-32"
         style={{
           backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1532629345422-7515f3d16bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')",
@@ -83,7 +83,7 @@ const LandingPage = () => {
       </section>
 
       {/* PROGRAM DONASI AKTIF */}
-     <section className="px-8 py-16 md:px-16 lg:px-24 bg-white">
+      <section className="px-8 py-16 md:px-16 lg:px-24 bg-white">
         <div className="mb-8">
           <h2 className="text-4xl font-bold text-slate-900">Program donasi aktif</h2>
           <p className="text-md text-slate-600 mt-1">Pilih program yang ingin Anda dukung</p>
@@ -92,7 +92,7 @@ const LandingPage = () => {
         {/* Gunakan .map() untuk merender kartu berdasarkan data array di atas */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {campaignData.map((campaign) => (
-            <CampaignCard 
+            <CampaignCard
               key={campaign.id}
               imageSrc={campaign.imageSrc}
               category={campaign.category}
@@ -105,31 +105,6 @@ const LandingPage = () => {
           ))}
         </div>
       </section>
-      
-      {/* --- MENGAPA MEMILIH CAREFUND --- */}
-   
-   { /*  <section className="bg-white py-20 px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-slate-900 mb-3">Mengapa Memilih CareFund?</h2>
-          <p className="text-slate-500">
-            Kepercayaan Anda adalah prioritas kami. Kami membangun ekosistem filantropi berbasis kejujuran.
-          </p>
-        </div>
-
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-12 md:grid-cols-3">
-          /* Feature 1 
-          <div className="flex flex-col items-center text-center">
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-md border border-gray-100">
-              <svg className="h-8 w-8 text-[#60C9B3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="mb-3 text-xl font-bold text-slate-900">100% Transparan</h3>
-            <p className="text-sm text-slate-500">Akses laporan keuangan terperinci kapan saja. Lihat setiap rupiah yang Anda berikan sampai ke tujuan.</p>
-          </div>
-           Tambahkan Feature 2 dan 3 di sini 
-        </div>
-      </section> */}
       <FeaturesSection />
 
     </MainLayout>
