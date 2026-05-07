@@ -105,31 +105,6 @@ const LandingPage = () => {
           ))}
         </div>
       </section>
-      
-      {/* --- MENGAPA MEMILIH CAREFUND --- */}
-   
-   { /*  <section className="bg-white py-20 px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-slate-900 mb-3">Mengapa Memilih CareFund?</h2>
-          <p className="text-slate-500">
-            Kepercayaan Anda adalah prioritas kami. Kami membangun ekosistem filantropi berbasis kejujuran.
-          </p>
-        </div>
-
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-12 md:grid-cols-3">
-          /* Feature 1 
-          <div className="flex flex-col items-center text-center">
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-md border border-gray-100">
-              <svg className="h-8 w-8 text-[#60C9B3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="mb-3 text-xl font-bold text-slate-900">100% Transparan</h3>
-            <p className="text-sm text-slate-500">Akses laporan keuangan terperinci kapan saja. Lihat setiap rupiah yang Anda berikan sampai ke tujuan.</p>
-          </div>
-           Tambahkan Feature 2 dan 3 di sini 
-        </div>
-      </section> */}
       <FeaturesSection />
 
     </MainLayout>

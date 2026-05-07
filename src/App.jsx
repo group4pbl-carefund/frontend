@@ -2,18 +2,25 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import LandingPage from './pages/landingPage';
-import Login from './pages/login';
-import Register from './pages/register';
+import LoginPage from './pages/loginPage';
+import RegisterPage from './pages/registerPage';
+import UserProfilePage from './pages/userProfilePage';
+import EducationPage from './pages/educationPage';
+import ArtikelDetail from './pages/articleDetail';
 
 function App() {
+
   return (
     <Router>
       <Routes>
         {/* Route untuk halaman utama (Landing Page) */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/user-profile" element={<UserProfilePage />} />
+        <Route path="/edukasi" element={<EducationPage />} />
+        <Route path="/edukasi/:id" element={<ArtikelDetail />} />
+
         {/* Nanti kamu bisa menambahkan route halaman lain di bawah sini */}
         {/* Contoh: */}
         {/* <Route path="/login" element={<LoginPage />} /> */}
@@ -24,4 +31,4 @@ function App() {
   );
 }
 
-export default App;
+export default App
