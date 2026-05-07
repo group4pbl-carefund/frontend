@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'));
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Cek status login dari localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -30,7 +38,7 @@ const Navbar = () => {
           <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
             Beranda
           </Link>
-          <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+          <Link to="/dashboard-komunitas" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
             Dashboard Komunitas
           </Link>
           <Link to="/edukasi" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
