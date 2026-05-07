@@ -7,6 +7,7 @@ import RegisterPage from './pages/registerPage';
 import UserProfilePage from './pages/userProfilePage';
 import EducationPage from './pages/educationPage';
 import ArtikelDetail from './pages/articleDetail';
+import DashboardPage from './pages/dashboardPage';
 
 function App() {
 
@@ -21,11 +22,11 @@ function App() {
         <Route path="/edukasi" element={<EducationPage />} />
         <Route path="/edukasi/:id" element={<ArtikelDetail />} />
 
+        <Route path="/dashboard" element={<DashboardPage />} />
+
         {/* Nanti kamu bisa menambahkan route halaman lain di bawah sini */}
         {/* Contoh: */}
-        {/* <Route path="/login" element={<LoginPage />} /> */}
         {/* <Route path="/donasi/:id" element={<DonationDetailPage />} /> */}
-        {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
       </Routes>
     </Router>
   );

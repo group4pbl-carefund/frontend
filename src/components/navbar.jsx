@@ -30,7 +30,7 @@ const Navbar = () => {
           <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
             Beranda
           </Link>
-          <Link to="/dashboard-komunitas" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+          <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
             Dashboard Komunitas
           </Link>
           <Link to="/edukasi" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
