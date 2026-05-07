@@ -74,21 +74,23 @@ const UserProfilePage = () => {
                                     <ChevronRight size={16} />
                                 </button>
 
-                                <button className="w-full flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all group">
+                                {/* Opsi 2: Sertifikat Saya */}
+                                <Link to="/certificate" className="w-full flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all group">
                                     <div className="flex items-center gap-3">
                                         <Award size={20} className="text-slate-400 group-hover:text-[#2ea391]" />
                                         <span>Sertifikat Saya</span>
                                     </div>
                                     <ChevronRight size={16} />
-                                </button>
+                                </Link>
 
-                                <button className="w-full flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all group">
+                                {/* Opsi 3: Dampak Sosial */}
+                                <Link to="/impact" className="w-full flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all group">
                                     <div className="flex items-center gap-3">
                                         <HandHeart size={20} className="text-slate-400 group-hover:text-[#2ea391]" />
                                         <span>Dampak Sosial</span>
                                     </div>
                                     <ChevronRight size={16} />
-                                </button>
+                                </Link>
 
                                 <div className="my-2 border-t border-slate-50"></div>
 
@@ -115,32 +117,27 @@ const UserProfilePage = () => {
 
                         {/* Stats Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                                <div className="bg-emerald-50 w-10 h-10 rounded-xl flex items-center justify-center text-emerald-600 mb-4">
-                                    <CreditCard size={20} />
-                                </div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Donasi</p>
-                                <p className="text-2xl font-black text-slate-900 mt-1">Rp 1.750k</p>
-                                <p className="text-[10px] text-slate-500 mt-2 font-medium">3 Program didukung</p>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                                <div className="bg-blue-50 w-10 h-10 rounded-xl flex items-center justify-center text-blue-600 mb-4">
-                                    <Calendar size={20} />
-                                </div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Bergabung</p>
-                                <p className="text-2xl font-black text-slate-900 mt-1">Jan 2026</p>
-                                <p className="text-[10px] text-slate-500 mt-2 font-medium">4 bulan berkontribusi</p>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                                <div className="bg-orange-50 w-10 h-10 rounded-xl flex items-center justify-center text-orange-600 mb-4">
-                                    <HandHeart size={20} />
-                                </div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Dampak</p>
-                                <p className="text-2xl font-black text-slate-900 mt-1">8 Orang</p>
-                                <p className="text-[10px] text-slate-500 mt-2 font-medium">Penerima manfaat</p>
-                            </div>
+                            <StatCard 
+                                icon={CreditCard} 
+                                label="Total Donasi" 
+                                value="Rp 1.750k" 
+                                subValue="3 Program didukung" 
+                                colorClass="bg-emerald-50 text-emerald-600" 
+                            />
+                            <StatCard 
+                                icon={Calendar} 
+                                label="Bergabung" 
+                                value="Jan 2026" 
+                                subValue="4 bulan berkontribusi" 
+                                colorClass="bg-blue-50 text-blue-600" 
+                            />
+                            <StatCard 
+                                icon={HandHeart} 
+                                label="Dampak" 
+                                value="8 Orang" 
+                                subValue="Penerima manfaat" 
+                                colorClass="bg-orange-50 text-orange-600" 
+                            />
                         </div>
 
                         {/* Donation History List */}
@@ -231,5 +228,16 @@ const UserProfilePage = () => {
         </MainLayout>
     );
 };
+
+const StatCard = ({ icon: Icon, label, value, subValue, colorClass }) => (
+    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-hover hover:shadow-md">
+        <div className={`${colorClass} w-10 h-10 rounded-xl flex items-center justify-center mb-4`}>
+            <Icon size={20} />
+        </div>
+        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{label}</p>
+        <p className="text-2xl font-black text-slate-900 mt-1">{value}</p>
+        <p className="text-[10px] text-slate-500 mt-2 font-medium">{subValue}</p>
+    </div>
+);
 
 export default UserProfilePage;
