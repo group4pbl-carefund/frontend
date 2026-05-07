@@ -1,8 +1,9 @@
 import { useNavigate, Link } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import ArticleCard from '../components/articleCard';
+import CategoryCard from '../components/categoryCard';
+import SearchBar from '../components/searchBar';
 
-// --- DATA DUMMY ---
 const categoryCards = [
   {
     id: 1,
@@ -69,7 +70,6 @@ const articleCards = [
   },
 ];
 
-// --- KOMPONEN UTAMA ---
 const EdukasiPage = () => {
 
   const navigate = useNavigate();
@@ -77,10 +77,8 @@ const EdukasiPage = () => {
   return (
     <MainLayout>
     <div className="min-h-screen bg-[#F4F7F6] pb-20">      
-      {/* Container Konten */}
       <div className="w-full px-8 md:px-16 lg:px-24 pt-12">
         
-        {/* --- HEADER SECTION --- */}
         <div className="mb-12">
           <div className="flex items-center gap-4 mb-4">
             <button onClick={() => navigate('/')} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
@@ -97,43 +95,23 @@ const EdukasiPage = () => {
             Panduan lengkap untuk belajar berdonasi dengan aman dan transparan di ekosistem digital Care Fund.
           </p>
           
-          {/* Search Bar */}
-          <div className="relative max-w-lg shadow-sm">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <input
-              type="text"
-              placeholder="Cari artikel edukasi..."
-              className="block w-full pl-11 pr-4 py-4 border border-gray-100 rounded-2xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#147D73] focus:border-[#147D73] sm:text-sm transition-shadow"
-            />
-          </div>
+          <SearchBar />
         </div>
 
-        {/* --- CATEGORY CARDS SECTION --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {categoryCards.map((card) => (
-            <div key={card.id} className="bg-white rounded-[24px] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 flex flex-col hover:shadow-md transition-shadow">
-              <div className={`w-12 h-12 rounded-2xl ${card.iconBg} flex items-center justify-center mb-6`}>
-                {card.icon}
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">{card.title}</h3>
-              <p className="text-slate-500 text-sm leading-relaxed flex-grow mb-6">
-                {card.description}
-              </p>
-              <a href="#" className={`inline-flex items-center text-sm font-bold ${card.linkColor} hover:opacity-80 transition-opacity`}>
-                {card.linkText}
-                <svg className="ml-1.5 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </a>
-            </div>
+            <CategoryCard
+              key={card.id}
+              title={card.title}
+              description={card.description}
+              icon={card.icon}
+              iconBg={card.iconBg}
+              linkColor={card.linkColor}
+              linkText={card.linkText}
+            />
           ))}
         </div>
 
-        {/* --- ARTICLES SECTION --- */}
         <div>
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Artikel Edukasi</h2>

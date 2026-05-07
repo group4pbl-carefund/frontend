@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });

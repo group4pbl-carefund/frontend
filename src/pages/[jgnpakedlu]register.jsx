@@ -1,36 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-
-const FormInput = ({ label, type = "text", placeholder, onChange, required = true }) => (
-  <div className="w-full">
-    <label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wide">
-      {label}
-    </label>
-    <input 
-      type={type} 
-      className="w-full bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#2ea391] transition-all border border-transparent focus:border-[#2ea391]" 
-      placeholder={placeholder}
-      onChange={onChange}
-      required={required}
-    />
-  </div>
-);
-
-const StepIndicator = ({ step, currentStep, label }) => (
-  <div className="flex flex-col items-center">
-    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
-      currentStep >= step ? 'bg-[#2ea391] text-white shadow-lg' : 'bg-gray-200 text-gray-500'
-    }`}>
-      {step}
-    </div>
-    <p className={`text-[10px] mt-2 font-black tracking-widest ${
-      currentStep >= step ? 'text-[#2ea391]' : 'text-gray-400'
-    }`}>
-      {label}
-    </p>
-  </div>
-);
+import FormInput from '../components/formInput';
+import StepIndicator from '../components/stepIndicator';
 
 const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
