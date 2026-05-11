@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import CampaignCard from '../components/donationCard';
 import FeaturesSection from '../components/featuresSection';
@@ -54,6 +55,7 @@ const LandingPage = () => {
           {campaignData.map((campaign) => (
             <CampaignCard 
               key={campaign.id}
+              id={campaign.id}
               imageSrc={campaign.imageSrc}
               category={campaign.category}
               title={campaign.title}

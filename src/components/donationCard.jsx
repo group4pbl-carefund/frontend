@@ -1,6 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const CampaignCard = ({ 
+  id,
   imageSrc, 
   category, 
   title, 
@@ -10,7 +12,10 @@ const CampaignCard = ({
   targetAmount 
 }) => {
   return (
-    <div className="overflow-hidden rounded-3xl bg-white shadow-sm border border-gray-100 flex flex-col">
+    <Link 
+      to={`/donasi/${id}`} 
+      className="group overflow-hidden rounded-[24px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 flex flex-col hover:shadow-lg transition-all cursor-pointer"
+    >
       {/* Bagian Gambar & Badge Kategori */}
       <div className="relative h-48 w-full bg-gray-200">
          <img src={imageSrc} alt={category} className="h-full w-full object-cover" />
@@ -50,7 +55,7 @@ const CampaignCard = ({
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
