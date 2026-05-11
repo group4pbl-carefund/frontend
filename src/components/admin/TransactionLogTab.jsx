@@ -1,17 +1,20 @@
 import React from 'react';
-import { 
-  ArrowUpRight, 
-  Download, 
-  Search, 
-  Calendar, 
-  Filter, 
+import {
+  ArrowUpRight,
+  Download,
+  Search,
+  Calendar,
+  Filter,
   MoreVertical,
   ChevronLeft,
   ChevronRight,
   TrendingUp,
   CreditCard,
   Building2,
-  Wallet
+  Wallet,
+  Activity,
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
 
 const TransactionLogTab = () => {
@@ -147,25 +150,25 @@ const TransactionLogTab = () => {
         </div>
 
         <div className="lg:col-span-8 bg-[#f5faf9] p-6 rounded-3xl border border-teal-50 grid grid-cols-1 md:grid-cols-2 gap-4">
-           <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
-              <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Avg Fee per Trx</p>
-              <p className="text-lg font-bold text-gray-800 tracking-tight">Rp 8.750</p>
-           </div>
-           <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
-              <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Servers Health</p>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <p className="text-lg font-bold text-gray-800 tracking-tight">Optimal</p>
-              </div>
-           </div>
-           <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
-              <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Cost Projection</p>
-              <p className="text-lg font-bold text-gray-800 tracking-tight">+4.2% <span className="text-xs font-normal text-gray-400 ml-1">vs last mo</span></p>
-           </div>
-           <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
-              <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Next Maintenance</p>
-              <p className="text-lg font-bold text-gray-800 tracking-tight">Nov 12</p>
-           </div>
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
+            <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Avg Fee per Trx</p>
+            <p className="text-lg font-bold text-gray-800 tracking-tight">Rp 8.750</p>
+          </div>
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
+            <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Servers Health</p>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+              <p className="text-lg font-bold text-gray-800 tracking-tight">Optimal</p>
+            </div>
+          </div>
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
+            <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Cost Projection</p>
+            <p className="text-lg font-bold text-gray-800 tracking-tight">+4.2% <span className="text-xs font-normal text-gray-400 ml-1">vs last mo</span></p>
+          </div>
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
+            <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Next Maintenance</p>
+            <p className="text-lg font-bold text-gray-800 tracking-tight">Nov 12</p>
+          </div>
         </div>
       </div>
 
@@ -173,9 +176,9 @@ const TransactionLogTab = () => {
       <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
         <div className="flex-1 min-w-[300px] relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input 
-            type="text" 
-            placeholder="Search Transaction ID or User" 
+          <input
+            type="text"
+            placeholder="Search Transaction ID or User"
             className="w-full pl-10 pr-4 py-2 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-teal-500/20 transition-all outline-none"
           />
         </div>
@@ -230,17 +233,16 @@ const TransactionLogTab = () => {
                   <td className="px-8 py-6 text-sm font-bold text-gray-800">{trx.amount}</td>
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
-                      {trx.method === 'Bank Transfer' ? <Building2 className="w-3.5 h-3.5" /> : 
-                       trx.method === 'QRIS' ? <Search className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
+                      {trx.method === 'Bank Transfer' ? <Building2 className="w-3.5 h-3.5" /> :
+                        trx.method === 'QRIS' ? <Search className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
                       {trx.method}
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full tracking-tighter ${
-                      trx.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                      trx.status === 'PENDING' ? 'bg-orange-50 text-orange-600 border border-orange-100' :
-                      'bg-rose-50 text-rose-600 border border-rose-100'
-                    }`}>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full tracking-tighter ${trx.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                        trx.status === 'PENDING' ? 'bg-orange-50 text-orange-600 border border-orange-100' :
+                          'bg-rose-50 text-rose-600 border border-rose-100'
+                      }`}>
                       {trx.status}
                     </span>
                   </td>
@@ -261,8 +263,8 @@ const TransactionLogTab = () => {
           <div className="flex items-center gap-1">
             <button className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg transition-all"><ChevronLeft className="w-5 h-5" /></button>
             {[1, 2, 3, '...', 248].map((page, i) => (
-              <button 
-                key={i} 
+              <button
+                key={i}
                 className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${page === 1 ? 'bg-[#149187] text-white' : 'text-gray-600 hover:bg-gray-100'}`}
               >
                 {page}
@@ -278,17 +280,4 @@ const TransactionLogTab = () => {
 
 export default TransactionLogTab;
 
-const AlertCircle = (props) => (
-  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="8" x2="12" y2="12" />
-    <line x1="12" y1="16" x2="12.01" y2="16" />
-  </svg>
-);
 
-const CheckCircle2 = (props) => (
-  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-    <path d="m9 12 2 2 4-4" />
-  </svg>
-);
