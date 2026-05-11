@@ -3,10 +3,16 @@ import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'));
+  const [userRole, setUserRole] = useState(() => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user).role : null;
+  });
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setIsLoggedIn(false);
+    setUserRole(null);
     window.location.href = '/login';
   };
 
@@ -25,19 +31,25 @@ const Navbar = () => {
       </div>
 
       {/* Middle Links - Only visible when logged in */}
-      {isLoggedIn && (
-        <div className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
-            Beranda
-          </Link>
-          <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
-            Dashboard Komunitas
-          </Link>
-          <Link to="/edukasi" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
-            Edukasi
-          </Link>
-        </div>
-      )}
+       {isLoggedIn && (
+         <div className="hidden md:flex items-center space-x-8">
+           <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+             Beranda
+           </Link>
+           {userRole === 'admin' ? (
+             <Link to="/admin-dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+               Admin Dashboard
+             </Link>
+           ) : (
+             <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+               Dashboard Komunitas
+             </Link>
+           )}
+           <Link to="/edukasi" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+             Edukasi
+           </Link>
+         </div>
+       )}
 
       {/* Right Section */}
       <div className="flex items-center space-x-4">

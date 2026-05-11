@@ -8,6 +8,7 @@ import UserProfilePage from './pages/userProfilePage';
 import EducationPage from './pages/educationPage';
 import ArtikelDetail from './pages/articleDetail';
 import DashboardPage from './pages/dashboardPage';
+import AdminDashboardPage from './pages/adminDashboardPage';
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
         <Route path="/edukasi/:id" element={<ArtikelDetail />} />
 
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
 
         {/* Nanti kamu bisa menambahkan route halaman lain di bawah sini */}
         {/* Contoh: */}

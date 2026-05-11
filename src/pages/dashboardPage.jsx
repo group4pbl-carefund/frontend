@@ -121,9 +121,9 @@ const DashboardPage = () => {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Tren Donasi Bulanan</h2>
               <Bar data={donationTrendData} options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }} />
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Distribusi per Kategori</h2>
-              <Doughnut data={categoryData} options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }} />
+            <div className="bg-white rounded-lg shadow p-2 mb-4 pb-18" style={{ height: '350px' }}>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2 flex items-center w-full justify-center">Distribusi per Kategori</h2>
+              <Doughnut style={{ boxSizing: 'border-box', display: 'block', height: '270px', width: '270px', marginLeft: 'auto', marginRight: 'auto' }} data={categoryData} options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }} />
             </div>
           </div>
 

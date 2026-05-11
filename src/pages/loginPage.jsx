@@ -1,34 +1,31 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    //passing login dulu backend belum beres
-    /*
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/login', {
-    //   email: formData.email,
-    //  password: formData.password
-    //});
+        email: formData.email,
+        password: formData.password
+      });
 
-    localStorage.setItem('token', response.data.token);
+      localStorage.setItem('token', response.data.data.access_token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
 
-    alert('Login Success! Welcome to Care Fund');
-    window.location.href = '/';
-    */
-    //pass login
-    localStorage.setItem('token', 'token');
-    alert('Login Success! Welcome to Care Fund');
-    window.location.href = '/';
+      alert('Login Success! Welcome to Care Fund');
+      window.location.href = '/';
+    } catch (error) {
+      alert(error.response?.data?.message || 'Login failed');
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#e0f2f1] flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-xl">
-        {/* Header Hitam */}
         <div className="bg-[#1a1a1a] p-8 text-center text-white relative">
           <div className="bg-[#2ea391] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-white">🛡️</span>
