@@ -23,7 +23,7 @@ function App() {
         <Route path="/edukasi" element={<EducationPage />} />
 
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+        <Route path="/admin/*" element={<AdminDashboardPage />} />
 
         {/* Nanti kamu bisa menambahkan route halaman lain di bawah sini */}
         <Route path="/donasi/:id" element={<DonationDetailPage />} />
