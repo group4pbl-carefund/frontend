@@ -6,10 +6,13 @@ import LoginPage from './pages/loginPage';
 import RegisterPage from './pages/registerPage';
 import UserProfilePage from './pages/userProfilePage';
 import DashboardPage from './pages/dashboardPage';
-import AdminDashboardPage from './pages/adminDashboardPage';
+import AdminDashboardPage from './pages/admin/adminDashboardPage';
 import EducationPage from './pages/educationPage';
 import ArtikelDetail from './pages/articleDetail';
 import DonationDetailPage from './pages/donationDetailPage';
+import AdminEducationPage from './pages/admin/adminEducationPage';
+import CmsEdukasiPage from './pages/admin/cmsEdukasiPage';
+import CreateArticlePage from './pages/admin/createArticlePage';
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
         <Route path="/edukasi" element={<EducationPage />} />
         <Route path="/edukasi/:id" element={<ArtikelDetail />} />
         <Route path="/admin/*" element={<AdminDashboardPage />} />
+        <Route path="/admin/edukasi" element={<AdminEducationPage />} />
+        <Route path="/admin/edukasi/manage" element={<CmsEdukasiPage />} />
+        <Route path="/admin/edukasi/manage/create" element={<CreateArticlePage />} />
         <Route path="/donasi/:id" element={<DonationDetailPage />} />
       </Routes>
     </Router>

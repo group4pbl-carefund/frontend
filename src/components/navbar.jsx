@@ -45,9 +45,16 @@ const Navbar = () => {
                Dashboard Komunitas
              </Link>
            )}
-           <Link to="/edukasi" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+           
+           {/* === BAGIAN YANG DIUBAH === */}
+           <Link 
+             to={userRole === 'admin' ? '/admin/edukasi' : '/edukasi'} 
+             className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors"
+           >
              Edukasi
            </Link>
+           {/* ========================= */}
+           
          </div>
        )}
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import MainLayout from '../layouts/mainLayout';
+import MainLayout from '../../layouts/mainLayout';
 import { ArrowLeft } from 'lucide-react';
-import SecurityTab from '../components/admin/SecurityTab';
-import TransactionLogTab from '../components/admin/TransactionLogTab';
-import UserManagementTab from '../components/admin/UserManagementTab';
+import SecurityTab from '../../components/admin/SecurityTab';
+import TransactionLogTab from '../../components/admin/TransactionLogTab';
+import UserManagementTab from '../../components/admin/UserManagementTab';
 
 const AdminDashboardPage = () => {
   const location = useLocation();
