@@ -16,6 +16,8 @@ import AdminEducationPage from './pages/admin/adminEducationPage';
 import CmsEdukasiPage from './pages/admin/cmsEdukasiPage';
 import CreateArticlePage from './pages/admin/createArticlePage';
 import EditArticlePage from './pages/admin/editArticlePage';
+import CreateCampaignPage from './pages/createCampaignPage';
+
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
         <Route path="/admin/edukasi/manage/edit/:id" element={<EditArticlePage />} />
         <Route path="/donasi/:id" element={<DonationDetailPage />} />
         <Route path="/donasi/:id/checkout" element={<CheckoutPage />} />
+        <Route path="/buat-kampanye" element={<CreateCampaignPage />} />
       </Routes>
     </Router>
   );

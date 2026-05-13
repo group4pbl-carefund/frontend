@@ -3,7 +3,7 @@ import MainLayout from "../layouts/mainLayout";
 import { 
   ArrowLeft, Mail, Phone, MapPin, History, Award, 
   HandHeart, Calendar, CheckCircle2, ChevronRight, 
-  Settings, CreditCard, LogOut, Download, Share2, Heart 
+  Settings, CreditCard, LogOut, Download, Share2, Heart , PlusCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import StatCard from "../components/statCard";
@@ -72,7 +72,7 @@ const UserProfilePage = () => {
                     {/* SIDEBAR */}
                     <div className="lg:col-span-4 space-y-6">
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                            <div className="h-24 bg-gradient-to-r from-[#60C9B3] to-[#2ea391]"></div>
+                            <div className="h-24 bg-linear-to-r from-[#60C9B3] to-[#2ea391]"></div>
                             <div className="px-6 pb-6">
                                 <div className="relative -mt-12 mb-4 inline-block">
                                     <div className="h-24 w-24 rounded-2xl border-4 border-white overflow-hidden shadow-md bg-white">
@@ -91,6 +91,22 @@ const UserProfilePage = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* NEW CAMPAIGN BUTTON */}
+                        <Link to="/buat-kampanye" className="block w-full">
+                            <div className="bg-linear-to-r from-[#60C9B3] to-[#2ea391] rounded-3xl p-5 text-white shadow-md shadow-teal-900/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-between group">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-white/20 p-3 rounded-2xl group-hover:scale-110 transition-transform">
+                                        <PlusCircle size={24} className="text-white" />
+                                    </div>
+                                    <div className="text-left">
+                                        <h3 className="font-extrabold text-lg leading-tight">Buat Kampanye</h3>
+                                        <p className="text-white/80 text-xs font-medium mt-0.5">Mulai galang dana baru</p>
+                                    </div>
+                                </div>
+                                <ChevronRight size={20} className="text-white/70 group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </Link>
 
                         {/* NAV MENU */}
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-3">

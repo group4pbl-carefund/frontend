@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../../layouts/mainLayout';
-import ArticleCard from '../../components/ArticleCard';
+import ArticleCard from '../../components/articleCard';
 
 // --- DATA DUMMY ---
 const categoryCards = [
