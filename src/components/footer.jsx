@@ -7,7 +7,7 @@ const Footer = () => {
         
         <div className="col-span-1 md:col-span-1">
           <div className="flex items-center gap-2 mb-4">
-            <div className="flex h-6 w-6 items-center justify-center rounded bg-[#60C9B3] text-white text-xs font-bold">CF</div>
+            <img src="/pavicon.png" alt="Logo" className="h-6 w-6 object-contain" />
             <span className="text-lg font-bold text-[#428879]">Care Fund</span>
           </div>
           <p className="text-xs text-slate-500">

@@ -21,9 +21,11 @@ const Navbar = () => {
       {/* Logo Section */}
       <div className="flex items-center gap-2">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#60C9B3] to-[#428879] text-white font-bold shadow-lg shadow-[#60C9B3]/20">
-            CF
-          </div>
+          <img 
+            src="/pavicon.png" 
+            alt="Care Fund Logo" 
+            className="h-10 w-10 object-contain"
+          />
           <span className="text-xl font-extrabold tracking-tight text-[#428879]">
             Care Fund
           </span>

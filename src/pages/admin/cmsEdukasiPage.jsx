@@ -195,7 +195,10 @@ const CmsEdukasiPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex justify-center gap-3">
-                          <button className="text-[#147D73] hover:text-[#0b4d46] transition-colors">
+                          <button 
+                            onClick={() => navigate(`/admin/edukasi/manage/edit/${article.id}`)}
+                            className="text-[#147D73] hover:text-[#0b4d46] transition-colors"
+                          >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                           </button>
                           <button className="text-red-500 hover:text-red-700 transition-colors">
