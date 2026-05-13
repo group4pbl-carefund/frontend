@@ -46,9 +46,15 @@ const LandingPage = () => {
       <StatsSection />
 
       <section className="px-8 py-16 md:px-16 lg:px-24 bg-white">
-        <div className="mb-8">
-          <h2 className="text-4xl font-bold text-slate-900">Program donasi aktif</h2>
-          <p className="text-md text-slate-600 mt-1">Pilih program yang ingin Anda dukung</p>
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <h2 className="text-4xl font-bold text-slate-900">Program donasi aktif</h2>
+            <p className="text-md text-slate-600 mt-1">Pilih program yang ingin Anda dukung</p>
+          </div>
+          <Link to="/donasi" className="text-sm font-bold text-[#147D73] hover:underline flex items-center gap-1 group">
+            Lihat Semua 
+            <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">

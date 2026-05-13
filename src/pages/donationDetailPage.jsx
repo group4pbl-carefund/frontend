@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 // --- KOMPONEN 1: SIDEBAR DONASI (STICKY) ---
 const DonationSidebar = () => {
+  const navigate = useNavigate();
   const [selectedAmount, setSelectedAmount] = useState(100000);
   const [selectedMethod, setSelectedMethod] = useState('');
 
@@ -91,7 +92,16 @@ const DonationSidebar = () => {
       </div>
 
       {/* CTA Button */}
-      <button className="w-full bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 rounded-xl transition-colors mb-4">
+      <button 
+        onClick={() => navigate(`/donasi/1/checkout`, { 
+          state: { 
+            amount: selectedAmount, 
+            method: selectedMethod || 'Transfer Bank',
+            programTitle: 'Bantuan Pendidikan Anak Pedalaman Kalimantan' 
+          } 
+        })}
+        className="w-full bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 rounded-xl transition-colors mb-4"
+      >
         Lanjut Pembayaran
       </button>
 
