@@ -18,27 +18,38 @@ import CreateArticlePage from './pages/admin/createArticlePage';
 import EditArticlePage from './pages/admin/editArticlePage';
 import CreateCampaignPage from './pages/createCampaignPage';
 
+// New components & pages
+import TermsAcceptancePage from './pages/termsAcceptancePage';
+import AboutUsPage from './pages/aboutUsPage';
+import TermsGuard from './components/termsGuard';
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes - Always accessible */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/user-profile" element={<UserProfilePage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/edukasi" element={<EducationPage />} />
-        <Route path="/edukasi/:id" element={<ArtikelDetail />} />
-        <Route path="/donasi" element={<ProgramsPage />} />
-        <Route path="/admin/*" element={<AdminDashboardPage />} />
-        <Route path="/admin/edukasi" element={<AdminEducationPage />} />
-        <Route path="/admin/edukasi/manage" element={<CmsEdukasiPage />} />
-        <Route path="/admin/edukasi/manage/create" element={<CreateArticlePage />} />
-        <Route path="/admin/edukasi/manage/edit/:id" element={<EditArticlePage />} />
-        <Route path="/donasi/:id" element={<DonationDetailPage />} />
-        <Route path="/donasi/:id/checkout" element={<CheckoutPage />} />
-        <Route path="/buat-kampanye" element={<CreateCampaignPage />} />
+        <Route path="/about-us" element={<AboutUsPage />} />
+        <Route path="/accept-terms" element={<TermsAcceptancePage />} />
+
+        {/* Protected Routes - Subject to T&C Interceptor Gate */}
+        <Route element={<TermsGuard />}>
+          <Route path="/user-profile" element={<UserProfilePage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/edukasi" element={<EducationPage />} />
+          <Route path="/edukasi/:id" element={<ArtikelDetail />} />
+          <Route path="/donasi" element={<ProgramsPage />} />
+          <Route path="/admin/*" element={<AdminDashboardPage />} />
+          <Route path="/admin/edukasi" element={<AdminEducationPage />} />
+          <Route path="/admin/edukasi/manage" element={<CmsEdukasiPage />} />
+          <Route path="/admin/edukasi/manage/create" element={<CreateArticlePage />} />
+          <Route path="/admin/edukasi/manage/edit/:id" element={<EditArticlePage />} />
+          <Route path="/donasi/:id" element={<DonationDetailPage />} />
+          <Route path="/donasi/:id/checkout" element={<CheckoutPage />} />
+          <Route path="/buat-kampanye" element={<CreateCampaignPage />} />
+        </Route>
       </Routes>
     </Router>
   );

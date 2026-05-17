@@ -32,33 +32,37 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {/* Middle Links - Only visible when logged in */}
-       {isLoggedIn && (
-         <div className="hidden md:flex items-center space-x-8">
-           <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
-             Beranda
-           </Link>
-           {userRole === 'admin' ? (
-             <Link to="/admin" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
-               Admin
-             </Link>
-           ) : (
-             <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
-               Dashboard Komunitas
-             </Link>
-           )}
-           
-           {/* === BAGIAN YANG DIUBAH === */}
-           <Link 
-             to={userRole === 'admin' ? '/admin/edukasi' : '/edukasi'} 
-             className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors"
-           >
-             Edukasi
-           </Link>
-           {/* ========================= */}
-           
-         </div>
-       )}
+      {/* Middle Links */}
+      <div className="hidden md:flex items-center space-x-8">
+        <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+          Beranda
+        </Link>
+        {isLoggedIn && (
+          <>
+            {userRole === 'admin' ? (
+              <Link to="/admin" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+                Admin
+              </Link>
+            ) : (
+              <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+                Dashboard Komunitas
+              </Link>
+            )}
+            
+            {/* === BAGIAN YANG DIUBAH === */}
+            <Link 
+              to={userRole === 'admin' ? '/admin/edukasi' : '/edukasi'} 
+              className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors"
+            >
+              Edukasi
+            </Link>
+            {/* ========================= */}
+          </>
+        )}
+        <Link to="/about-us" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+          Tentang Kami
+        </Link>
+      </div>
 
       {/* Right Section */}
       <div className="flex items-center space-x-4">

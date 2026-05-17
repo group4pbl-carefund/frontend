@@ -30,7 +30,8 @@ const LoginPage = () => {
         id: 2,
         full_name: 'Regular User',
         email: 'user@carefund.com',
-        role: 'user'
+        role: 'user',
+        acceptedTermsVersion: 'v1.0.0'
       }));
       alert('Login Success (User Bypass)!');
       window.location.href = '/dashboard';

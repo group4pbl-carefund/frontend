@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import SecurityTab from '../../components/admin/SecurityTab';
 import TransactionLogTab from '../../components/admin/TransactionLogTab';
 import UserManagementTab from '../../components/admin/UserManagementTab';
+import TermsManagementTab from '../../components/admin/TermsManagementTab';
 
 const AdminDashboardPage = () => {
   const location = useLocation();
@@ -17,6 +18,7 @@ const AdminDashboardPage = () => {
     { id: 'security', label: 'Security', path: '/admin/security' },
     { id: 'transactions', label: 'Log Transaksi', path: '/admin/transactions' },
     { id: 'users', label: 'Manage User', path: '/admin/users' },
+    { id: 'terms', label: 'Syarat & Ketentuan', path: '/admin/terms' },
   ];
 
   return (
@@ -37,12 +39,14 @@ const AdminDashboardPage = () => {
                 <h1 className="text-4xl font-bold text-gray-900 tracking-tight mb-2 capitalize">
                   {activeTab === 'security' ? 'Security' : 
                    activeTab === 'transactions' ? 'Log Transaksi' : 
-                   'Manajemen User'}
+                   activeTab === 'users' ? 'Manajemen User' :
+                   'Syarat & Ketentuan'}
                 </h1>
                 <p className="text-gray-500 max-w-2xl font-medium">
                   {activeTab === 'security' ? 'Real-time threat detection and infrastructure monitoring.' : 
                    activeTab === 'transactions' ? 'Memantau dan mengaudit semua dana yang masuk dan keluar.' : 
-                   'Pantau dan kelola seluruh pengguna platform.'}
+                   activeTab === 'users' ? 'Pantau dan kelola seluruh pengguna platform.' :
+                   'Kelola persetujuan hukum dan pembaruan T&C bagi pengguna platform.'}
                 </p>
               </div>
             </div>
@@ -72,6 +76,7 @@ const AdminDashboardPage = () => {
               <Route path="security" element={<SecurityTab />} />
               <Route path="transactions" element={<TransactionLogTab />} />
               <Route path="users" element={<UserManagementTab />} />
+              <Route path="terms" element={<TermsManagementTab />} />
             </Routes>
           </div>
 
