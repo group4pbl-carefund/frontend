@@ -37,28 +37,40 @@ const Navbar = () => {
         <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
           Beranda
         </Link>
+        
         {isLoggedIn && (
           <>
             {userRole === 'admin' ? (
-              <Link to="/admin" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
-                Admin
-              </Link>
+              <>
+                <Link to="/admin" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+                  Admin Dashboard
+                </Link>
+                {/* TAMBAHAN UNTUK ADMIN */}
+                <Link to="/admin/approval-campaign" className="text-lg font-bold text-teal-600 hover:text-[#428879] transition-colors">
+                  Approval
+                </Link>
+              </>
             ) : (
-              <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
-                Dashboard Komunitas
-              </Link>
+              <>
+                <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+                  Dashboard
+                </Link>
+                {/* TAMBAHAN UNTUK USER/CAMPAIGNER */}
+                <Link to="/manage-campaign" className="text-lg font-bold text-[#147D73] hover:text-[#0e5e57] transition-colors">
+                  Kelola Campaign
+                </Link>
+              </>
             )}
             
-            {/* === BAGIAN YANG DIUBAH === */}
             <Link 
               to={userRole === 'admin' ? '/admin/edukasi' : '/edukasi'} 
               className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors"
             >
               Edukasi
             </Link>
-            {/* ========================= */}
           </>
         )}
+        
         <Link to="/about-us" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
           Tentang Kami
         </Link>
