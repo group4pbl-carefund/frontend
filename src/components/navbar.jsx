@@ -21,9 +21,9 @@ const Navbar = () => {
       {/* Logo Section */}
       <div className="flex items-center gap-2">
         <Link to="/" className="flex items-center gap-2">
-          <img 
-            src="/pavicon.png" 
-            alt="Care Fund Logo" 
+          <img
+            src="/pavicon.png"
+            alt="Care Fund Logo"
             className="h-10 w-10 object-contain"
           />
           <span className="text-xl font-extrabold tracking-tight text-[#428879]">
@@ -37,17 +37,13 @@ const Navbar = () => {
         <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
           Beranda
         </Link>
-        
+
         {isLoggedIn && (
           <>
             {userRole === 'admin' ? (
               <>
                 <Link to="/admin" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
                   Admin Dashboard
-                </Link>
-                {/* TAMBAHAN UNTUK ADMIN */}
-                <Link to="/admin/approval-campaign" className="text-lg font-bold text-teal-600 hover:text-[#428879] transition-colors">
-                  Approval
                 </Link>
               </>
             ) : (
@@ -61,16 +57,16 @@ const Navbar = () => {
                 </Link>
               </>
             )}
-            
-            <Link 
-              to={userRole === 'admin' ? '/admin/edukasi' : '/edukasi'} 
+
+            <Link
+              to={userRole === 'admin' ? '/admin/edukasi' : '/edukasi'}
               className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors"
             >
               Edukasi
             </Link>
           </>
         )}
-        
+
         <Link to="/about-us" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
           Tentang Kami
         </Link>

@@ -140,7 +140,7 @@ const UserProfilePage = () => {
                         {/* STATS */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <StatCard icon={<CreditCard size={20} />} label="Total Donasi" value="Rp 1.750k" colorClass="bg-emerald-50 text-emerald-600" />
-                            <StatCard icon={<Calendar size={20} />} label="Bergabung" value="Jan 2026" colorClass="bg-blue-50 text-blue-600" />
+                            <StatCard icon={<Calendar size={20} />} label="Bergabung" value="Jan 2026" colorClass="bg-teal-50 text-teal-600" />
                             <StatCard icon={<HandHeart size={20} />} label="Dampak" value="8 Orang" colorClass="bg-orange-50 text-orange-600" />
                         </div>
 

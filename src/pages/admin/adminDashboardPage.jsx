@@ -6,10 +6,11 @@ import SecurityTab from '../../components/admin/SecurityTab';
 import TransactionLogTab from '../../components/admin/TransactionLogTab';
 import UserManagementTab from '../../components/admin/UserManagementTab';
 import TermsManagementTab from '../../components/admin/TermsManagementTab';
+import ApprovalTab from '../../components/admin/ApprovalTab';
 
 const AdminDashboardPage = () => {
   const location = useLocation();
-  
+
   // Get active tab from path: /admin/security -> security
   const pathParts = location.pathname.split('/');
   const activeTab = pathParts[2] || 'security';
@@ -19,17 +20,18 @@ const AdminDashboardPage = () => {
     { id: 'transactions', label: 'Log Transaksi', path: '/admin/transactions' },
     { id: 'users', label: 'Manage User', path: '/admin/users' },
     { id: 'terms', label: 'Syarat & Ketentuan', path: '/admin/terms' },
+    { id: 'campaigns', label: 'Approval Kampanye', path: '/admin/campaigns' },
   ];
 
   return (
     <MainLayout>
       <div className="min-h-screen bg-[#F1F8F7] py-12">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-          
+
           {/* Header Area */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div className="flex items-start gap-6">
-              <button 
+              <button
                 onClick={() => window.history.back()}
                 className="mt-2 p-3 bg-white rounded-2xl shadow-sm hover:bg-gray-50 transition-all group"
               >
@@ -37,16 +39,19 @@ const AdminDashboardPage = () => {
               </button>
               <div>
                 <h1 className="text-4xl font-bold text-gray-900 tracking-tight mb-2 capitalize">
-                  {activeTab === 'security' ? 'Security' : 
-                   activeTab === 'transactions' ? 'Log Transaksi' : 
-                   activeTab === 'users' ? 'Manajemen User' :
-                   'Syarat & Ketentuan'}
+                  {activeTab === 'security' ? 'Security' :
+                    activeTab === 'transactions' ? 'Log Transaksi' :
+                      activeTab === 'users' ? 'Manajemen User' :
+                        activeTab === 'campaigns' ? 'Approval Kampanye' :
+                          'Syarat & Ketentuan'}
                 </h1>
                 <p className="text-gray-500 max-w-2xl font-medium">
-                  {activeTab === 'security' ? 'Real-time threat detection and infrastructure monitoring.' : 
-                   activeTab === 'transactions' ? 'Memantau dan mengaudit semua dana yang masuk dan keluar.' : 
-                   activeTab === 'users' ? 'Pantau dan kelola seluruh pengguna platform.' :
-                   'Kelola persetujuan hukum dan pembaruan T&C bagi pengguna platform.'}
+                  {activeTab === 'security' ? 'Cek keamanan sistem.' :
+                    activeTab === 'transactions' ? 'Pantau semua dana yang masuk & keluar.' :
+                      activeTab === 'users' ? 'Pantau dan kelola seluruh pengguna platform.' :
+                        activeTab === 'campaigns' ? 'Tinjau kampanye baru dari Tahap 3 Verifikasi.' :
+                          activeTab === 'edukasi' ? 'Tinjau dan kelola konten edukasi untuk platform' :
+                            'Kelola pembaruan T&C bagi pengguna platform.'}
                 </p>
               </div>
             </div>
@@ -57,11 +62,10 @@ const AdminDashboardPage = () => {
                 <Link
                   key={tab.id}
                   to={tab.path}
-                  className={`px-8 py-3 rounded-[16px] text-sm font-bold transition-all duration-300 ${
-                    activeTab === tab.id 
-                    ? 'bg-white text-[#149187] shadow-md' 
+                  className={`px-8 py-3 rounded-[16px] text-sm font-bold transition-all duration-300 ${activeTab === tab.id
+                    ? 'bg-white text-[#149187] shadow-md'
                     : 'text-gray-400 hover:text-gray-600'
-                  }`}
+                    }`}
                 >
                   {tab.label}
                 </Link>
@@ -77,6 +81,7 @@ const AdminDashboardPage = () => {
               <Route path="transactions" element={<TransactionLogTab />} />
               <Route path="users" element={<UserManagementTab />} />
               <Route path="terms" element={<TermsManagementTab />} />
+              <Route path="campaigns" element={<ApprovalTab />} />
             </Routes>
           </div>
 

@@ -1,10 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { addCampaign } from '../utils/campaignDb';
 
 const CreateCampaignPage = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [beneficiaryType, setBeneficiaryType] = useState('diri_sendiri');
+  
+  const [formData, setFormData] = useState({
+    title: '',
+    category: 'Kesehatan',
+    deadline: '',
+    target: '',
+    description: '',
+    recipientName: '',
+    bankName: 'Bank BCA',
+    accountNumber: '',
+    accountOwner: ''
+  });
+
   const [rabItems, setRabItems] = useState([
     { id: 1, description: '', amount: '' }
   ]);
@@ -20,6 +35,76 @@ const CreateCampaignPage = () => {
     if (rabItems.length > 1) {
       setRabItems(rabItems.filter(item => item.id !== id));
     }
+  };
+
+  const handleRabChange = (id, field, value) => {
+    const updated = rabItems.map(item => {
+      if (item.id === id) {
+        return { ...item, [field]: value };
+      }
+      return item;
+    });
+    setRabItems(updated);
+  };
+
+  const totalRabEstimation = rabItems.reduce((sum, item) => {
+    const amt = parseFloat(item.amount) || 0;
+    return sum + amt;
+  }, 0);
+
+  const handleSubmit = async () => {
+    if (!formData.title.trim() || !formData.target || !formData.description.trim() || !formData.recipientName.trim()) {
+      Swal.fire({
+        title: 'Formulir Belum Lengkap!',
+        text: 'Harap lengkapi judul kampanye, nominal target dana, cerita lengkap, dan identitas penerima manfaat.',
+        icon: 'warning',
+        confirmButtonColor: '#147D73'
+      });
+      return;
+    }
+
+    if (parseFloat(formData.target) < 1000000) {
+      Swal.fire({
+        title: 'Target Dana Terlalu Rendah!',
+        text: 'Minimal target dana penggalangan adalah Rp 1.000.000.',
+        icon: 'warning',
+        confirmButtonColor: '#147D73'
+      });
+      return;
+    }
+
+    // Mengambil nama user yang sedang login untuk dicantumkan
+    const loggedUser = localStorage.getItem('user');
+    let userName = 'Campaigner CareFund';
+    if (loggedUser) {
+      const parsed = JSON.parse(loggedUser);
+      userName = parsed.name || userName;
+    }
+
+    addCampaign({
+      title: formData.title.trim(),
+      category: formData.category,
+      deadline: formData.deadline,
+      target: parseFloat(formData.target),
+      description: formData.description.trim(),
+      recipientName: formData.recipientName.trim(),
+      bankName: formData.bankName,
+      accountNumber: formData.accountNumber.trim(),
+      accountOwner: formData.accountOwner.trim(),
+      beneficiaryType: beneficiaryType,
+      user: userName,
+      rab: rabItems
+    });
+
+    await Swal.fire({
+      title: 'Pengajuan Berhasil!',
+      text: 'Kampanye berhasil diajukan dan masuk ke dalam antrean persetujuan tim admin!',
+      icon: 'success',
+      confirmButtonText: 'Kembali ke Dashboard',
+      confirmButtonColor: '#147D73'
+    });
+
+    navigate('/dashboard');
   };
 
   const Topbar = () => (
@@ -113,26 +198,37 @@ const CreateCampaignPage = () => {
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Judul Kampanye</label>
-                <input type="text" placeholder="Contoh: Bantu Adik Bayu Melawan Kanker" className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" />
+                <input 
+                  type="text" 
+                  placeholder="Contoh: Bantu Adik Bayu Melawan Kanker" 
+                  className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Kategori Donasi</label>
-                  <select className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all appearance-none cursor-pointer">
-                    <option value="">Pilih Kategori</option>
-                    <option>Pendidikan</option>
-                    <option>Kesehatan</option>
-                    <option>Bencana Alam</option>
+                  <select 
+                    className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all appearance-none cursor-pointer"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  >
+                    <option value="Kesehatan">Kesehatan</option>
+                    <option value="Pendidikan">Pendidikan</option>
+                    <option value="Bencana Alam">Bencana Alam</option>
+                    <option value="Sosial">Sosial & Kemanusiaan</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Batas Waktu</label>
-                  {/* Perubahan: Menggunakan input type="date" dengan min={today} */}
                   <input 
                     type="date" 
                     min={today}
                     className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all cursor-pointer" 
+                    value={formData.deadline}
+                    onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                   />
                 </div>
               </div>
@@ -143,7 +239,13 @@ const CreateCampaignPage = () => {
                   <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                     <span className="text-slate-900 font-bold">Rp</span>
                   </div>
-                  <input type="number" placeholder="0" className="w-full bg-slate-100 text-slate-900 font-bold py-4 pl-12 pr-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all" />
+                  <input 
+                    type="number" 
+                    placeholder="0" 
+                    className="w-full bg-slate-100 text-slate-900 font-bold py-4 pl-12 pr-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                    value={formData.target}
+                    onChange={(e) => setFormData({ ...formData, target: e.target.value })}
+                  />
                 </div>
                 <p className="text-xs text-slate-400 mt-2">Minimal target dana adalah Rp 1.000.000</p>
               </div>
@@ -165,11 +267,10 @@ const CreateCampaignPage = () => {
                   </div>
                   <p className="font-bold text-slate-900 mb-1">Unggah Foto Utama</p>
                   <p className="text-xs text-slate-500 max-w-xs mx-auto mb-4">Seret dan lepas file Anda di sini, atau klik untuk memilih file. Rekomendasi rasio 16:9, format JPG/PNG, maksimal 5MB.</p>
-                  <button className="bg-gray-200 text-slate-700 font-bold py-2 px-6 rounded-lg text-sm hover:bg-gray-300">Pilih File</button>
+                  <button type="button" className="bg-gray-200 text-slate-700 font-bold py-2 px-6 rounded-lg text-sm hover:bg-gray-300">Pilih File (Bypass Demo)</button>
                 </div>
               </div>
 
-              {/* Perubahan: Mengganti TinyMCE dengan Textarea biasa */}
               <div>
                 <div className="border-l-4 border-[#147D73] pl-3 mb-4">
                   <h3 className="font-bold text-slate-900">Cerita Lengkap</h3>
@@ -180,6 +281,8 @@ const CreateCampaignPage = () => {
                     rows="8" 
                     placeholder="Tuliskan kisah perjuangan yang menginspirasi kampanye ini secara detail..." 
                     className="w-full bg-slate-100 text-slate-700 font-medium py-4 px-5 rounded-xl border border-transparent focus:outline-none focus:bg-white focus:border-[#147D73] focus:ring-4 focus:ring-[#147D73]/10 transition-all resize-y"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   ></textarea>
                 </div>
               </div>
@@ -200,13 +303,25 @@ const CreateCampaignPage = () => {
                   {rabItems.map((item) => (
                     <div key={item.id} className="grid grid-cols-12 gap-2 md:gap-4 items-center">
                       <div className="col-span-7 md:col-span-8">
-                        <input type="text" placeholder="Contoh: Biaya Operasional Medis" className="w-full bg-slate-100 text-slate-700 font-medium py-3 px-3 md:px-4 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none" />
+                        <input 
+                          type="text" 
+                          placeholder="Contoh: Biaya Operasional Medis" 
+                          className="w-full bg-slate-100 text-slate-700 font-medium py-3 px-3 md:px-4 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none" 
+                          value={item.description}
+                          onChange={(e) => handleRabChange(item.id, 'description', e.target.value)}
+                        />
                       </div>
                       <div className="col-span-4 md:col-span-3">
-                        <input type="number" placeholder="0" className="w-full bg-slate-100 text-slate-700 font-bold py-3 px-3 md:px-4 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none text-right" />
+                        <input 
+                          type="number" 
+                          placeholder="0" 
+                          className="w-full bg-slate-100 text-slate-700 font-bold py-3 px-3 md:px-4 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none text-right" 
+                          value={item.amount}
+                          onChange={(e) => handleRabChange(item.id, 'amount', e.target.value)}
+                        />
                       </div>
                       <div className="col-span-1 flex justify-center">
-                        <button onClick={() => handleRemoveRab(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                        <button type="button" onClick={() => handleRemoveRab(item.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
                       </div>
@@ -215,12 +330,12 @@ const CreateCampaignPage = () => {
                 </div>
 
                 <div className="mt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#F8FAFA] p-4 rounded-xl border border-gray-100">
-                  <button onClick={handleAddRab} className="flex items-center text-sm font-bold text-[#147D73] hover:text-[#0F655C]">
+                  <button type="button" onClick={handleAddRab} className="flex items-center text-sm font-bold text-[#147D73] hover:text-[#0F655C]">
                     <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                     Tambah Item Anggaran
                   </button>
                   <div className="text-slate-600 font-medium text-sm w-full md:w-auto text-right md:text-left border-t md:border-none pt-3 md:pt-0 border-gray-200">
-                    Total Estimasi: <span className="font-extrabold text-[#147D73] text-lg ml-2">Rp 0</span>
+                    Total Estimasi: <span className="font-extrabold text-[#147D73] text-lg ml-2">Rp {totalRabEstimation.toLocaleString('id-ID')}</span>
                   </div>
                 </div>
               </div>
@@ -259,7 +374,6 @@ const CreateCampaignPage = () => {
                             ? 'border-2 border-[#147D73]' 
                             : 'border-2 border-gray-300 bg-white'
                         }`}>
-                          {/* Inner Dot yang akan muncul jika dipilih */}
                           {beneficiaryType === option.id && (
                             <div className="w-2.5 h-2.5 bg-[#147D73] rounded-full"></div>
                           )}
@@ -276,12 +390,19 @@ const CreateCampaignPage = () => {
 
                 </div>
               </div>
+
               {/* Identitas Penerima */}
               <div>
                 <h3 className="font-bold text-slate-900 mb-4">Identitas Penerima</h3>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Lengkap Penerima</label>
-                  <input type="text" placeholder="Masukkan nama lengkap sesuai KTP/Identitas" className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" />
+                  <input 
+                    type="text" 
+                    placeholder="Masukkan nama lengkap sesuai KTP/Identitas" 
+                    className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                    value={formData.recipientName}
+                    onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
+                  />
                 </div>
               </div>
 
@@ -294,48 +415,57 @@ const CreateCampaignPage = () => {
                 <p className="text-xs text-slate-500 mb-6">Kami membutuhkan identitas Anda untuk memastikan keamanan dan mencegah penipuan di platform kami.</p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Foto KTP</label>
-                    <div className="border-2 border-dashed border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#147D73] transition-colors">
-                      <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
-                      <p className="text-xs font-bold text-[#147D73]">Unggah file <span className="text-slate-500 font-normal">atau tarik dan lepas</span></p>
-                      <p className="text-[10px] text-slate-400 mt-1">PNG, JPG up to 5MB</p>
-                    </div>
+                  <div className="border-2 border-dashed border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#147D73] transition-colors">
+                    <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+                    <p className="text-xs font-bold text-[#147D73]">Unggah Foto KTP <span className="text-slate-500 font-normal">(Bypassed)</span></p>
+                    <p className="text-[10px] text-slate-400 mt-1">PNG, JPG up to 5MB</p>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Foto Selfie dengan KTP</label>
-                    <div className="border-2 border-dashed border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#147D73] transition-colors">
-                      <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      <p className="text-xs font-bold text-[#147D73]">Unggah file <span className="text-slate-500 font-normal">atau tarik dan lepas</span></p>
-                      <p className="text-[10px] text-slate-400 mt-1">Pastikan wajah dan KTP terlihat jelas</p>
-                    </div>
+                  <div className="border-2 border-dashed border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#147D73] transition-colors">
+                    <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <p className="text-xs font-bold text-[#147D73]">Unggah Foto Selfie dengan KTP <span className="text-slate-500 font-normal">(Bypassed)</span></p>
+                    <p className="text-[10px] text-slate-400 mt-1">Pastikan wajah & KTP jelas</p>
                   </div>
                 </div>
               </div>
 
-              {/* Tambahan Baru: Informasi Rekening Pencairan */}
+              {/* Rekening Pencairan */}
               <div>
                 <h3 className="font-bold text-slate-900 mb-4">Informasi Rekening Pencairan</h3>
                 <p className="text-sm text-slate-500 mb-4">Ke rekening ini dana donasi akan dicairkan setelah kampanye selesai atau mencapai target pencairan.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Bank</label>
-                    <select className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all appearance-none cursor-pointer">
-                      <option value="">Pilih Bank</option>
-                      <option>Bank BCA</option>
-                      <option>Bank Mandiri</option>
-                      <option>Bank BNI</option>
-                      <option>Bank BRI</option>
-                      <option>Bank Syariah Indonesia (BSI)</option>
+                    <select 
+                      className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all appearance-none cursor-pointer"
+                      value={formData.bankName}
+                      onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
+                    >
+                      <option value="Bank BCA">Bank BCA</option>
+                      <option value="Bank Mandiri">Bank Mandiri</option>
+                      <option value="Bank BNI">Bank BNI</option>
+                      <option value="Bank BRI">Bank BRI</option>
+                      <option value="Bank Syariah Indonesia (BSI)">Bank Syariah Indonesia (BSI)</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nomor Rekening</label>
-                    <input type="number" placeholder="Contoh: 1234567890" className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" />
+                    <input 
+                      type="number" 
+                      placeholder="Contoh: 1234567890" 
+                      className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                      value={formData.accountNumber}
+                      onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Pemilik Rekening</label>
-                    <input type="text" placeholder="Harus sesuai dengan buku tabungan" className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" />
+                    <input 
+                      type="text" 
+                      placeholder="Harus sesuai dengan buku tabungan" 
+                      className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                      value={formData.accountOwner}
+                      onChange={(e) => setFormData({ ...formData, accountOwner: e.target.value })}
+                    />
                   </div>
                 </div>
               </div>
@@ -349,7 +479,7 @@ const CreateCampaignPage = () => {
                 <p className="text-sm text-slate-500 mb-4">Unggah dokumen pendukung medis (rekam medis), surat keterangan tidak mampu (SKTM), atau dokumen legal yayasan untuk memperkuat kampanye Anda.</p>
                 <div className="border-2 border-dashed border-gray-200 bg-slate-50 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors">
                   <svg className="w-6 h-6 text-[#147D73] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                  <p className="font-bold text-[#147D73] text-sm">Unggah Dokumen Tambahan</p>
+                  <p className="font-bold text-[#147D73] text-sm">Unggah Dokumen Tambahan (Demo Bypass)</p>
                   <p className="text-[10px] text-slate-400 mt-1">PDF, PNG, JPG up to 10MB (Maks. 5 file)</p>
                 </div>
               </div>
@@ -361,6 +491,7 @@ const CreateCampaignPage = () => {
           <div className="mt-12 flex justify-between items-center pt-6 border-t border-gray-100">
             {currentStep > 1 ? (
               <button 
+                type="button"
                 onClick={() => setCurrentStep(prev => prev - 1)}
                 className="flex items-center text-slate-500 bg-slate-100 py-3 px-6 rounded-xl hover:bg-slate-200 font-bold transition-colors"
               >
@@ -373,7 +504,20 @@ const CreateCampaignPage = () => {
 
             {currentStep < 3 ? (
               <button 
-                onClick={() => setCurrentStep(prev => prev + 1)}
+                type="button"
+                onClick={() => {
+                  // Validasi ringan tiap step
+                  if (currentStep === 1 && (!formData.title.trim() || !formData.target)) {
+                    Swal.fire({
+                      title: 'Form Belum Lengkap',
+                      text: 'Silakan isi judul kampanye dan target dana terlebih dahulu.',
+                      icon: 'warning',
+                      confirmButtonColor: '#147D73'
+                    });
+                    return;
+                  }
+                  setCurrentStep(prev => prev + 1);
+                }}
                 className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 px-8 rounded-xl flex items-center transition-colors shadow-sm"
               >
                 Lanjut ke Tahap {currentStep + 1}
@@ -381,7 +525,8 @@ const CreateCampaignPage = () => {
               </button>
             ) : (
               <button 
-                onClick={() => alert('Kampanye berhasil diajukan untuk direview!')}
+                type="button"
+                onClick={handleSubmit}
                 className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 px-8 rounded-xl flex items-center transition-colors shadow-sm"
               >
                 Ajukan Kampanye

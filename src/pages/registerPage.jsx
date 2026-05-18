@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const RegisterPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -18,7 +19,13 @@ const RegisterPage = () => {
   const handleNextStep = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirm_password) {
-      return alert("Passwords do not match!");
+      return Swal.fire({
+        title: 'Gagal!',
+        text: 'Kata sandi tidak cocok!',
+        icon: 'error',
+        confirmButtonText: 'Coba Lagi',
+        confirmButtonColor: '#2ea391'
+      });
     }
 
     // For the demo/frontend flow, we move to step 2 directly

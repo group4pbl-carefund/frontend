@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -19,7 +20,13 @@ const LoginPage = () => {
         email: 'admin@carefund.com',
         role: 'admin'
       }));
-      alert('Login Success (Admin Bypass)!');
+      await Swal.fire({
+        title: 'Berhasil!',
+        text: 'Login Berhasil (Admin Bypass)!',
+        icon: 'success',
+        confirmButtonText: 'Masuk Dashboard',
+        confirmButtonColor: '#2ea391'
+      });
       window.location.href = '/admin';
       return;
     }
@@ -33,7 +40,13 @@ const LoginPage = () => {
         role: 'user',
         acceptedTermsVersion: 'v1.0.0'
       }));
-      alert('Login Success (User Bypass)!');
+      await Swal.fire({
+        title: 'Berhasil!',
+        text: 'Login Berhasil (User Bypass)!',
+        icon: 'success',
+        confirmButtonText: 'Masuk Dashboard',
+        confirmButtonColor: '#2ea391'
+      });
       window.location.href = '/dashboard';
       return;
     }
@@ -48,11 +61,23 @@ const LoginPage = () => {
       localStorage.setItem('token', response.data.data.access_token);
       localStorage.setItem('user', JSON.stringify(response.data.data.user));
 
-      alert('Login Success! Welcome to Care Fund');
+      await Swal.fire({
+        title: 'Berhasil!',
+        text: 'Login Berhasil! Selamat datang di Care Fund',
+        icon: 'success',
+        confirmButtonText: 'Masuk Beranda',
+        confirmButtonColor: '#2ea391'
+      });
       window.location.href = '/';
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || 'Login failed. Please check your credentials or use bypass.');
+      await Swal.fire({
+        title: 'Gagal!',
+        text: error.response?.data?.message || 'Login gagal. Silakan periksa kembali email dan password Anda.',
+        icon: 'error',
+        confirmButtonText: 'Coba Lagi',
+        confirmButtonColor: '#2ea391'
+      });
     } finally {
       setLoading(false);
     }

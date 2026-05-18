@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Swal from 'sweetalert2';
 import { 
   FileText, 
   CheckCircle2, 
@@ -162,16 +163,26 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
   };
 
   // Publish new T&C
-  const handlePublish = (e) => {
+  const handlePublish = async (e) => {
     e.preventDefault();
     if (!newVersion.trim() || !newTitle.trim() || !newContent.trim()) {
-      alert('Semua field wajib diisi!');
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Semua field wajib diisi!',
+        icon: 'error',
+        confirmButtonColor: '#149187'
+      });
       return;
     }
 
     // Check version naming uniqueness
     if (versions.some(v => v.version.toLowerCase() === newVersion.trim().toLowerCase())) {
-      alert('Versi ini sudah ada! Gunakan string versi baru yang unik (contoh: v2.1.0).');
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Versi ini sudah ada! Gunakan string versi baru yang unik (contoh: v2.1.0).',
+        icon: 'error',
+        confirmButtonColor: '#149187'
+      });
       return;
     }
 
@@ -209,23 +220,50 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
     setSetActiveImmediately(true);
     setShowCreateForm(false);
 
-    alert(`T&C Versi ${newTc.version} berhasil diterbitkan!${setActiveImmediately ? ' Semua user terdaftar akan diminta menyetujui versi baru ini pada kunjungan berikutnya.' : ''}`);
+    Swal.fire({
+      title: 'Berhasil!',
+      text: `T&C Versi ${newTc.version} berhasil diterbitkan!${setActiveImmediately ? ' Semua user terdaftar akan diminta menyetujui versi baru ini pada kunjungan berikutnya.' : ''}`,
+      icon: 'success',
+      confirmButtonColor: '#149187'
+    });
   };
 
   // Delete version (only if not currently active)
-  const handleDeleteVersion = (id) => {
+  const handleDeleteVersion = async (id) => {
     const vToDelete = versions.find(v => v.id === id);
     if (vToDelete && vToDelete.status === 'active') {
-      alert('Anda tidak bisa menghapus Syarat & Ketentuan yang sedang aktif!');
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Anda tidak bisa menghapus Syarat & Ketentuan yang sedang aktif!',
+        icon: 'error',
+        confirmButtonColor: '#149187'
+      });
       return;
     }
 
-    if (window.confirm(`Apakah Anda yakin ingin menghapus T&C versi ${vToDelete?.version}?`)) {
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: `Apakah Anda yakin ingin menghapus T&C versi ${vToDelete?.version}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#aaa'
+    });
+
+    if (result.isConfirmed) {
       const updated = versions.filter(v => v.id !== id);
       saveVersionsToStorage(updated);
       if (selectedVersion?.id === id) {
         setSelectedVersion(null);
       }
+      Swal.fire({
+        title: 'Dihapus!',
+        text: `T&C versi ${vToDelete?.version} berhasil dihapus.`,
+        icon: 'success',
+        confirmButtonColor: '#149187'
+      });
     }
   };
 
@@ -254,9 +292,19 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
     if (currentUserObj && currentUserObj.email === 'user@carefund.com') {
       currentUserObj.acceptedTermsVersion = 'v1.0.0';
       localStorage.setItem('user', JSON.stringify(currentUserObj));
-      alert('Akun Demo User didegradasi ke v1.0.0. Silakan masuk ke Dashboard untuk melihat pemblokiran & halaman persetujuan!');
+      Swal.fire({
+        title: 'Demo User Direset!',
+        text: 'Akun Demo User didegradasi ke v1.0.0. Silakan masuk ke Dashboard untuk melihat pemblokiran & halaman persetujuan!',
+        icon: 'info',
+        confirmButtonColor: '#149187'
+      });
     } else {
-      alert('Data demo pengguna berhasil direset ke v1.0.0. Silakan login sebagai user@carefund.com untuk melihat halaman persetujuan.');
+      Swal.fire({
+        title: 'Data Demo Direset!',
+        text: 'Data demo pengguna berhasil direset ke v1.0.0. Silakan login sebagai user@carefund.com untuk melihat halaman persetujuan.',
+        icon: 'success',
+        confirmButtonColor: '#149187'
+      });
     }
   };
 
@@ -501,15 +549,31 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
 
               {selectedVersion.status !== 'active' && (
                 <button
-                  onClick={() => {
-                    if (window.confirm(`Jadikan ${selectedVersion.version} sebagai syarat & ketentuan yang aktif? Ini akan mematikan versi yang lain.`)) {
+                  onClick={async () => {
+                    const result = await Swal.fire({
+                      title: 'Aktifkan Versi Ini?',
+                      text: `Jadikan ${selectedVersion.version} sebagai syarat & ketentuan yang aktif? Ini akan menonaktifkan versi yang lain secara global.`,
+                      icon: 'question',
+                      showCancelButton: true,
+                      confirmButtonText: 'Ya, Aktifkan',
+                      cancelButtonText: 'Batal',
+                      confirmButtonColor: '#149187',
+                      cancelButtonColor: '#aaa'
+                    });
+
+                    if (result.isConfirmed) {
                       const updated = versions.map(v => ({
                         ...v,
                         status: v.id === selectedVersion.id ? 'active' : 'inactive'
                       }));
                       saveVersionsToStorage(updated);
                       setSelectedVersion({ ...selectedVersion, status: 'active' });
-                      alert(`Versi ${selectedVersion.version} sekarang aktif secara global.`);
+                      Swal.fire({
+                        title: 'Berhasil!',
+                        text: `Versi ${selectedVersion.version} sekarang aktif secara global.`,
+                        icon: 'success',
+                        confirmButtonColor: '#149187'
+                      });
                     }
                   }}
                   className="px-4 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold rounded-xl transition-all"

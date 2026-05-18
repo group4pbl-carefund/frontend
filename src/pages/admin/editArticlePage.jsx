@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Editor } from '@tinymce/tinymce-react';
 import MainLayout from '../../layouts/mainLayout';
+import Swal from 'sweetalert2';
+import { getArticleById, updateArticle } from '../../utils/articleDb';
 
 const EditArticlePage = () => {
   const { id } = useParams();
@@ -12,42 +14,83 @@ const EditArticlePage = () => {
   const [article, setArticle] = useState({
     title: '',
     category: 'Security',
-    author: 'Editorial Team',
+    authorName: 'Editorial Team',
     status: 'PUBLISHED',
     featured: false,
     metaDescription: '',
     content: ''
   });
 
-  // Simulasi pengambilan data artikel berdasarkan ID
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Ambil data artikel dari in-memory db berdasarkan ID
   useEffect(() => {
-    // Di dunia nyata, ini akan memanggil API: fetch(`/api/articles/${id}`)
-    const dummyArticle = {
-      id: 1,
-      title: 'Cara Berdonasi dengan Aman di Era Digital',
-      category: 'Security',
-      author: 'Anisa Rahmawati',
-      status: 'PUBLISHED',
-      featured: true,
-      metaDescription: 'Panduan lengkap mengenai langkah-langkah keamanan saat melakukan donasi online agar terhindar dari penipuan.',
-      content: '<p>Meningkatnya kesadaran sosial di era digital telah mempermudah siapapun untuk berkontribusi bagi kemanusiaan. Namun, kemudahan ini juga menuntut kewaspadaan lebih tinggi terhadap potensi penipuan digital yang semakin canggih.</p><p>Trust atau kepercayaan adalah pondasi dari setiap gerakan filantropi. Di Care Fund, kami percaya bahwa setiap rupiah yang Anda donasikan harus sampai kepada mereka yang membutuhkan dengan transparan dan aman.</p>'
-    };
-
-    if (id) {
-      setArticle(dummyArticle);
+    const existing = getArticleById(id);
+    if (existing) {
+      setArticle({
+        title: existing.title || '',
+        category: existing.category || 'Security',
+        authorName: existing.authorName || 'Editorial Team',
+        status: existing.status || 'PUBLISHED',
+        featured: existing.featured || false,
+        metaDescription: existing.metaDescription || '',
+        content: existing.content || ''
+      });
+    } else {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Artikel tidak ditemukan!',
+        icon: 'error',
+        confirmButtonColor: '#147D73'
+      }).then(() => {
+        navigate('/admin/edukasi/manage');
+      });
     }
-  }, [id]);
+    setIsLoading(false);
+  }, [id, navigate]);
 
-  const handleUpdate = () => {
-    if (editorRef.current) {
-      const updatedContent = editorRef.current.getContent();
-      console.log('Updating article with ID:', id);
-      console.log('Updated Content:', updatedContent);
-      // Logika update ke backend...
-      alert('Artikel berhasil diperbarui!');
-      navigate('/admin/edukasi/manage');
+  const handleUpdate = async () => {
+    const updatedContent = editorRef.current ? editorRef.current.getContent() : article.content;
+    
+    if (!article.title.trim()) {
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Judul artikel tidak boleh kosong!',
+        icon: 'error',
+        confirmButtonColor: '#147D73'
+      });
+      return;
     }
+
+    updateArticle(id, {
+      title: article.title,
+      category: article.category,
+      authorName: article.authorName,
+      status: article.status,
+      featured: article.featured,
+      metaDescription: article.metaDescription,
+      content: updatedContent
+    });
+
+    await Swal.fire({
+      title: 'Sukses!',
+      text: 'Artikel berhasil diperbarui!',
+      icon: 'success',
+      confirmButtonText: 'Kembali',
+      confirmButtonColor: '#147D73'
+    });
+    navigate('/admin/edukasi/manage');
   };
+
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="bg-[#F8FAFA] min-h-screen flex items-center justify-center">
+          <p className="text-slate-500 font-bold">Memuat artikel...</p>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -71,7 +114,7 @@ const EditArticlePage = () => {
                 <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Edit Article</h1>
               </div>
               <p className="text-slate-500 text-sm ml-11 max-w-xl">
-                Refine and update your educational resources.
+                Perbarui artikel edukasi untuk mengedukasi ekosistem Care Fund.
               </p>
             </div>
             
@@ -123,9 +166,9 @@ const EditArticlePage = () => {
                         onChange={(e) => setArticle({...article, category: e.target.value})}
                         className="w-full bg-slate-100 text-slate-900 font-medium py-3.5 px-5 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#147D73]/20 border-none cursor-pointer"
                       >
-                        <option>Security</option>
-                        <option>Regulation</option>
-                        <option>Payment</option>
+                        <option value="Security">Security</option>
+                        <option value="Regulation">Regulation</option>
+                        <option value="Payment">Payment</option>
                       </select>
                       <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
                         <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -136,8 +179,8 @@ const EditArticlePage = () => {
                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Author</label>
                     <input 
                       type="text" 
-                      value={article.author}
-                      onChange={(e) => setArticle({...article, author: e.target.value})}
+                      value={article.authorName}
+                      onChange={(e) => setArticle({...article, authorName: e.target.value})}
                       className="w-full bg-slate-100 text-slate-900 font-medium py-3.5 px-5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#147D73]/20 border-none"
                     />
                   </div>

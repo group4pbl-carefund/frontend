@@ -3,7 +3,7 @@ import { Check, X, ShieldCheck, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { getPendingCampaigns, updateCampaignStatus } from '../../utils/campaignDb';
 
-const CampaignApprovalPage = () => {
+const CampaignApprovalTab = () => {
   const [pendingCampaigns, setPendingCampaigns] = useState(getPendingCampaigns());
 
   const handleAction = async (id, action) => {
@@ -71,4 +71,4 @@ const CampaignApprovalPage = () => {
   );
 };
 
-export default CampaignApprovalPage;
+export default CampaignApprovalTab;

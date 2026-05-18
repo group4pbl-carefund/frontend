@@ -1,9 +1,36 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
+import { getArticleById, incrementViews } from '../utils/articleDb';
 
 const ArtikelDetail = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (id) {
+      incrementViews(id);
+    }
+  }, [id]);
+
+  const article = getArticleById(id);
+
+  if (!article) {
+    return (
+      <MainLayout>
+        <div className="bg-[#F6F9F8] min-h-screen pb-24 pt-20 flex flex-col items-center justify-center text-center px-6">
+          <h2 className="text-2xl font-black text-slate-900 mb-4">Artikel Tidak Ditemukan</h2>
+          <p className="text-slate-500 mb-8 max-w-sm">Maaf, artikel edukasi yang Anda cari tidak ada atau telah dihapus.</p>
+          <button 
+            onClick={() => navigate('/edukasi')}
+            className="bg-[#147D73] hover:bg-[#0c5952] text-white font-bold py-3 px-8 rounded-xl transition-all"
+          >
+            Kembali ke Pusat Edukasi
+          </button>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -17,7 +44,7 @@ const ArtikelDetail = () => {
           <div className="mb-8">
             {/* Tombol Back */}
             <button 
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/edukasi')}
               className="group flex items-center text-sm font-bold text-[#147D73] hover:opacity-80 transition-opacity mb-6"
             >
               <svg className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,29 +56,29 @@ const ArtikelDetail = () => {
             {/* Badges / Tags */}
             <div className="flex gap-3 mb-4">
               <span className="bg-[#C6F0E5] text-[#0F655C] text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                Keamanan
+                {article.category}
               </span>
               <span className="bg-gray-200 text-gray-600 text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                Digital
+                Digital Literasi
               </span>
             </div>
 
             {/* Judul Artikel */}
             <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-6">
-              Cara Berdonasi dengan Aman di Era Digital
+              {article.title}
             </h1>
 
             {/* Meta Info Penulis */}
             <div className="flex items-center gap-3">
               <img 
-                src="https://ui-avatars.com/api/?name=Anisa+Rahmawati&background=333&color=fff" 
-                alt="Anisa Rahmawati" 
+                src={article.authorAvatar} 
+                alt={article.authorName} 
                 className="w-10 h-10 rounded-full object-cover"
               />
               <div>
-                <p className="font-bold text-slate-900 text-sm">Anisa Rahmawati</p>
+                <p className="font-bold text-slate-900 text-sm">{article.authorName}</p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  24 Okt 2024 <span className="mx-1.5">•</span> 5 menit baca
+                  {article.date} <span className="mx-1.5">•</span> 5 menit baca <span className="mx-1.5">•</span> Dilihat {article.views} kali
                 </p>
               </div>
             </div>
@@ -60,7 +87,7 @@ const ArtikelDetail = () => {
           {/* --- GAMBAR HERO --- */}
           <div className="mb-12">
             <img 
-              src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=80" 
+              src={article.image || 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=1200&q=80'} 
               alt="Ilustrasi Artikel" 
               className="w-full aspect-21/9 object-cover rounded-xl shadow-sm"
             />
@@ -72,49 +99,13 @@ const ArtikelDetail = () => {
             {/* KOLOM KIRI: Konten Utama Artikel (Makan 2 kolom) */}
             <article className="lg:col-span-2 text-slate-700 text-[15px] md:text-base leading-relaxed">
               
-              <p className="mb-6">
-                Meningkatnya kesadaran sosial di era digital telah mempermudah siapapun untuk berkontribusi bagi kemanusiaan. Namun, kemudahan ini juga menuntut kewaspadaan lebih tinggi terhadap potensi penipuan digital yang semakin canggih.
-              </p>
-
-              <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-4">
-                Mengapa Keamanan Berdonasi Itu Penting?
-              </h2>
-              <p className="mb-6">
-                Trust atau kepercayaan adalah pondasi dari setiap gerakan filantropi. Di Care Fund, kami percaya bahwa setiap rupiah yang Anda donasikan harus sampai kepada mereka yang membutuhkan dengan transparan dan aman.
-              </p>
-
-              {/* Blockquote / Kutipan */}
-              <blockquote className="border-l-2 border-[#147D73] pl-5 py-1 my-8">
-                <p className="text-lg font-medium text-[#147D73] leading-snug">
-                  "Keamanan digital bukan lagi sebuah pilihan, melainkan keharusan bagi setiap platform sosial yang ingin menjaga integritas dan kepercayaan donaturnya."
-                </p>
-              </blockquote>
-
-              <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-4">
-                Langkah Praktis Menjaga Keamanan
-              </h2>
-              <p className="mb-4">
-                Berikut adalah beberapa langkah yang dapat Anda lakukan untuk memastikan donasi Anda diproses melalui jalur yang tepat:
-              </p>
-              <ul className="list-disc pl-5 mb-8 space-y-2 marker:text-[#147D73]">
-                <li>Verifikasi URL situs web (pastikan dimulai dengan https://).</li>
-                <li>Gunakan metode pembayaran yang terintegrasi dan resmi.</li>
-                <li>Cek laporan transparansi tahunan organisasi tersebut.</li>
-                <li>Hindari memberikan informasi pribadi yang berlebihan seperti PIN atau password.</li>
-              </ul>
-
-              <h2 className="text-2xl font-bold text-slate-900 mt-10 mb-4">
-                Fitur Keamanan di Care Fund
-              </h2>
-              <p className="mb-4">
-                Kami menerapkan standar enkripsi tingkat tinggi untuk setiap transaksi. Tim audit kami secara berkala melakukan pengecekan terhadap validitas program yang terdaftar, memastikan setiap kampanye telah melewati proses kurasi yang ketat.
-              </p>
-              <p className="mb-12">
-                Selain teknologi, edukasi kepada komunitas adalah kunci. Dengan memahami cara kerja platform, Anda menjadi garda terdepan dalam menjaga ekosistem kebaikan ini tetap bersih dari penyalahgunaan digital.
-              </p>
+              <div 
+                className="prose max-w-none space-y-6"
+                dangerouslySetInnerHTML={{ __html: article.content || '<p>Tidak ada konten artikel.</p>' }}
+              />
 
               {/* --- BAGIAN FOOTER ARTIKEL (Share & Tags) --- */}
-              <div className="pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-12">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-bold tracking-wider text-slate-900">BAGIKAN:</span>
                   <button className="text-slate-500 hover:text-[#147D73] transition-colors">
@@ -129,8 +120,8 @@ const ArtikelDetail = () => {
                 
                 <div className="flex gap-3 text-xs text-slate-500 font-medium">
                   <span>#Edukasi</span>
-                  <span>#Philanthropy</span>
-                  <span>#Security</span>
+                  <span>#{article.category}</span>
+                  <span>#CareFund</span>
                 </div>
               </div>
 
@@ -139,7 +130,7 @@ const ArtikelDetail = () => {
             {/* KOLOM KANAN: Sidebar CTA (Makan 1 kolom) */}
             <aside className="lg:col-span-1">
               {/* 'sticky top-24' membuat kotak ini tetap terlihat saat user men-scroll ke bawah */}
-              <div onClick={() => navigate('/')} className="bg-[#A4EBE0] rounded-2xl p-8 sticky top-24 shadow-sm">
+              <div onClick={() => navigate('/donasi')} className="bg-[#A4EBE0] rounded-2xl p-8 sticky top-24 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
                 <h3 className="text-xl font-bold text-[#0D5C54] mb-3">
                   Mulai Berbagi Sekarang
                 </h3>

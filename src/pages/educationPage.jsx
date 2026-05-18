@@ -1,8 +1,10 @@
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import ArticleCard from '../components/articleCard';
 import CategoryCard from '../components/categoryCard';
 import SearchBar from '../components/searchBar';
+import { getArticles } from '../utils/articleDb';
 
 const categoryCards = [
   {
@@ -46,93 +48,85 @@ const categoryCards = [
   },
 ];
 
-const articleCards = [
-  {
-    id: 1,
-    category: 'Keamanan',
-    image: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=600&q=80',
-    readTime: '5 menit baca',
-    title: 'Cara Berdonasi dengan Aman di Era Digital',
-  },
-  {
-    id: 2,
-    category: 'Regulasi',
-    image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=600&q=80',
-    readTime: '8 menit baca',
-    title: 'Mengapa KYC Sangat Penting Bagi Donatur?',
-  },
-  {
-    id: 3,
-    category: 'Teknologi',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80',
-    readTime: '6 menit baca',
-    title: 'Teknologi Blockchain dalam Transparansi Donasi',
-  },
-];
-
 const EdukasiPage = () => {
-
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Dapatkan seluruh artikel yang terbit
+  const publishedArticles = getArticles().filter(a => a.status === 'PUBLISHED');
+
+  // Filter berdasarkan input search
+  const filteredArticles = publishedArticles.filter(article => {
+    return article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           (article.subtitle && article.subtitle.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
 
   return (
     <MainLayout>
-    <div className="min-h-screen bg-[#F4F7F6] pb-20">      
-      <div className="w-full px-8 md:px-16 lg:px-24 pt-12">
-        
-        <div className="mb-12">
-          <div className="flex items-center gap-4 mb-4">
-            <button onClick={() => navigate('/')} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-              <svg className="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Pusat Edukasi Literasi Digital
-            </h1>
-          </div>
+      <div className="min-h-screen bg-[#F4F7F6] pb-20">      
+        <div className="w-full px-8 md:px-16 lg:px-24 pt-12">
           
-          <p className="text-slate-600 text-lg max-w-2xl mb-8">
-            Panduan lengkap untuk belajar berdonasi dengan aman dan transparan di ekosistem digital Care Fund.
-          </p>
-          
-          <SearchBar />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          {categoryCards.map((card) => (
-            <CategoryCard
-              key={card.id}
-              title={card.title}
-              description={card.description}
-              icon={card.icon}
-              iconBg={card.iconBg}
-              linkColor={card.linkColor}
-              linkText={card.linkText}
-            />
-          ))}
-        </div>
-
-        <div>
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Artikel Edukasi</h2>
-            <p className="text-slate-500">Update terbaru mengenai keamanan dan teknologi filantropi.</p>
-          </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {articleCards.map((article) => (
-                <ArticleCard 
-                  key={article.id}
-                  id={article.id}
-                  category={article.category}
-                  image={article.image}
-                  readTime={article.readTime}
-                  title={article.title}
-                />
-              ))}
+          <div className="mb-12">
+            <div className="flex items-center gap-4 mb-4">
+              <button onClick={() => navigate('/')} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+                <svg className="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </button>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Pusat Edukasi Literasi Digital
+              </h1>
             </div>
+            
+            <p className="text-slate-600 text-lg max-w-2xl mb-8">
+              Panduan lengkap untuk belajar berdonasi dengan aman dan transparan di ekosistem digital Care Fund.
+            </p>
+            
+            <SearchBar onSearch={(val) => setSearchQuery(val)} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+            {categoryCards.map((card) => (
+              <CategoryCard
+                key={card.id}
+                title={card.title}
+                description={card.description}
+                icon={card.icon}
+                iconBg={card.iconBg}
+                linkColor={card.linkColor}
+                linkText={card.linkText}
+              />
+            ))}
+          </div>
+
+          <div>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Artikel Edukasi</h2>
+              <p className="text-slate-500">Update terbaru mengenai keamanan dan teknologi filantropi.</p>
+            </div>
+
+            {filteredArticles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {filteredArticles.map((article) => (
+                  <ArticleCard 
+                    key={article.id}
+                    id={article.id}
+                    category={article.category}
+                    image={article.image || 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=600&q=80'}
+                    readTime="5 menit baca"
+                    title={article.title}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white p-12 rounded-[2rem] border border-gray-100 text-center text-slate-400 font-medium italic">
+                Tidak ada artikel edukasi yang ditemukan untuk kata kunci tersebut.
+              </div>
+            )}
           </div>
         </div>
-    </div>
+      </div>
     </MainLayout>
   );
 };

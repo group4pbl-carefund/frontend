@@ -1,18 +1,53 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Editor } from '@tinymce/tinymce-react';
 import MainLayout from '../../layouts/mainLayout';
+import Swal from 'sweetalert2';
+import { addArticle } from '../../utils/articleDb';
 
 const CreateArticlePage = () => {
   const navigate = useNavigate();
   const editorRef = useRef(null);
 
-  // Menangani fungsi simpan/publish (bisa dikembangkan nanti ke API)
-  const handlePublish = () => {
-    if (editorRef.current) {
-      console.log('Content:', editorRef.current.getContent());
+  const [formData, setFormData] = useState({
+    title: '',
+    category: 'Security',
+    authorName: 'Editorial Team',
+    status: 'PUBLISHED',
+    featured: false,
+    metaDescription: ''
+  });
+
+  const handleSave = async (isDraft = false) => {
+    const editorContent = editorRef.current ? editorRef.current.getContent() : '';
+    
+    if (!formData.title.trim()) {
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Judul artikel wajib diisi!',
+        icon: 'error',
+        confirmButtonColor: '#147D73'
+      });
+      return;
     }
-    // Logika ke backend...
+
+    const newArticle = {
+      ...formData,
+      content: editorContent,
+      status: isDraft ? 'DRAFT' : formData.status
+    };
+
+    addArticle(newArticle);
+
+    await Swal.fire({
+      title: 'Sukses!',
+      text: isDraft ? 'Artikel berhasil disimpan sebagai Draft!' : 'Artikel berhasil diterbitkan secara live!',
+      icon: 'success',
+      confirmButtonText: 'Kembali ke Manage',
+      confirmButtonColor: '#147D73'
+    });
+
+    navigate('/admin/edukasi/manage');
   };
 
   return (
@@ -37,16 +72,22 @@ const CreateArticlePage = () => {
                 <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Create New Article</h1>
               </div>
               <p className="text-slate-500 text-sm ml-11 max-w-xl">
-                Draft a new educational resource for the Resonant sanctuary.
+                Tulis artikel edukasi baru untuk mengedukasi ekosistem Care Fund.
               </p>
             </div>
             
             {/* Action Buttons */}
             <div className="flex items-center gap-3 ml-11 md:ml-0">
-              <button className="bg-gray-200 hover:bg-gray-300 text-slate-700 font-bold py-2.5 px-6 rounded-xl transition-colors text-sm">
+              <button 
+                onClick={() => handleSave(true)}
+                className="bg-gray-200 hover:bg-gray-300 text-slate-700 font-bold py-2.5 px-6 rounded-xl transition-colors text-sm"
+              >
                 Save as Draft
               </button>
-              <button onClick={handlePublish} className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm text-sm">
+              <button 
+                onClick={() => handleSave(false)} 
+                className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm text-sm"
+              >
                 Publish
               </button>
             </div>
@@ -68,6 +109,8 @@ const CreateArticlePage = () => {
                     type="text" 
                     placeholder="Enter a compelling title..." 
                     className="w-full bg-slate-100 text-slate-900 font-medium py-3.5 px-5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#147D73]/20 transition-all border-none"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   />
                 </div>
 
@@ -76,10 +119,14 @@ const CreateArticlePage = () => {
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Category</label>
                     <div className="relative">
-                      <select className="w-full bg-slate-100 text-slate-900 font-medium py-3.5 px-5 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#147D73]/20 border-none cursor-pointer">
-                        <option>Security</option>
-                        <option>Regulation</option>
-                        <option>Payment</option>
+                      <select 
+                        className="w-full bg-slate-100 text-slate-900 font-medium py-3.5 px-5 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-[#147D73]/20 border-none cursor-pointer"
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      >
+                        <option value="Security">Security</option>
+                        <option value="Regulation">Regulation</option>
+                        <option value="Payment">Payment</option>
                       </select>
                       <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
                         <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -90,8 +137,9 @@ const CreateArticlePage = () => {
                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Author</label>
                     <input 
                       type="text" 
-                      defaultValue="Editorial Team" 
                       className="w-full bg-slate-100 text-slate-900 font-medium py-3.5 px-5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#147D73]/20 border-none"
+                      value={formData.authorName}
+                      onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
                     />
                   </div>
                 </div>
@@ -103,7 +151,7 @@ const CreateArticlePage = () => {
                 <Editor
                   onInit={(evt, editor) => editorRef.current = editor}
                   apiKey="d143e92dnddl4y0biuhw6rhlc2csc0z8saq2p4lmc5bf9xn7"
-                  initialValue="<p>Start writing your article here...</p>"
+                  initialValue="<p>Mulai menulis artikel edukasi di sini...</p>"
                   init={{
                     height: 500,
                     menubar: false,
@@ -144,14 +192,24 @@ const CreateArticlePage = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-slate-700">Publish Status</span>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer" 
+                        checked={formData.status === 'PUBLISHED'}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.checked ? 'PUBLISHED' : 'DRAFT' })}
+                      />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#147D73]"></div>
                     </label>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-slate-700">Featured Article</span>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" />
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer" 
+                        checked={formData.featured}
+                        onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                      />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#147D73]"></div>
                     </label>
                   </div>
@@ -166,25 +224,9 @@ const CreateArticlePage = () => {
                     rows="3" 
                     placeholder="Brief summary for search results..." 
                     className="w-full bg-slate-100 text-slate-600 text-sm py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#147D73]/20 border-none resize-none"
+                    value={formData.metaDescription}
+                    onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
                   ></textarea>
-                </div>
-
-                {/* Tags */}
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Tags</label>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="inline-flex items-center gap-1 bg-[#E8F3F1] text-[#147D73] text-xs font-bold px-3 py-1.5 rounded-lg">
-                      Education <button className="hover:text-slate-900">&times;</button>
-                    </span>
-                    <span className="inline-flex items-center gap-1 bg-[#E8F3F1] text-[#147D73] text-xs font-bold px-3 py-1.5 rounded-lg">
-                      Trust <button className="hover:text-slate-900">&times;</button>
-                    </span>
-                  </div>
-                  <input 
-                    type="text" 
-                    placeholder="Add tag..." 
-                    className="w-full bg-slate-100 text-slate-600 text-sm py-2.5 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#147D73]/20 border-none"
-                  />
                 </div>
 
               </div>
@@ -196,10 +238,10 @@ const CreateArticlePage = () => {
                   Live SEO Preview
                 </div>
                 <div className="space-y-1">
-                  <h4 className="text-base font-bold text-[#1A0DAB] truncate cursor-pointer hover:underline">New Article Title • Education Center</h4>
-                  <div className="text-xs text-[#006621] truncate">carefund.org &gt; articles &gt; ...</div>
+                  <h4 className="text-base font-bold text-[#1A0DAB] truncate cursor-pointer hover:underline">{formData.title || 'New Article Title'} • Education Center</h4>
+                  <div className="text-xs text-[#006621] truncate">carefund.org &gt; articles &gt; new</div>
                   <p className="text-xs text-slate-600 line-clamp-2 mt-1">
-                    The meta description you write above will appear here in search engine results to help users understand what the article is about.
+                    {formData.metaDescription || 'The meta description you write above will appear here in search engine results to help users.'}
                   </p>
                 </div>
               </div>

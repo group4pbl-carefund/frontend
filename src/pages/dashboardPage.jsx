@@ -36,8 +36,8 @@ const DashboardPage = () => {
       {
         label: '2024',
         data: [650, 590, 800, 810, 560, 550],
-        borderColor: 'rgb(59, 130, 246)',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderColor: '#147D73',
+        backgroundColor: 'rgba(20, 125, 115, 0.1)',
         tension: 0.3,
         fill: true,
       },
@@ -49,7 +49,7 @@ const DashboardPage = () => {
     datasets: [
       {
         data: [40, 25, 20, 15],
-        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'],
+        backgroundColor: ['#147D73', '#60C9B3', '#F59E0B', '#8B5CF6'],
         borderWidth: 0,
       },
     ],
@@ -135,7 +135,7 @@ const DashboardPage = () => {
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">{program.category}</span>
+                        <span className="bg-[#E8F3F1] text-[#147D73] text-xs font-extrabold px-2.5 py-1 rounded uppercase tracking-wider">{program.category}</span>
                         <span className="text-gray-500 text-sm">{program.location}</span>
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">{program.title}</h3>
@@ -146,7 +146,7 @@ const DashboardPage = () => {
                       </div>
                       <div className="mt-3">
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
-                          <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${program.progress}%` }}></div>
+                          <div className="bg-[#147D73] h-2.5 rounded-full" style={{ width: `${program.progress}%` }}></div>
                         </div>
                         <div className="flex justify-between mt-1 text-sm text-gray-600">
                           <span>{program.progress}%</span>
@@ -192,7 +192,7 @@ const DashboardPage = () => {
           </div>
 
           <div className="text-center">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-colors">
+            <button className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-[#147D73]/10 hover:shadow-xl active:scale-[0.98]">
               Lihat Seluruh Riwayat Distribusi
             </button>
           </div>
