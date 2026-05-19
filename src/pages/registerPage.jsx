@@ -25,7 +25,6 @@ const RegisterPage = () => {
 
   // Step 3: OTP states
   const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
-  const [otpBypass, setOtpBypass] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
 
   // Timer countdown handler
@@ -116,10 +115,7 @@ const RegisterPage = () => {
       const token = response.data.data.access_token;
       const user = response.data.data.user;
 
-      // Keep debug OTP code
-      if (response.data.data.otp_bypass_debug) {
-        setOtpBypass(response.data.data.otp_bypass_debug);
-      }
+
 
       // Save token dynamically to local storage for Sanctum interceptor
       localStorage.setItem('token', token);
@@ -217,9 +213,7 @@ const RegisterPage = () => {
         email: formData.email
       });
 
-      if (response.data.data.otp_bypass_debug) {
-        setOtpBypass(response.data.data.otp_bypass_debug);
-      }
+
 
       await Swal.fire({
         title: 'OTP Dikirim!',
@@ -445,18 +439,7 @@ const RegisterPage = () => {
                 ))}
               </div>
 
-              {/* Developer Debug Bypass Helper */}
-              {otpBypass && (
-                <div className="bg-teal-50/50 border border-teal-100 rounded-2xl p-4 max-w-sm mx-auto text-left flex items-start gap-3 animate-pulse">
-                  <div className="text-teal-600 text-lg mt-0.5">🔑</div>
-                  <div>
-                    <p className="text-xs font-extrabold text-[#2ea391] uppercase tracking-wide">Developer Debug Code</p>
-                    <p className="text-xs text-teal-700 mt-0.5">
-                      Karena dalam local-staging email real dinonaktifkan, masukkan kode berikut: <strong className="text-sm font-black tracking-widest text-[#2ea391] ml-1">{otpBypass}</strong>
-                    </p>
-                  </div>
-                </div>
-              )}
+
 
               <div className="space-y-4">
                 <button

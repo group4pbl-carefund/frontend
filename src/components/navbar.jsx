@@ -51,10 +51,6 @@ const Navbar = () => {
                 <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
                   Dashboard
                 </Link>
-                {/* TAMBAHAN UNTUK USER/CAMPAIGNER */}
-                <Link to="/manage-campaign" className="text-lg font-bold text-[#147D73] hover:text-[#0e5e57] transition-colors">
-                  Kelola Campaign
-                </Link>
               </>
             )}
 
