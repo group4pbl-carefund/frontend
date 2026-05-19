@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import Swal from 'sweetalert2';
+import api from '../utils/api';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -53,22 +53,28 @@ const LoginPage = () => {
 
     // ACTUAL API LOGIN
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/login', {
+      const response = await api.post('/login', {
         email: formData.email,
         password: formData.password
       });
 
+      const user = response.data.data.user;
       localStorage.setItem('token', response.data.data.access_token);
-      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      localStorage.setItem('user', JSON.stringify(user));
 
       await Swal.fire({
         title: 'Berhasil!',
         text: 'Login Berhasil! Selamat datang di Care Fund',
         icon: 'success',
-        confirmButtonText: 'Masuk Beranda',
+        confirmButtonText: 'Masuk Dashboard',
         confirmButtonColor: '#2ea391'
       });
-      window.location.href = '/';
+      
+      if (user.role === 'admin') {
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/dashboard';
+      }
     } catch (error) {
       console.error(error);
       await Swal.fire({
