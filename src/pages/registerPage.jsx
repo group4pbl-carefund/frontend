@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import api from '../utils/api';
@@ -7,6 +7,7 @@ const RegisterPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  // Form states
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
@@ -17,9 +18,28 @@ const RegisterPage = () => {
     address: 'Default Address'
   });
 
+  // Step 2: KYC states
   const [nik, setNik] = useState('');
   const [idImage, setIdImage] = useState(null);
   const [idPreview, setIdPreview] = useState('');
+
+  // Step 3: OTP states
+  const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
+  const [otpBypass, setOtpBypass] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Timer countdown handler
+  useEffect(() => {
+    let interval = null;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -29,7 +49,28 @@ const RegisterPage = () => {
     }
   };
 
-  // 2. This function handles moving from Account -> KYC
+  const handleOtpChange = (element, index) => {
+    if (isNaN(element.value)) return false;
+
+    const newOtp = [...otpValues];
+    newOtp[index] = element.value;
+    setOtpValues(newOtp);
+
+    // Automatically focus next element
+    if (element.value !== '' && element.nextSibling) {
+      element.nextSibling.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === 'Backspace') {
+      if (otpValues[index] === '' && e.target.previousSibling) {
+        e.target.previousSibling.focus();
+      }
+    }
+  };
+
+  // Step 1 -> Step 2
   const handleNextStep = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirm_password) {
@@ -41,12 +82,11 @@ const RegisterPage = () => {
         confirmButtonColor: '#2ea391'
       });
     }
-
-    // For the demo/frontend flow, we move to step 2 directly
     setCurrentStep(2);
   };
 
-  const handleSubmitFinal = async (e) => {
+  // Step 2 -> Step 3: Call Register + Create UserIdentity
+  const handleSubmitKYC = async (e) => {
     if (e) e.preventDefault();
     if (!nik.trim() || nik.length < 16) {
       return Swal.fire({
@@ -60,7 +100,7 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      // 1. Register User
+      // 1. Hit API Register
       const payload = {
         full_name: formData.full_name,
         email: formData.email,
@@ -69,34 +109,39 @@ const RegisterPage = () => {
         password_confirmation: formData.confirm_password,
         date_of_birth: formData.date_of_birth,
         address: formData.address,
-        gender: 'other' // default gender
+        gender: 'other'
       };
 
       const response = await api.post('/register', payload);
       const token = response.data.data.access_token;
       const user = response.data.data.user;
 
-      // Save credentials returned from successful registration
+      // Keep debug OTP code
+      if (response.data.data.otp_bypass_debug) {
+        setOtpBypass(response.data.data.otp_bypass_debug);
+      }
+
+      // Save token dynamically to local storage for Sanctum interceptor
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // 2. Create User Identity (KTP KYC Record)
+      // 2. Hit API UserIdentity (KYC)
       await api.post('/user-identities', {
         user_id: user.id,
         identity_type: 'KTP',
         identity_number: nik,
-        identity_image: `uploads/ktp_${user.id}.jpg` // Simulate KTP file path
+        identity_image: `uploads/ktp_${user.id}.jpg` // Simulated image storage path
       });
 
       await Swal.fire({
-        title: 'Pendaftaran Berhasil!',
-        text: 'Akun Anda dan data verifikasi KTP telah sukses didaftarkan!',
+        title: 'Data Tersimpan!',
+        text: 'Akun Anda berhasil dibuat. Silakan verifikasi email Anda.',
         icon: 'success',
-        confirmButtonText: 'Selesai',
+        confirmButtonText: 'Lanjutkan',
         confirmButtonColor: '#2ea391'
       });
 
-      setCurrentStep(3);
+      setCurrentStep(3); // Go to OTP verification step
     } catch (error) {
       console.error(error);
       const validationErrors = error.response?.data?.errors;
@@ -119,66 +164,159 @@ const RegisterPage = () => {
     }
   };
 
+  // Step 3 -> Step 4: Verify OTP Code
+  const handleVerifyOtp = async (e) => {
+    if (e) e.preventDefault();
+    const otpCode = otpValues.join('');
+    if (otpCode.length < 6) {
+      return Swal.fire({
+        title: 'Peringatan!',
+        text: 'Harap masukkan 6 digit kode OTP secara lengkap!',
+        icon: 'warning',
+        confirmButtonText: 'Kembali',
+        confirmButtonColor: '#2ea391'
+      });
+    }
+
+    setLoading(true);
+    try {
+      await api.post('/verify-otp', {
+        email: formData.email,
+        otp: otpCode
+      });
+
+      await Swal.fire({
+        title: 'Verifikasi Berhasil!',
+        text: 'Selamat! Akun email Anda telah berhasil diverifikasi.',
+        icon: 'success',
+        confirmButtonText: 'Lanjutkan',
+        confirmButtonColor: '#2ea391'
+      });
+
+      setCurrentStep(4); // Finish!
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        title: 'Verifikasi Gagal!',
+        text: error.response?.data?.message || 'Kode OTP salah atau telah kedaluwarsa.',
+        icon: 'error',
+        confirmButtonText: 'Coba Lagi',
+        confirmButtonColor: '#2ea391'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Resend OTP handler
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return;
+    setLoading(true);
+    try {
+      const response = await api.post('/resend-otp', {
+        email: formData.email
+      });
+
+      if (response.data.data.otp_bypass_debug) {
+        setOtpBypass(response.data.data.otp_bypass_debug);
+      }
+
+      await Swal.fire({
+        title: 'OTP Dikirim!',
+        text: 'Kode OTP baru telah dikirimkan ke email Anda.',
+        icon: 'success',
+        confirmButtonText: 'Oke',
+        confirmButtonColor: '#2ea391'
+      });
+
+      setResendTimer(60); // 60s cooldown
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        title: 'Gagal!',
+        text: error.response?.data?.message || 'Gagal mengirim ulang OTP.',
+        icon: 'error',
+        confirmButtonText: 'Oke',
+        confirmButtonColor: '#2ea391'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f0f9f7] flex flex-col items-center py-10 font-sans">
 
-      {/* Dynamic Stepper Header */}
-      <div className="flex items-center gap-10 mb-10">
-        <div className="text-center">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto ${currentStep >= 1 ? 'bg-[#2ea391] text-white' : 'bg-gray-200 text-gray-500'}`}>1</div>
-          <p className={`text-xs mt-1 font-bold ${currentStep >= 1 ? 'text-[#2ea391]' : 'text-gray-400'}`}>ACCOUNT</p>
+      {/* Dynamic 4-Step Stepper Header */}
+      <div className="flex items-center gap-6 md:gap-10 mb-10 overflow-x-auto max-w-full px-4 py-2">
+        <div className="text-center min-w-[70px]">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 1 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>1</div>
+          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 1 ? 'text-[#2ea391]' : 'text-gray-400'}`}>ACCOUNT</p>
         </div>
-        <div className={`h-[2px] w-20 ${currentStep >= 2 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
-        <div className="text-center">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto ${currentStep >= 2 ? 'bg-[#2ea391] text-white' : 'bg-gray-200 text-gray-500'}`}>2</div>
-          <p className={`text-xs mt-1 font-bold ${currentStep >= 2 ? 'text-[#2ea391]' : 'text-gray-400'}`}>KYC</p>
+        <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 2 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
+        
+        <div className="text-center min-w-[70px]">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 2 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>2</div>
+          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 2 ? 'text-[#2ea391]' : 'text-gray-400'}`}>KYC</p>
         </div>
-        <div className={`h-[2px] w-20 ${currentStep >= 3 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
-        <div className="text-center">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto ${currentStep >= 3 ? 'bg-[#2ea391] text-white' : 'bg-gray-200 text-gray-500'}`}>3</div>
-          <p className={`text-xs mt-1 font-bold ${currentStep >= 3 ? 'text-[#2ea391]' : 'text-gray-400'}`}>FINISH</p>
+        <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 3 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
+        
+        <div className="text-center min-w-[70px]">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 3 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>3</div>
+          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 3 ? 'text-[#2ea391]' : 'text-gray-400'}`}>VERIFY</p>
+        </div>
+        <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 4 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
+        
+        <div className="text-center min-w-[70px]">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 4 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>4</div>
+          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 4 ? 'text-[#2ea391]' : 'text-gray-400'}`}>FINISH</p>
         </div>
       </div>
 
-      <div className="w-full max-w-2xl bg-white rounded-3xl p-10 shadow-sm border border-gray-100">
+      <div className="w-full max-w-2xl bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100">
 
         {/* STEP 1: ACCOUNT INFORMATION */}
         {currentStep === 1 && (
           <>
-            <Link to="/login" className="text-gray-500 text-sm mb-4 inline-block">← Back</Link>
+            <Link to="/login" className="text-gray-500 text-sm mb-4 inline-block hover:opacity-80">← Back to Login</Link>
             <h2 className="text-2xl font-bold text-gray-800">Account Information</h2>
             <p className="text-gray-500 text-sm mb-8">Please enter your details to create an account.</p>
-            <form onSubmit={handleNextStep} className="space-y-6">
+            <form onSubmit={handleNextStep} className="space-y-6 text-left">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Full Name</label>
-                  <input type="text" className="w-full bg-gray-100 p-3 rounded-xl outline-none" placeholder="John Doe"
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="John Doe"
+                    value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Phone Number</label>
-                  <input type="text" className="w-full bg-gray-100 p-3 rounded-xl outline-none" placeholder="+62 812..."
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="+62 812..."
+                    value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })} required />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Email Address</label>
-                <input type="email" className="w-full bg-gray-100 p-3 rounded-xl outline-none" placeholder="john.doe@example.com"
+                <input type="email" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="john.doe@example.com"
+                  value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Password</label>
-                  <input type="password" className="w-full bg-gray-100 p-3 rounded-xl outline-none" placeholder="••••••••"
+                  <input type="password" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="••••••••"
+                    value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Confirm Password</label>
-                  <input type="password" className="w-full bg-gray-100 p-3 rounded-xl outline-none" placeholder="••••••••"
+                  <input type="password" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="••••••••"
+                    value={formData.confirm_password}
                     onChange={(e) => setFormData({ ...formData, confirm_password: e.target.value })} required />
                 </div>
               </div>
-              <button className="w-full bg-[#2ea391] text-white py-4 rounded-xl font-bold transition-all">
+              <button className="w-full bg-[#2ea391] text-white py-4 rounded-xl font-bold transition-all hover:bg-[#258778] active:scale-[0.99]">
                 Continue to KYC Verification →
               </button>
             </form>
@@ -195,10 +333,10 @@ const RegisterPage = () => {
               ← Back to Account Info
             </button>
             
-            <h2 className="text-2xl font-bold text-gray-800">KYC Verification</h2>
-            <p className="text-gray-500 text-sm mb-8">Please enter your national ID details and upload your KTP Card.</p>
+            <h2 className="text-2xl font-bold text-gray-800 text-center">KYC Verification</h2>
+            <p className="text-gray-500 text-sm mb-8 text-center">Please enter your national ID details and upload your KTP Card.</p>
             
-            <form onSubmit={handleSubmitFinal} className="space-y-6 text-left">
+            <form onSubmit={handleSubmitKYC} className="space-y-6 text-left">
               {/* NIK Input Field */}
               <div>
                 <label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wide">
@@ -209,7 +347,7 @@ const RegisterPage = () => {
                   maxLength={16}
                   value={nik}
                   onChange={(e) => setNik(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="w-full bg-gray-100 p-4 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#2ea391]/20 border border-transparent focus:border-[#2ea391] font-bold text-gray-800 tracking-widest text-center text-lg animate-in" 
+                  className="w-full bg-gray-100 p-4 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#2ea391]/20 border border-transparent focus:border-[#2ea391] font-bold text-gray-800 tracking-widest text-center text-lg transition-all" 
                   placeholder="317101xxxxxxxxxx"
                   required 
                 />
@@ -239,7 +377,7 @@ const RegisterPage = () => {
                   }`}
                 >
                   {idPreview ? (
-                    <div className="relative w-full flex flex-col items-center animate-in zoom-in duration-200">
+                    <div className="relative w-full flex flex-col items-center">
                       <img 
                         src={idPreview} 
                         alt="KTP Preview" 
@@ -264,7 +402,7 @@ const RegisterPage = () => {
               <button
                 type="submit"
                 disabled={loading || !idPreview || nik.length < 16}
-                className="w-full bg-[#2ea391] text-white py-4 rounded-xl font-bold flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#258778] active:scale-[0.98] transition-all shadow-md shadow-[#2ea391]/10 mt-8 animate-in"
+                className="w-full bg-[#2ea391] text-white py-4 rounded-xl font-bold flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#258778] active:scale-[0.98] transition-all shadow-md shadow-[#2ea391]/10 mt-8"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -275,20 +413,86 @@ const RegisterPage = () => {
                     Memproses Pendaftaran...
                   </span>
                 ) : (
-                  'Selesaikan & Daftar Akun →'
+                  'Lanjutkan ke Verifikasi Email →'
                 )}
               </button>
             </form>
           </div>
         )}
 
-        {/* STEP 3: FINISH */}
+        {/* STEP 3: EMAIL OTP VERIFICATION */}
         {currentStep === 3 && (
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-800">Email Verification</h2>
+            <p className="text-gray-500 text-sm mt-1 mb-8">
+              Kami telah mengirimkan 6-digit kode OTP ke email <strong className="text-gray-700">{formData.email}</strong>.
+            </p>
+
+            <form onSubmit={handleVerifyOtp} className="space-y-8">
+              {/* 6 OTP Input Boxes */}
+              <div className="flex justify-center gap-3">
+                {otpValues.map((data, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    name="otp"
+                    maxLength={1}
+                    value={data}
+                    onChange={(e) => handleOtpChange(e.target, index)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                    className="w-12 h-14 bg-gray-100 rounded-xl text-center text-xl font-bold border border-transparent focus:bg-white focus:border-[#2ea391] focus:ring-2 focus:ring-[#2ea391]/20 outline-none transition-all"
+                  />
+                ))}
+              </div>
+
+              {/* Developer Debug Bypass Helper */}
+              {otpBypass && (
+                <div className="bg-teal-50/50 border border-teal-100 rounded-2xl p-4 max-w-sm mx-auto text-left flex items-start gap-3 animate-pulse">
+                  <div className="text-teal-600 text-lg mt-0.5">🔑</div>
+                  <div>
+                    <p className="text-xs font-extrabold text-[#2ea391] uppercase tracking-wide">Developer Debug Code</p>
+                    <p className="text-xs text-teal-700 mt-0.5">
+                      Karena dalam local-staging email real dinonaktifkan, masukkan kode berikut: <strong className="text-sm font-black tracking-widest text-[#2ea391] ml-1">{otpBypass}</strong>
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <button
+                  type="submit"
+                  disabled={loading || otpValues.includes('')}
+                  className="w-full bg-[#2ea391] text-white py-4 rounded-xl font-bold flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#258778] active:scale-[0.98] transition-all shadow-md shadow-[#2ea391]/10"
+                >
+                  {loading ? 'Memverifikasi...' : 'Verifikasi & Aktifkan Akun →'}
+                </button>
+
+                <div className="text-sm text-gray-500">
+                  Tidak menerima kode?{' '}
+                  {resendTimer > 0 ? (
+                    <span className="text-[#2ea391] font-bold">Kirim ulang dalam {resendTimer}s</span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      className="text-[#2ea391] font-bold hover:underline bg-transparent border-none p-0 cursor-pointer"
+                    >
+                      Kirim Ulang Kode
+                    </button>
+                  )}
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* STEP 4: FINISH */}
+        {currentStep === 4 && (
           <div className="text-center py-10">
             <div className="text-6xl mb-6">🎉</div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Registration Complete!</h2>
-            <p className="text-gray-500 mb-10">Welcome to Care Fund. Your account has been created.</p>
-            <Link to="/login" className="bg-[#2ea391] text-white px-10 py-4 rounded-xl font-bold">
+            <p className="text-gray-500 mb-10">Welcome to Care Fund. Your account and email has been verified and registered.</p>
+            <Link to="/login" className="bg-[#2ea391] text-white px-10 py-4 rounded-xl font-bold hover:bg-[#258778] transition-all shadow-md shadow-[#2ea391]/20">
               Go to Login
             </Link>
           </div>
