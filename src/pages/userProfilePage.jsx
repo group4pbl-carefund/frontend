@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import MainLayout from "../layouts/mainLayout";
-import { 
-  ArrowLeft, Mail, Phone, MapPin, History, Award, 
-  HandHeart, Calendar, CheckCircle2, ChevronRight, 
-  Settings, CreditCard, LogOut, Download, Share2, Heart, PlusCircle, Megaphone,
-  Users, Plus, MessageSquare
+import {
+    ArrowLeft, Mail, Phone, MapPin, History, Award,
+    HandHeart, Calendar, CheckCircle2, ChevronRight,
+    Settings, CreditCard, LogOut, Download, Share2, Heart, PlusCircle, Megaphone,
+    Users, Plus, MessageSquare, Camera
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import StatCard from "../components/statCard";
 import DonationHistoryItem from "../components/donationHistoryItem";
 import { getCampaigns, updateCampaignDays, addCampaignUpdate } from "../utils/campaignDb";
+import api from "../utils/api";
 
 const certificateData = [
     {
@@ -61,14 +62,56 @@ const UserProfilePage = () => {
     const [activeTab, setActiveTab] = useState('riwayat');
 
     // Ambil data user aktif dari localStorage
-    const [user] = useState(() => {
+    const [user, setUser] = useState(() => {
         const savedUser = localStorage.getItem('user');
         return savedUser ? JSON.parse(savedUser) : null;
     });
 
+    const [isUploading, setIsUploading] = useState(false);
+
     // Campaign Management States
     const [campaigns, setCampaigns] = useState(() => getCampaigns());
     const [activeCampaign, setActiveCampaign] = useState(() => campaigns[0] || null);
+
+    const handleAvatarChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file || !user) return;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('avatar', file);
+        // Because backend is expecting a PATCH method but we are sending multipart/form-data
+        formData.append('_method', 'PATCH');
+
+        try {
+            const response = await api.post(`/users/${user.id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            });
+            const updatedUser = response.data?.data || response.data;
+            if (updatedUser) {
+                setUser(updatedUser);
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Foto profil Anda berhasil diperbarui.',
+                    icon: 'success',
+                    confirmButtonColor: '#2ea391'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                title: 'Gagal!',
+                text: 'Terjadi kesalahan saat mengunggah foto. Pastikan ukuran file tidak terlalu besar.',
+                icon: 'error',
+                confirmButtonColor: '#2ea391'
+            });
+            console.error('Error uploading avatar:', error);
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -93,7 +136,7 @@ const UserProfilePage = () => {
         if (result.isConfirmed) {
             const newDays = activeCampaign.daysLeft + 7;
             updateCampaignDays(activeCampaign.id, newDays);
-            
+
             // Refresh local state
             setActiveCampaign({
                 ...activeCampaign,
@@ -131,7 +174,7 @@ const UserProfilePage = () => {
 
         if (text) {
             addCampaignUpdate(activeCampaign.id, text);
-            
+
             // Ambil data kampanye terbaru dengan updatenya
             const updatedList = getCampaigns();
             const updatedCampaign = updatedList.find(c => c.id === activeCampaign.id);
@@ -163,10 +206,19 @@ const UserProfilePage = () => {
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden text-left">
                             <div className="h-24 bg-linear-to-r from-[#60C9B3] to-[#2ea391]"></div>
                             <div className="px-6 pb-6">
-                                <div className="relative -mt-12 mb-4 inline-block">
-                                    <div className="h-24 w-24 rounded-2xl border-4 border-white overflow-hidden shadow-md bg-white">
-                                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.full_name || 'Felix'}`} alt="Profile" className="h-full w-full object-cover" />
+                                <div className="relative -mt-12 mb-4 inline-block group cursor-pointer" onClick={() => !isUploading && document.getElementById('avatarUpload').click()}>
+                                    <div className="h-24 w-24 rounded-2xl border-4 border-white overflow-hidden shadow-md bg-white relative">
+                                        {isUploading && (
+                                            <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10">
+                                                <span className="block w-6 h-6 border-4 border-[#2ea391] border-t-transparent rounded-full animate-spin"></span>
+                                            </div>
+                                        )}
+                                        <img src={user?.avatar_url ? `http://127.0.0.1:8000${user.avatar_url}` : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.full_name || 'Felix'}`} alt="Profile" className="h-full w-full object-cover group-hover:opacity-50 transition-opacity" />
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
+                                            <Camera className="text-white w-6 h-6" />
+                                        </div>
                                     </div>
+                                    <input type="file" id="avatarUpload" accept="image/*" className="hidden" onChange={handleAvatarChange} />
                                     {user?.is_verified ? (
                                         <div className="absolute bottom-0 right-0 bg-[#2ea391] p-1.5 rounded-full border-2 border-white shadow-sm">
                                             <CheckCircle2 size={14} className="text-white" />
@@ -273,17 +325,17 @@ const UserProfilePage = () => {
                                         Apresiasi atas kontribusi Anda dalam menciptakan perubahan nyata. Simpan dan bagikan sertifikat kebaikan Anda.
                                     </p>
                                 </div>
-                                
+
                                 {/* GRID SERTIFIKAT */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {certificateData.map((cert) => (
                                         <div key={cert.id} className="bg-white rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-50 flex flex-col hover:shadow-lg transition-all duration-300">
                                             {/* Gambar Sertifikat */}
                                             <div className="aspect-[1.5/1] rounded-2xl overflow-hidden mb-6 bg-slate-100">
-                                                <img 
-                                                    src={cert.image} 
-                                                    alt={cert.title} 
-                                                    className="w-full h-full object-cover" 
+                                                <img
+                                                    src={cert.image}
+                                                    alt={cert.title}
+                                                    className="w-full h-full object-cover"
                                                 />
                                             </div>
 
@@ -303,7 +355,7 @@ const UserProfilePage = () => {
                                                     <Download size={16} strokeWidth={2.5} />
                                                     Download Sertifikat
                                                 </button>
-                                                
+
                                                 <button className="flex-shrink-0 w-11 h-11 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 hover:text-slate-600 border border-slate-100 transition-all active:scale-95">
                                                     <Share2 size={16} />
                                                 </button>
@@ -331,9 +383,9 @@ const UserProfilePage = () => {
 
                                     <div className="relative mt-12 md:mt-0">
                                         <div className="w-56 h-56 md:w-72 md:h-72 rounded-[3.5rem] overflow-hidden bg-[#0A1A17] p-2 relative shadow-2xl border-4 border-white/30 transform md:rotate-3 transition-transform hover:rotate-0 duration-500">
-                                            <img 
-                                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
-                                                alt="User Portrait" 
+                                            <img
+                                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                                                alt="User Portrait"
                                                 className="w-full h-full object-contain bg-[#1d4e44]"
                                             />
                                         </div>
@@ -425,7 +477,7 @@ const UserProfilePage = () => {
                                         <p className="text-slate-500 mt-1 font-medium text-sm">Pantau perkembangan, anggaran, dan transparansi dana Anda.</p>
                                     </div>
                                     {activeCampaign && (
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 Swal.fire({
                                                     title: 'Bagikan Kampanye!',
@@ -464,18 +516,18 @@ const UserProfilePage = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             {/* Total Donatur */}
                                             <div className="p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100/50">
-                                                <div className="bg-blue-600/10 text-blue-600 w-10 h-10 rounded-xl flex items-center justify-center mb-3"><Users size={20}/></div>
+                                                <div className="bg-blue-600/10 text-blue-600 w-10 h-10 rounded-xl flex items-center justify-center mb-3"><Users size={20} /></div>
                                                 <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Total Donatur</p>
                                                 <h2 className="text-2xl font-black text-slate-900 mt-1">{activeCampaign.donorsCount.toLocaleString('id-ID')} <span className="text-xs font-medium">Orang</span></h2>
                                             </div>
 
                                             {/* Sisa Waktu & Extend */}
                                             <div className="p-6 bg-teal-50/50 rounded-[2rem] border border-teal-100/50">
-                                                <div className="bg-[#2ea391]/10 text-[#2ea391] w-10 h-10 rounded-xl flex items-center justify-center mb-3"><Calendar size={20}/></div>
+                                                <div className="bg-[#2ea391]/10 text-[#2ea391] w-10 h-10 rounded-xl flex items-center justify-center mb-3"><Calendar size={20} /></div>
                                                 <p className="text-[10px] font-black text-teal-400 uppercase tracking-widest">Sisa Waktu</p>
                                                 <div className="flex items-end justify-between">
                                                     <h2 className="text-2xl font-black text-slate-900 mt-1">{activeCampaign.daysLeft} <span className="text-xs font-medium">Hari</span></h2>
-                                                    <button onClick={handleExtendDays} className="text-[#2ea391] hover:scale-115 transition-all p-1 bg-white rounded-lg shadow-sm border border-slate-100"><Plus size={16}/></button>
+                                                    <button onClick={handleExtendDays} className="text-[#2ea391] hover:scale-115 transition-all p-1 bg-white rounded-lg shadow-sm border border-slate-100"><Plus size={16} /></button>
                                                 </div>
                                             </div>
 
@@ -498,7 +550,7 @@ const UserProfilePage = () => {
                                                 <h4 className="text-lg font-bold text-slate-800">Update Kabar Terbaru</h4>
                                                 <p className="text-slate-400 text-xs mt-0.5">Berikan laporan penggunaan dana agar donatur tetap percaya.</p>
                                             </div>
-                                            <button 
+                                            <button
                                                 onClick={handleCreateUpdate}
                                                 className="bg-[#2ea391] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#258778] transition-all shadow-md shadow-teal-500/10"
                                             >

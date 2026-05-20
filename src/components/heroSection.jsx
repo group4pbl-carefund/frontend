@@ -2,10 +2,10 @@ import React from 'react';
 
 const HeroSection = () => {
   return (
-    <section 
+    <section
       className="relative flex flex-col justify-center px-8 py-24 md:py-32"
       style={{
-        backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1532629345422-7515f3d16bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')",
+        backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), url('hero_1.webp')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

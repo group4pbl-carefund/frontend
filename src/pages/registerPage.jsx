@@ -14,8 +14,12 @@ const RegisterPage = () => {
     email: '',
     password: '',
     confirm_password: '',
-    date_of_birth: '2000-01-01',
-    address: 'Default Address'
+    date_of_birth: '',
+    gender: 'male',
+    address: '',
+    city: '',
+    state: '',
+    country: ''
   });
 
   // Step 2: KYC states
@@ -108,7 +112,10 @@ const RegisterPage = () => {
         password_confirmation: formData.confirm_password,
         date_of_birth: formData.date_of_birth,
         address: formData.address,
-        gender: 'other'
+        gender: formData.gender,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country
       };
 
       const response = await api.post('/register', payload);
@@ -284,18 +291,66 @@ const RegisterPage = () => {
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })} required />
                 </div>
                 <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Email Address</label>
+                  <input type="email" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="john.doe@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Phone Number</label>
                   <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="+62 812..."
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })} required />
                 </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Date of Birth</label>
+                  <input type="date" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all text-gray-600"
+                    value={formData.date_of_birth}
+                    onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Gender</label>
+                  <select className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all text-gray-600"
+                    value={formData.gender}
+                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })} required>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
               </div>
+
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Email Address</label>
-                <input type="email" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="john.doe@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
+                <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Address</label>
+                <textarea className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all resize-none h-24" placeholder="Your full residential address..."
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })} required />
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">City</label>
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="Jakarta"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">State/Province</label>
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="DKI Jakarta"
+                    value={formData.state}
+                    onChange={(e) => setFormData({ ...formData, state: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Country</label>
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="Indonesia"
+                    value={formData.country}
+                    onChange={(e) => setFormData({ ...formData, country: e.target.value })} required />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Password</label>

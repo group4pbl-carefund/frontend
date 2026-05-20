@@ -146,6 +146,17 @@ const TransactionLogTab = () => {
     { label: 'SUCCESS RATE', value: `${successRate}%`, progress: parseFloat(successRate), icon: CheckCircle2, positive: true },
   ];
 
+  const filteredTrx = logsList.filter(trx => {
+    const matchesSearch = 
+      trx.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trx.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trx.program.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = activeStatus === 'All' || trx.status.toLowerCase() === activeStatus.toLowerCase();
+    
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

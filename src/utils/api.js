@@ -34,7 +34,7 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       
       // Cegah pengalihan tak terbatas jika sudah berada di halaman login/register
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
         window.location.href = '/login?session_expired=true';
       }
     }
