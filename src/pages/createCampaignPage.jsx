@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { addCampaign } from '../utils/campaignDb';
+import api from '../utils/api';
 
 const CreateCampaignPage = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [beneficiaryType, setBeneficiaryType] = useState('diri_sendiri');
-  
+
   const [formData, setFormData] = useState({
     title: '',
     category: 'Kesehatan',
@@ -73,38 +73,61 @@ const CreateCampaignPage = () => {
       return;
     }
 
-    // Mengambil nama user yang sedang login untuk dicantumkan
+    // Mengambil user ID yang sedang login
     const loggedUser = localStorage.getItem('user');
-    let userName = 'Campaigner CareFund';
+    let userId = null;
     if (loggedUser) {
       const parsed = JSON.parse(loggedUser);
-      userName = parsed.name || userName;
+      userId = parsed.id;
     }
 
-    addCampaign({
-      title: formData.title.trim(),
+    if (!userId) {
+      Swal.fire({
+        title: 'Sesi Tidak Valid',
+        text: 'Anda harus login terlebih dahulu untuk membuat kampanye.',
+        icon: 'error',
+        confirmButtonColor: '#147D73'
+      });
+      return;
+    }
+
+    const payload = {
+      program_name: formData.title.trim(),
       category: formData.category,
-      deadline: formData.deadline,
-      target: parseFloat(formData.target),
+      end_date: formData.deadline,
+      start_date: new Date().toISOString().split('T')[0], // Hari ini sebagai start_date
+      target_amount: parseFloat(formData.target),
       description: formData.description.trim(),
-      recipientName: formData.recipientName.trim(),
-      bankName: formData.bankName,
-      accountNumber: formData.accountNumber.trim(),
-      accountOwner: formData.accountOwner.trim(),
-      beneficiaryType: beneficiaryType,
-      user: userName,
-      rab: rabItems
-    });
+      recipient_name: formData.recipientName.trim(),
+      bank_name: formData.bankName,
+      account_number: formData.accountNumber.trim(),
+      account_owner: formData.accountOwner.trim(),
+      status: 'pending',
+      created_by: userId,
+      rab_items: rabItems
+    };
 
-    await Swal.fire({
-      title: 'Pengajuan Berhasil!',
-      text: 'Kampanye berhasil diajukan dan masuk ke dalam antrean persetujuan tim admin!',
-      icon: 'success',
-      confirmButtonText: 'Kembali ke Dashboard',
-      confirmButtonColor: '#147D73'
-    });
+    try {
+      await api.post('/programs', payload);
 
-    navigate('/dashboard');
+      await Swal.fire({
+        title: 'Pengajuan Berhasil!',
+        text: 'Kampanye berhasil diajukan dan masuk ke dalam antrean persetujuan tim admin!',
+        icon: 'success',
+        confirmButtonText: 'Kembali ke Dashboard',
+        confirmButtonColor: '#147D73'
+      });
+
+      navigate('/dashboard');
+    } catch (error) {
+      console.error("Error creating campaign:", error);
+      Swal.fire({
+        title: 'Gagal Menyimpan!',
+        text: error.response?.data?.message || 'Terjadi kesalahan saat mengirim data ke server.',
+        icon: 'error',
+        confirmButtonColor: '#147D73'
+      });
+    }
   };
 
   const Topbar = () => (
@@ -117,8 +140,8 @@ const CreateCampaignPage = () => {
           Care Fund
         </span>
       </div>
-      <button 
-        onClick={() => navigate('/')} 
+      <button
+        onClick={() => navigate('/')}
         className="flex items-center text-sm font-bold text-slate-500 hover:text-red-500 transition-colors"
       >
         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -138,20 +161,19 @@ const CreateCampaignPage = () => {
       <div className="w-full max-w-3xl mx-auto mb-12">
         <div className="flex items-center justify-between relative">
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-200 -z-10"></div>
-          <div 
+          <div
             className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-[#147D73] -z-10 transition-all duration-500"
             style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}
           ></div>
 
           {steps.map((step, idx) => (
             <div key={idx} className="flex flex-col items-center bg-[#F8FAFA] px-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mb-2 transition-colors ${
-                currentStep > step.num 
-                  ? 'bg-[#147D73] text-white' 
-                  : currentStep === step.num 
-                    ? 'bg-[#147D73] text-white ring-4 ring-[#147D73]/20' 
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mb-2 transition-colors ${currentStep > step.num
+                  ? 'bg-[#147D73] text-white'
+                  : currentStep === step.num
+                    ? 'bg-[#147D73] text-white ring-4 ring-[#147D73]/20'
                     : 'bg-gray-200 text-slate-400'
-              }`}>
+                }`}>
                 {currentStep > step.num ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                 ) : (
@@ -173,7 +195,7 @@ const CreateCampaignPage = () => {
       <Topbar />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-12">
-        
+
         <ProgressIndicator />
 
         {/* --- HEADER KONTEN --- */}
@@ -192,16 +214,16 @@ const CreateCampaignPage = () => {
 
         {/* --- KOTAK FORMULIR --- */}
         <div className="bg-white p-6 md:p-10 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-          
+
           {/* ================= STEP 1: INFO DASAR ================= */}
           {currentStep === 1 && (
             <div className="space-y-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Judul Kampanye</label>
-                <input 
-                  type="text" 
-                  placeholder="Contoh: Bantu Adik Bayu Melawan Kanker" 
-                  className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                <input
+                  type="text"
+                  placeholder="Contoh: Bantu Adik Bayu Melawan Kanker"
+                  className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
@@ -210,7 +232,7 @@ const CreateCampaignPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Kategori Donasi</label>
-                  <select 
+                  <select
                     className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all appearance-none cursor-pointer"
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -223,10 +245,10 @@ const CreateCampaignPage = () => {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Batas Waktu</label>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     min={today}
-                    className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all cursor-pointer" 
+                    className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all cursor-pointer"
                     value={formData.deadline}
                     onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                   />
@@ -239,10 +261,10 @@ const CreateCampaignPage = () => {
                   <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                     <span className="text-slate-900 font-bold">Rp</span>
                   </div>
-                  <input 
-                    type="number" 
-                    placeholder="0" 
-                    className="w-full bg-slate-100 text-slate-900 font-bold py-4 pl-12 pr-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                  <input
+                    type="number"
+                    placeholder="0"
+                    className="w-full bg-slate-100 text-slate-900 font-bold py-4 pl-12 pr-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all"
                     value={formData.target}
                     onChange={(e) => setFormData({ ...formData, target: e.target.value })}
                   />
@@ -255,7 +277,7 @@ const CreateCampaignPage = () => {
           {/* ================= STEP 2: CERITA & TRANSPARANSI ================= */}
           {currentStep === 2 && (
             <div className="space-y-10">
-              
+
               <div>
                 <div className="border-l-4 border-[#147D73] pl-3 mb-4">
                   <h3 className="font-bold text-slate-900">Visual Kampanye</h3>
@@ -277,9 +299,9 @@ const CreateCampaignPage = () => {
                   <p className="text-sm text-slate-500">Jelaskan latar belakang, tujuan, dan dampak yang diharapkan.</p>
                 </div>
                 <div className="rounded-2xl overflow-hidden">
-                  <textarea 
-                    rows="8" 
-                    placeholder="Tuliskan kisah perjuangan yang menginspirasi kampanye ini secara detail..." 
+                  <textarea
+                    rows="8"
+                    placeholder="Tuliskan kisah perjuangan yang menginspirasi kampanye ini secara detail..."
                     className="w-full bg-slate-100 text-slate-700 font-medium py-4 px-5 rounded-xl border border-transparent focus:outline-none focus:bg-white focus:border-[#147D73] focus:ring-4 focus:ring-[#147D73]/10 transition-all resize-y"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -292,7 +314,7 @@ const CreateCampaignPage = () => {
                   <h3 className="font-bold text-slate-900">Rencana Anggaran Biaya (RAB)</h3>
                   <p className="text-sm text-slate-500">Rincikan kebutuhan dana agar donatur mengetahui kemana donasi mereka disalurkan.</p>
                 </div>
-                
+
                 <div className="grid grid-cols-12 gap-2 md:gap-4 mb-3 px-2 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wider">
                   <div className="col-span-7 md:col-span-8">Deskripsi Kebutuhan</div>
                   <div className="col-span-4 md:col-span-3">Nominal (Rp)</div>
@@ -303,19 +325,19 @@ const CreateCampaignPage = () => {
                   {rabItems.map((item) => (
                     <div key={item.id} className="grid grid-cols-12 gap-2 md:gap-4 items-center">
                       <div className="col-span-7 md:col-span-8">
-                        <input 
-                          type="text" 
-                          placeholder="Contoh: Biaya Operasional Medis" 
-                          className="w-full bg-slate-100 text-slate-700 font-medium py-3 px-3 md:px-4 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none" 
+                        <input
+                          type="text"
+                          placeholder="Contoh: Biaya Operasional Medis"
+                          className="w-full bg-slate-100 text-slate-700 font-medium py-3 px-3 md:px-4 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none"
                           value={item.description}
                           onChange={(e) => handleRabChange(item.id, 'description', e.target.value)}
                         />
                       </div>
                       <div className="col-span-4 md:col-span-3">
-                        <input 
-                          type="number" 
-                          placeholder="0" 
-                          className="w-full bg-slate-100 text-slate-700 font-bold py-3 px-3 md:px-4 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none text-right" 
+                        <input
+                          type="number"
+                          placeholder="0"
+                          className="w-full bg-slate-100 text-slate-700 font-bold py-3 px-3 md:px-4 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none text-right"
                           value={item.amount}
                           onChange={(e) => handleRabChange(item.id, 'amount', e.target.value)}
                         />
@@ -346,39 +368,37 @@ const CreateCampaignPage = () => {
           {/* ================= STEP 3: VERIFIKASI & KYC ================= */}
           {currentStep === 3 && (
             <div className="space-y-10">
-              
+
               {/* Tipe Penerima Manfaat */}
               <div>
                 <h3 className="font-bold text-slate-900 mb-4">Tipe Penerima Manfaat</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  
+
                   {[
                     { id: 'diri_sendiri', title: 'Diri Sendiri', desc: 'Kampanye untuk kebutuhan pribadi.' },
                     { id: 'keluarga', title: 'Keluarga', desc: 'Kampanye untuk anggota keluarga.' },
                     { id: 'orang_lain', title: 'Orang Lain', desc: 'Membantu teman atau kerabat.' },
                     { id: 'yayasan', title: 'Yayasan/Lembaga', desc: 'Donasi untuk organisasi resmi.' },
                   ].map((option) => (
-                    <div 
+                    <div
                       key={option.id}
                       onClick={() => setBeneficiaryType(option.id)}
-                      className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                        beneficiaryType === option.id 
-                          ? 'bg-[#E8F3F1] border-[#147D73] shadow-sm' 
+                      className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 ${beneficiaryType === option.id
+                          ? 'bg-[#E8F3F1] border-[#147D73] shadow-sm'
                           : 'bg-slate-50 border-gray-200 hover:bg-slate-100'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start gap-3">
                         {/* Custom Radio Button Circle */}
-                        <div className={`w-5 h-5 mt-0.5 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-                          beneficiaryType === option.id 
-                            ? 'border-2 border-[#147D73]' 
+                        <div className={`w-5 h-5 mt-0.5 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${beneficiaryType === option.id
+                            ? 'border-2 border-[#147D73]'
                             : 'border-2 border-gray-300 bg-white'
-                        }`}>
+                          }`}>
                           {beneficiaryType === option.id && (
                             <div className="w-2.5 h-2.5 bg-[#147D73] rounded-full"></div>
                           )}
                         </div>
-                        
+
                         {/* Text Content */}
                         <div>
                           <p className="font-bold text-sm text-slate-900">{option.title}</p>
@@ -396,10 +416,10 @@ const CreateCampaignPage = () => {
                 <h3 className="font-bold text-slate-900 mb-4">Identitas Penerima</h3>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Lengkap Penerima</label>
-                  <input 
-                    type="text" 
-                    placeholder="Masukkan nama lengkap sesuai KTP/Identitas" 
-                    className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                  <input
+                    type="text"
+                    placeholder="Masukkan nama lengkap sesuai KTP/Identitas"
+                    className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all"
                     value={formData.recipientName}
                     onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
                   />
@@ -413,7 +433,7 @@ const CreateCampaignPage = () => {
                   <h3 className="font-bold text-slate-900">Verifikasi Identitas Penggalang Dana</h3>
                 </div>
                 <p className="text-xs text-slate-500 mb-6">Kami membutuhkan identitas Anda untuk memastikan keamanan dan mencegah penipuan di platform kami.</p>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="border-2 border-dashed border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#147D73] transition-colors">
                     <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
@@ -435,7 +455,7 @@ const CreateCampaignPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Bank</label>
-                    <select 
+                    <select
                       className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all appearance-none cursor-pointer"
                       value={formData.bankName}
                       onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
@@ -449,20 +469,20 @@ const CreateCampaignPage = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nomor Rekening</label>
-                    <input 
-                      type="number" 
-                      placeholder="Contoh: 1234567890" 
-                      className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                    <input
+                      type="number"
+                      placeholder="Contoh: 1234567890"
+                      className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all"
                       value={formData.accountNumber}
                       onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Pemilik Rekening</label>
-                    <input 
-                      type="text" 
-                      placeholder="Harus sesuai dengan buku tabungan" 
-                      className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all" 
+                    <input
+                      type="text"
+                      placeholder="Harus sesuai dengan buku tabungan"
+                      className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all"
                       value={formData.accountOwner}
                       onChange={(e) => setFormData({ ...formData, accountOwner: e.target.value })}
                     />
@@ -490,7 +510,7 @@ const CreateCampaignPage = () => {
           {/* --- BUTTON NAVIGASI BAWAH --- */}
           <div className="mt-12 flex justify-between items-center pt-6 border-t border-gray-100">
             {currentStep > 1 ? (
-              <button 
+              <button
                 type="button"
                 onClick={() => setCurrentStep(prev => prev - 1)}
                 className="flex items-center text-slate-500 bg-slate-100 py-3 px-6 rounded-xl hover:bg-slate-200 font-bold transition-colors"
@@ -503,7 +523,7 @@ const CreateCampaignPage = () => {
             )}
 
             {currentStep < 3 ? (
-              <button 
+              <button
                 type="button"
                 onClick={() => {
                   // Validasi ringan tiap step
@@ -524,7 +544,7 @@ const CreateCampaignPage = () => {
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
               </button>
             ) : (
-              <button 
+              <button
                 type="button"
                 onClick={handleSubmit}
                 className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 px-8 rounded-xl flex items-center transition-colors shadow-sm"
