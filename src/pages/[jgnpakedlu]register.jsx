@@ -12,8 +12,8 @@ const Register = () => {
     email: '',
     password: '',
     confirm_password: '',
-    date_of_birth: '2000-01-01', 
-    address: 'Default Address'   
+    date_of_birth: '2000-01-01',
+    address: 'Default Address'
   });
 
   const handleNextStep = (e) => {
@@ -37,7 +37,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fbfb] flex flex-col items-center py-12 px-4 font-sans">
-      
+
       <div className="flex items-center gap-4 md:gap-8 mb-12">
         <StepIndicator step={1} currentStep={currentStep} label="ACCOUNT" />
         <div className={`h-[2px] w-12 md:w-24 transition-colors duration-500 ${currentStep >= 2 ? 'bg-[#2ea391]' : 'bg-gray-200'}`} />
@@ -47,7 +47,7 @@ const Register = () => {
       </div>
 
       <div className="w-full max-w-2xl bg-white rounded-[2rem] p-8 md:p-12 shadow-xl shadow-gray-100 border border-gray-50">
-        
+
         {currentStep === 1 && (
           <div className="animate-fadeIn">
             <Link to="/login" className="text-[#2ea391] font-bold text-sm mb-6 inline-flex items-center hover:underline">
@@ -55,16 +55,16 @@ const Register = () => {
             </Link>
             <h2 className="text-3xl font-black text-gray-800 mb-2">Create Account</h2>
             <p className="text-gray-400 text-sm mb-10 font-medium">Step 1: Personal Information</p>
-            
+
             <form onSubmit={handleNextStep} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormInput label="Full Name" placeholder="Nama Lengkap" onChange={(e) => setFormData({...formData, full_name: e.target.value})} />
-                <FormInput label="Phone Number" placeholder="+62 8..." onChange={(e) => setFormData({...formData, phone: e.target.value})} />
+                <FormInput label="Full Name" placeholder="Nama Lengkap" onChange={(e) => setFormData({ ...formData, full_name: e.target.value })} />
+                <FormInput label="Phone Number" placeholder="+62 8..." onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
               </div>
-              <FormInput label="Email Address" type="email" placeholder="contoh@mail.com" onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              <FormInput label="Email Address" type="email" placeholder="contoh@mail.com" onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormInput label="Password" type="password" placeholder="••••••••" onChange={(e) => setFormData({...formData, password: e.target.value})} />
-                <FormInput label="Confirm Password" type="password" placeholder="••••••••" onChange={(e) => setFormData({...formData, confirm_password: e.target.value})} />
+                <FormInput label="Password" type="password" placeholder="••••••••" onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+                <FormInput label="Confirm Password" type="password" placeholder="••••••••" onChange={(e) => setFormData({ ...formData, confirm_password: e.target.value })} />
               </div>
               <button className="w-full bg-[#2ea391] text-white py-4 rounded-2xl font-black text-lg hover:bg-[#258a7b] transform hover:-translate-y-1 transition-all shadow-lg shadow-teal-100">
                 Next: Verification →
@@ -80,9 +80,9 @@ const Register = () => {
               Please upload your identity document for transparency and security.
             </p>
             <div className="border-4 border-dashed border-gray-100 rounded-[2rem] p-16 mb-10 bg-gray-50 flex flex-col items-center justify-center">
-               <div className="text-5xl mb-4 text-gray-300">📄</div>
-               <p className="text-gray-400 font-bold italic">KTP / Passport / ID Card</p>
-               <button className="mt-4 text-[#2ea391] text-xs font-black uppercase tracking-widest underline">Browse File</button>
+              <div className="text-5xl mb-4 text-gray-300">📄</div>
+              <p className="text-gray-400 font-bold italic">KTP / Passport / ID Card</p>
+              <button className="mt-4 text-[#2ea391] text-xs font-black uppercase tracking-widest underline">Browse File</button>
             </div>
             <button onClick={handleSubmitFinal} className="w-full bg-[#2ea391] text-white py-4 rounded-2xl font-black text-lg hover:bg-[#258a7b] shadow-lg shadow-teal-100 transition-all">
               Complete Registration

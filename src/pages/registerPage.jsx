@@ -149,7 +149,7 @@ const RegisterPage = () => {
       console.error(error);
       const validationErrors = error.response?.data?.errors;
       let errorMsg = error.response?.data?.message || 'Pendaftaran gagal. Silakan coba kembali.';
-      
+
       if (validationErrors) {
         const firstErrorKey = Object.keys(validationErrors)[0];
         errorMsg = validationErrors[firstErrorKey][0];
@@ -255,19 +255,19 @@ const RegisterPage = () => {
           <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 1 ? 'text-[#2ea391]' : 'text-gray-400'}`}>ACCOUNT</p>
         </div>
         <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 2 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
-        
+
         <div className="text-center min-w-[70px]">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 2 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>2</div>
           <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 2 ? 'text-[#2ea391]' : 'text-gray-400'}`}>KYC</p>
         </div>
         <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 3 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
-        
+
         <div className="text-center min-w-[70px]">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 3 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>3</div>
           <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 3 ? 'text-[#2ea391]' : 'text-gray-400'}`}>VERIFY</p>
         </div>
         <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 4 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
-        
+
         <div className="text-center min-w-[70px]">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 4 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>4</div>
           <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 4 ? 'text-[#2ea391]' : 'text-gray-400'}`}>FINISH</p>
@@ -297,7 +297,7 @@ const RegisterPage = () => {
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Phone Number</label>
@@ -375,30 +375,30 @@ const RegisterPage = () => {
         {/* STEP 2: KYC VERIFICATION */}
         {currentStep === 2 && (
           <div>
-            <button 
-              onClick={() => setCurrentStep(1)} 
+            <button
+              onClick={() => setCurrentStep(1)}
               className="text-gray-500 text-sm mb-4 inline-block hover:opacity-75 transition-opacity"
             >
               ← Back to Account Info
             </button>
-            
+
             <h2 className="text-2xl font-bold text-gray-800 text-center">KYC Verification</h2>
             <p className="text-gray-500 text-sm mb-8 text-center">Please enter your national ID details and upload your KTP Card.</p>
-            
+
             <form onSubmit={handleSubmitKYC} className="space-y-6 text-left">
               {/* NIK Input Field */}
               <div>
                 <label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wide">
                   Nomor Induk Kependudukan (NIK - 16 Digit)
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   maxLength={16}
                   value={nik}
                   onChange={(e) => setNik(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="w-full bg-gray-100 p-4 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#2ea391]/20 border border-transparent focus:border-[#2ea391] font-bold text-gray-800 tracking-widest text-center text-lg transition-all" 
+                  className="w-full bg-gray-100 p-4 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#2ea391]/20 border border-transparent focus:border-[#2ea391] font-bold text-gray-800 tracking-widest text-center text-lg transition-all"
                   placeholder="317101xxxxxxxxxx"
-                  required 
+                  required
                 />
               </div>
 
@@ -407,29 +407,28 @@ const RegisterPage = () => {
                 <label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wide">
                   Foto Kartu Tanda Penduduk (KTP)
                 </label>
-                
-                <input 
-                  type="file" 
-                  id="ktp-file-input" 
-                  accept="image/*" 
-                  className="hidden" 
+
+                <input
+                  type="file"
+                  id="ktp-file-input"
+                  accept="image/*"
+                  className="hidden"
                   onChange={handleFileChange}
                   required={!idPreview}
                 />
 
-                <label 
+                <label
                   htmlFor="ktp-file-input"
-                  className={`border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${
-                    idPreview 
-                      ? 'border-[#2ea391] bg-teal-50/10' 
+                  className={`border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${idPreview
+                      ? 'border-[#2ea391] bg-teal-50/10'
                       : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   {idPreview ? (
                     <div className="relative w-full flex flex-col items-center">
-                      <img 
-                        src={idPreview} 
-                        alt="KTP Preview" 
+                      <img
+                        src={idPreview}
+                        alt="KTP Preview"
                         className="max-h-48 rounded-xl object-contain shadow-md mb-4"
                       />
                       <span className="text-xs font-bold text-[#2ea391] bg-teal-50 px-3 py-1 rounded-full hover:bg-teal-100 transition-colors">
