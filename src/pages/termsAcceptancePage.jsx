@@ -1,30 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ShieldCheck, FileText, CheckSquare, Square, Sparkles, BookOpen, AlertCircle, RefreshCw } from 'lucide-react';
+import api from '../utils/api';
 
 const TermsAcceptancePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeTc] = useState(() => {
-    // Retrieve the active T&C version from localStorage
-    const storedVersions = localStorage.getItem('carefund_tc_versions');
-    let active = null;
-    
-    if (storedVersions) {
-      try {
-        const versions = JSON.parse(storedVersions);
-        active = versions.find(v => v.status === 'active');
-      } catch (e) {
-        console.error('Error parsing versions', e);
-      }
-    }
+  
+  const [activeTc, setActiveTc] = useState(null);
+  const [isChecked, setIsChecked] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  // Get redirect path
+  const redirectPath = location.state?.from || '/dashboard';
 
-    // Default fallback if not initialized in localStorage yet
-    if (!active) {
-      active = {
-        version: 'v2.0.0',
-        title: 'Syarat dan Ketentuan v2.0.0 - Pembaruan Kebijakan Transparansi & Biaya',
-        content: `### 1. Ketentuan Layanan Pembaruan
+  useEffect(() => {
+    const fetchActiveTerms = async () => {
+      try {
+        const response = await api.get('/term-versions');
+        // Response format is { success: true, data: [...] }
+        const versions = response.data?.data || response.data;
+        
+        if (Array.isArray(versions) && versions.length > 0) {
+          // Sort descending by version_id to get the latest version
+          const sorted = [...versions].sort((a, b) => b.version_id - a.version_id);
+          const latest = sorted[0];
+          
+          setActiveTc({
+            version_id: latest.version_id,
+            version: latest.version_number,
+            title: `Syarat & Ketentuan Pembaruan (${latest.version_number})`,
+            content: latest.content,
+            highlights: [
+              'Penyesuaian tata kelola platform CareFund.',
+              'Peningkatan transparansi penyaluran dana donasi.',
+              'Kepatuhan regulasi perlindungan data pribadi (UU PDP).',
+              'Pelaporan real-time pada dashboard terpadu.'
+            ]
+          });
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('Gagal memuat T&C dari API, menggunakan data lokal / fallback:', err);
+      }
+
+      // Fallback to localStorage/default
+      const storedVersions = localStorage.getItem('carefund_tc_versions');
+      let active = null;
+      
+      if (storedVersions) {
+        try {
+          const versions = JSON.parse(storedVersions);
+          active = versions.find(v => v.status === 'active');
+        } catch (e) {
+          console.error('Error parsing versions', e);
+        }
+      }
+
+      if (!active) {
+        active = {
+          version_id: 2,
+          version: 'v2.0.0',
+          title: 'Syarat dan Ketentuan v2.0.0 - Pembaruan Kebijakan Transparansi & Biaya',
+          content: `### 1. Ketentuan Layanan Pembaruan
 Kami telah memperbarui Syarat dan Ketentuan kami untuk meningkatkan transparansi penyaluran dana serta kepatuhan terhadap regulasi perlindungan data pribadi (UU PDP).
 
 ### 2. Sistem Transparansi & Distribusi
@@ -34,38 +74,51 @@ Setiap donasi kini dilengkapi dengan pelaporan real-time yang dapat diakses mela
 Kami berkomitmen melindungi data pribadi Anda. Data sensitif seperti foto KTP untuk verifikasi KYC dienkripsi menggunakan standar industri dan tidak akan dibagikan kepada pihak ketiga tanpa persetujuan eksplisit Anda.
 
 ### 4. Mekanisme Audit Publik
-Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan kampanye secara berkala demi menjamin dana disalurkan tepat sasaran.`,
-        highlights: [
-          'Penurunan biaya admin platform dari 5% menjadi 3.5% flat.',
-          'Peningkatan keamanan data KYC sesuai regulasi UU PDP terbaru.',
-          'Implementasi mekanisme audit independen untuk transparansi penuh.',
-          'Pelaporan real-time di Dashboard Komunitas untuk setiap donasi.'
-        ]
-      };
-    }
-    return active;
-  });
-  const [isChecked, setIsChecked] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
-  
-  // Get redirect path
-  const redirectPath = location.state?.from || '/dashboard';
+Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan kampanye secara berkala demi menjamin dana disalurkan tepat saran.`,
+          highlights: [
+            'Penurunan biaya admin platform dari 5% menjadi 3.5% flat.',
+            'Peningkatan keamanan data KYC sesuai regulasi UU PDP terbaru.',
+            'Implementasi mekanisme audit independen untuk transparansi penuh.',
+            'Pelaporan real-time di Dashboard Komunitas untuk setiap donasi.'
+          ]
+        };
+      }
+      setActiveTc(active);
+      setLoading(false);
+    };
 
-  const handleAccept = () => {
+    fetchActiveTerms();
+  }, []);
+
+  const handleAccept = async () => {
     if (!isChecked || !activeTc) return;
 
     // Trigger success micro-animation
     setShowCelebration(true);
 
-    setTimeout(() => {
-      // 1. Update user object in localStorage
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
+    // Get logged in user details
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
         const user = JSON.parse(userStr);
+        
+        // 1. Post to API
+        try {
+          const payload = {
+            user_id: user.id || user.user_id || 1, // Fallback to 1 if not present
+            version_id: activeTc.version_id || 2,  // Fallback to 2 if not present
+            ip_address: '127.0.0.1' // client simulated IP
+          };
+          await api.post('/user-terms-agreements', payload);
+        } catch (apiErr) {
+          console.warn('Gagal mencatat persetujuan ke database API:', apiErr);
+          // Don't block the user in generalized mode if API fails
+        }
+
+        // 2. Update local state
         user.acceptedTermsVersion = activeTc.version;
         localStorage.setItem('user', JSON.stringify(user));
 
-        // 2. Add log to carefund_tc_acceptances
         const storedAcceptances = localStorage.getItem('carefund_tc_acceptances') || '[]';
         const acceptances = JSON.parse(storedAcceptances);
         
@@ -79,11 +132,15 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
 
         acceptances.unshift(newAcceptance);
         localStorage.setItem('carefund_tc_acceptances', JSON.stringify(acceptances));
+      } catch (err) {
+        console.error('Error handling accept:', err);
       }
+    }
 
-      // 3. Navigate back to where they wanted to go
+    setTimeout(() => {
+      // Navigate back
       navigate(redirectPath, { replace: true });
-    }, 1500); // 1.5 seconds delay for celebration animation
+    }, 1500);
   };
 
   const handleLogout = () => {
@@ -92,7 +149,7 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
     window.location.href = '/login';
   };
 
-  if (!activeTc) {
+  if (loading || !activeTc) {
     return (
       <div className="min-h-screen bg-[#E0F2F1] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">

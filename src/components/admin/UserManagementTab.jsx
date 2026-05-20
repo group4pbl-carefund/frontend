@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   UserCheck, 
@@ -14,37 +14,90 @@ import {
   ExternalLink
 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import api from '../../utils/api';
 
 const UserManagementTab = () => {
-  const [usersList, setUsersList] = useState([
+  const [usersList, setUsersList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('Semua');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const defaultUsers = [
     { id: 1, name: 'Ahmad Santoso', email: 'ahmad@email.com', avatar: 'AS', kyc: 'Verified', date: '12 Okt 2023' },
     { id: 2, name: 'Jane Doe', email: 'jane@email.com', avatar: 'JD', kyc: 'Pending', date: '15 Okt 2023' },
     { id: 3, name: 'Jessica Tan', email: 'jessica@email.com', avatar: 'JT', kyc: 'Verified', date: '20 Okt 2023' },
     { id: 4, name: 'Bambang Pamungkas', email: 'bambang@email.com', avatar: 'BP', kyc: 'Pending', date: '22 Okt 2023' },
     { id: 5, name: 'Dewi Lestari', email: 'dewi@email.com', avatar: 'DL', kyc: 'Unverified', date: '25 Okt 2023' }
-  ]);
+  ];
 
-  const [activeFilter, setActiveFilter] = useState('Semua');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const toggleKyc = (id) => {
-    setUsersList(usersList.map(u => {
-      if (u.id === id) {
-        let nextKyc = 'Verified';
-        if (u.kyc === 'Verified') nextKyc = 'Pending';
-        else if (u.kyc === 'Pending') nextKyc = 'Unverified';
-        else nextKyc = 'Verified';
-
-        Swal.fire({
-          title: 'Status KYC Diperbarui!',
-          text: `Status KYC untuk ${u.name} diubah menjadi ${nextKyc}.`,
-          icon: 'success',
-          confirmButtonColor: '#147D73'
-        });
-        return { ...u, kyc: nextKyc };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get('/users');
+        const data = response.data?.data || response.data;
+        if (Array.isArray(data) && data.length > 0) {
+          const mappedUsers = data.map(item => {
+            const getInitials = (name) => {
+              return (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            };
+            const dateObj = new Date(item.created_at || Date.now());
+            
+            return {
+              id: item.id,
+              name: item.full_name || 'No Name',
+              email: item.email || 'no-email@carefund.com',
+              avatar: getInitials(item.full_name || 'No Name'),
+              kyc: item.is_verified ? 'Verified' : 'Unverified',
+              raw_is_verified: item.is_verified,
+              date: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+            };
+          });
+          setUsersList(mappedUsers);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('Gagal memuat daftar pengguna dari API, menggunakan fallback:', err);
       }
-      return u;
+      setUsersList(defaultUsers);
+      setLoading(false);
+    };
+
+    fetchUsers();
+  }, []);
+
+  const toggleKyc = async (id) => {
+    const u = usersList.find(user => user.id === id);
+    if (!u) return;
+
+    let nextKyc = 'Verified';
+    if (u.kyc === 'Verified') nextKyc = 'Pending';
+    else if (u.kyc === 'Pending') nextKyc = 'Unverified';
+    else nextKyc = 'Verified';
+
+    const nextIsVerifiedBoolean = nextKyc === 'Verified';
+
+    // 1. Try API call
+    try {
+      await api.patch(`/users/${id}`, { is_verified: nextIsVerifiedBoolean });
+    } catch (err) {
+      console.warn('Gagal mengubah status verifikasi di API, memperbarui lokal saja:', err);
+    }
+
+    // 2. Update local state
+    setUsersList(usersList.map(item => {
+      if (item.id === id) {
+        return { ...item, kyc: nextKyc };
+      }
+      return item;
     }));
+
+    Swal.fire({
+      title: 'Status KYC Diperbarui!',
+      text: `Status KYC untuk ${u.name} diubah menjadi ${nextKyc}.`,
+      icon: 'success',
+      confirmButtonColor: '#147D73'
+    });
   };
 
   const handleCreateUser = async () => {
@@ -99,7 +152,7 @@ const UserManagementTab = () => {
 
   const stats = [
     { label: 'Total Users', value: totalUsers, change: 'LIVE UPDATE', icon: Users, color: 'text-teal-600', bg: 'bg-teal-50' },
-    { label: 'Verified KYC', value: verifiedCount, change: `${Math.round((verifiedCount/totalUsers)*100)}% DARI TOTAL`, icon: UserCheck, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Verified KYC', value: verifiedCount, change: totalUsers > 0 ? `${Math.round((verifiedCount/totalUsers)*100)}% DARI TOTAL` : '0% DARI TOTAL', icon: UserCheck, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { label: 'Pending Verification', value: pendingCount, change: 'BUTUH TINJAUAN', icon: Clock, color: 'text-rose-600', bg: 'bg-rose-50' },
   ];
 

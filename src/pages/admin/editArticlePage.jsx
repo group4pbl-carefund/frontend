@@ -4,6 +4,7 @@ import { Editor } from '@tinymce/tinymce-react';
 import MainLayout from '../../layouts/mainLayout';
 import Swal from 'sweetalert2';
 import { getArticleById, updateArticle } from '../../utils/articleDb';
+import api from '../../utils/api';
 
 const EditArticlePage = () => {
   const { id } = useParams();
@@ -23,30 +24,58 @@ const EditArticlePage = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  // Ambil data artikel dari in-memory db berdasarkan ID
+  // Ambil data artikel dari API dengan fallback
   useEffect(() => {
-    const existing = getArticleById(id);
-    if (existing) {
-      setArticle({
-        title: existing.title || '',
-        category: existing.category || 'Security',
-        authorName: existing.authorName || 'Editorial Team',
-        status: existing.status || 'PUBLISHED',
-        featured: existing.featured || false,
-        metaDescription: existing.metaDescription || '',
-        content: existing.content || ''
-      });
-    } else {
-      Swal.fire({
-        title: 'Error!',
-        text: 'Artikel tidak ditemukan!',
-        icon: 'error',
-        confirmButtonColor: '#147D73'
-      }).then(() => {
-        navigate('/admin/edukasi/manage');
-      });
-    }
-    setIsLoading(false);
+    const fetchArticleDetail = async () => {
+      setIsLoading(true);
+      let loadedFromApi = false;
+
+      try {
+        const response = await api.get(`/education-articles/${id}`);
+        const data = response.data?.data || response.data;
+        if (data) {
+          setArticle({
+            title: data.title || '',
+            category: data.category || 'Security',
+            authorName: data.author?.full_name || 'Editorial Team',
+            status: (data.status || 'PUBLISHED').toUpperCase(),
+            featured: data.featured || false,
+            metaDescription: data.metaDescription || '',
+            content: data.content || ''
+          });
+          loadedFromApi = true;
+        }
+      } catch (err) {
+        console.warn('Gagal mengambil detail artikel dari API, menggunakan lokal:', err);
+      }
+
+      if (!loadedFromApi) {
+        const existing = getArticleById(id);
+        if (existing) {
+          setArticle({
+            title: existing.title || '',
+            category: existing.category || 'Security',
+            authorName: existing.authorName || 'Editorial Team',
+            status: existing.status || 'PUBLISHED',
+            featured: existing.featured || false,
+            metaDescription: existing.metaDescription || '',
+            content: existing.content || ''
+          });
+        } else {
+          Swal.fire({
+            title: 'Error!',
+            text: 'Artikel tidak ditemukan!',
+            icon: 'error',
+            confirmButtonColor: '#147D73'
+          }).then(() => {
+            navigate('/admin/edukasi/manage');
+          });
+        }
+      }
+      setIsLoading(false);
+    };
+
+    fetchArticleDetail();
   }, [id, navigate]);
 
   const handleUpdate = async () => {
@@ -62,6 +91,22 @@ const EditArticlePage = () => {
       return;
     }
 
+    const apiStatus = article.status === 'PUBLISHED' ? 'published' : 'draft';
+
+    // 1. Try backend API call
+    try {
+      await api.put(`/education-articles/${id}`, {
+        title: article.title.trim(),
+        content: updatedContent,
+        category: article.category,
+        status: apiStatus,
+        published_at: apiStatus === 'published' ? new Date().toISOString().split('T')[0] : null
+      });
+    } catch (err) {
+      console.warn("Gagal memperbarui artikel di API backend, memperbarui lokal saja:", err);
+    }
+
+    // 2. Local fallback update
     updateArticle(id, {
       title: article.title,
       category: article.category,

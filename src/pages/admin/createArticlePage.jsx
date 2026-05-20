@@ -4,6 +4,7 @@ import { Editor } from '@tinymce/tinymce-react';
 import MainLayout from '../../layouts/mainLayout';
 import Swal from 'sweetalert2';
 import { addArticle } from '../../utils/articleDb';
+import api from '../../utils/api';
 
 const CreateArticlePage = () => {
   const navigate = useNavigate();
@@ -31,12 +32,42 @@ const CreateArticlePage = () => {
       return;
     }
 
+    // Determine author ID from currently logged-in user or default to 1
+    let authorId = 1;
+    try {
+      const loggedUser = localStorage.getItem('user');
+      if (loggedUser) {
+        const u = JSON.parse(loggedUser);
+        if (u && u.id) {
+          authorId = u.id;
+        }
+      }
+    } catch (e) {
+      console.warn("Gagal parse logged in user", e);
+    }
+
+    const apiStatus = isDraft ? 'draft' : (formData.status === 'PUBLISHED' ? 'published' : 'draft');
+
+    // 1. Try backend API call
+    try {
+      await api.post('/education-articles', {
+        title: formData.title.trim(),
+        content: editorContent,
+        category: formData.category,
+        author_id: authorId,
+        status: apiStatus,
+        published_at: apiStatus === 'published' ? new Date().toISOString().split('T')[0] : null
+      });
+    } catch (err) {
+      console.warn("Gagal menyimpan artikel ke API backend, menyimpan lokal:", err);
+    }
+
+    // 2. Local fallback update
     const newArticle = {
       ...formData,
       content: editorContent,
       status: isDraft ? 'DRAFT' : formData.status
     };
-
     addArticle(newArticle);
 
     await Swal.fire({

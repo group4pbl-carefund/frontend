@@ -1,21 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../../layouts/mainLayout';
 import Swal from 'sweetalert2';
 import { getArticles, deleteArticle, getStats } from '../../utils/articleDb';
+import api from '../../utils/api';
 
 const CmsEdukasiPage = () => {
   const navigate = useNavigate();
-  const [articles, setArticles] = useState(getArticles());
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Categories');
 
-  const stats = getStats();
+  const fetchArticles = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/education-articles');
+      const data = response.data?.data || response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        const mapped = data.map(item => {
+          const cat = item.category || 'Security';
+          const catCol = cat === 'Security' 
+            ? 'bg-teal-50 text-teal-600' 
+            : cat === 'Regulation' 
+              ? 'bg-blue-50 text-blue-600' 
+              : 'bg-orange-50 text-orange-600';
+          
+          const statVal = (item.status || 'DRAFT').toUpperCase();
+          const statCol = statVal === 'PUBLISHED' 
+            ? 'bg-emerald-100 text-emerald-700' 
+            : 'bg-gray-100 text-gray-600';
+
+          const dateObj = new Date(item.published_at || item.created_at || Date.now());
+
+          return {
+            id: item.article_id,
+            title: item.title || 'Untitled Article',
+            subtitle: `${cat} Guide & Insights`,
+            category: cat,
+            catColor: catCol,
+            authorName: item.author?.full_name || 'Editorial Team',
+            authorAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.author?.full_name || 'Admin')}&background=147D73&color=fff`,
+            date: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+            views: (item.views_count || 120).toString(),
+            status: statVal,
+            statusColor: statCol,
+            content: item.content || ''
+          };
+        });
+        setArticles(mapped);
+        setLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.warn('Gagal memuat artikel dari API, menggunakan fallback mock:', err);
+    }
+
+    // Fallback
+    setArticles(getArticles());
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchArticles();
+  }, []);
+
+  // Hitung stats dinamis
+  const totalArticles = articles.length;
+  const totalViewsVal = articles.reduce((sum, a) => sum + parseInt((a.views || '0').replace(/[^0-9]/g, ''), 10), 0);
+  const categoriesCount = Array.from(new Set(articles.map(a => a.category))).length;
 
   const statsData = [
     {
       title: 'TOTAL ARTICLES',
-      value: stats.totalArticles.toString(),
+      value: totalArticles.toString(),
       badge: 'Real-time',
       icon: (
         <svg className="w-6 h-6 text-[#147D73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -23,7 +81,7 @@ const CmsEdukasiPage = () => {
     },
     {
       title: 'TOTAL VIEWS',
-      value: stats.totalViews,
+      value: totalViewsVal.toLocaleString('id-ID'),
       badge: 'Cumulative',
       icon: (
         <svg className="w-6 h-6 text-[#147D73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
@@ -31,7 +89,7 @@ const CmsEdukasiPage = () => {
     },
     {
       title: 'CATEGORIES',
-      value: stats.categoriesCount.toString(),
+      value: categoriesCount.toString(),
       badge: null,
       icon: (
         <svg className="w-6 h-6 text-[#147D73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
@@ -52,14 +110,23 @@ const CmsEdukasiPage = () => {
     });
 
     if (result.isConfirmed) {
+      // 1. Try to delete from backend API
+      try {
+        await api.delete(`/education-articles/${id}`);
+      } catch (err) {
+        console.warn('Gagal menghapus artikel dari API, menghapus lokal saja:', err);
+      }
+
+      // 2. Local fallback update
       deleteArticle(id);
-      setArticles(getArticles());
+      
       Swal.fire({
         title: 'Dihapus!',
         text: 'Artikel berhasil dihapus.',
         icon: 'success',
         confirmButtonColor: '#147D73'
       });
+      fetchArticles();
     }
   };
 

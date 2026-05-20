@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { 
   FileText, 
@@ -17,111 +17,12 @@ import {
   ShieldAlert,
   Sparkles
 } from 'lucide-react';
+import api from '../../utils/api';
 
 const TermsManagementTab = () => {
-  const [versions, setVersions] = useState(() => {
-    const storedVersions = localStorage.getItem('carefund_tc_versions');
-    if (storedVersions) {
-      try {
-        return JSON.parse(storedVersions);
-      } catch (e) {
-        console.error('Error parsing versions in Admin tab', e);
-      }
-    }
-
-    const defaultVersions = [
-      {
-        id: 1,
-        version: 'v1.0.0',
-        title: 'Syarat dan Ketentuan Awal Care Fund',
-        content: `### 1. Ketentuan Umum
-Selamat datang di Care Fund. Dengan mengakses atau menggunakan platform kami, Anda menyetujui untuk terikat oleh Syarat dan Ketentuan ini.
-
-### 2. Pendaftaran Akun
-Untuk menggunakan fitur donasi dan edukasi tertentu, Anda harus mendaftar akun dan memberikan informasi yang akurat. Anda bertanggung jawab menjaga kerahasiaan kata sandi Anda.
-
-### 3. Penggunaan Dana Donasi
-Seluruh dana yang disalurkan melalui platform Care Fund akan diproses secara transparan. Care Fund mengenakan biaya operasional maksimal sebesar 5% untuk keberlanjutan platform, kecuali untuk kategori bencana alam yang dibebaskan dari biaya operasional.
-
-### 4. Batasan Tanggung Jawab
-Care Fund berfungsi sebagai fasilitator antara donatur dan penerima manfaat. Kami berusaha memastikan keabsahan setiap kampanye, namun kami mengharapkan pengguna melakukan verifikasi independen jika diperlukan.`,
-        highlights: [
-          'Ketentuan pendaftaran akun dan perlindungan kredensial.',
-          'Pengenaan biaya operasional maksimal 5% untuk pemeliharaan platform.',
-          'Fungsi platform sebagai fasilitator donasi yang aman.'
-        ],
-        status: 'inactive',
-        publishedAt: '2024-01-12T08:00:00Z',
-        author: 'Admin CareFund',
-        acceptedCount: 11200
-      },
-      {
-        id: 2,
-        version: 'v2.0.0',
-        title: 'Syarat dan Ketentuan v2.0.0 - Pembaruan Kebijakan Transparansi & Biaya',
-        content: `### 1. Ketentuan Layanan Pembaruan
-Kami telah memperbarui Syarat dan Ketentuan kami untuk meningkatkan transparansi penyaluran dana serta kepatuhan terhadap regulasi perlindungan data pribadi (UU PDP).
-
-### 2. Sistem Transparansi & Distribusi
-Setiap donasi kini dilengkapi dengan pelaporan real-time yang dapat diakses melalui Dashboard Komunitas. Biaya administrasi platform disesuaikan menjadi flat 3.5% untuk semua kampanye non-bencana, sedangkan kampanye bencana tetap 0% (tanpa potongan).
-
-### 3. Kebijakan Privasi Baru (Kepatuhan UU PDP)
-Kami berkomitmen melindungi data pribadi Anda. Data sensitif seperti foto KTP untuk verifikasi KYC dienkripsi menggunakan standar industri dan tidak akan dibagikan kepada pihak ketiga tanpa persetujuan eksplisit Anda.
-
-### 4. Mekanisme Audit Publik
-Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan kampanye secara berkala demi menjamin dana disalurkan tepat sasaran.`,
-        highlights: [
-          'Penurunan biaya admin platform dari 5% menjadi 3.5% flat.',
-          'Peningkatan keamanan data KYC sesuai regulasi UU PDP terbaru.',
-          'Implementasi mekanisme audit independen untuk transparansi penuh.',
-          'Pelaporan real-time di Dashboard Komunitas untuk setiap donasi.'
-        ],
-        status: 'active',
-        publishedAt: '2026-02-10T09:00:00Z',
-        author: 'Super Admin CareFund',
-        acceptedCount: 9820
-      }
-    ];
-    localStorage.setItem('carefund_tc_versions', JSON.stringify(defaultVersions));
-    return defaultVersions;
-  });
-
-  const [acceptances, setAcceptances] = useState(() => {
-    const storedAcceptances = localStorage.getItem('carefund_tc_acceptances');
-    if (storedAcceptances) {
-      try {
-        return JSON.parse(storedAcceptances);
-      } catch (e) {
-        console.error('Error parsing acceptances in Admin tab', e);
-      }
-    }
-
-    const defaultAcceptances = [
-      {
-        id: 1,
-        userName: 'Ahmad Santoso',
-        userEmail: 'ahmad@email.com',
-        version: 'v2.0.0',
-        acceptedAt: '2026-02-11T10:15:30Z'
-      },
-      {
-        id: 2,
-        userName: 'Jessica Tan',
-        userEmail: 'jessica@email.com',
-        version: 'v2.0.0',
-        acceptedAt: '2026-02-12T14:20:00Z'
-      },
-      {
-        id: 3,
-        userName: 'Regular User',
-        userEmail: 'user@carefund.com',
-        version: 'v1.0.0',
-        acceptedAt: '2024-01-15T09:00:00Z'
-      }
-    ];
-    localStorage.setItem('carefund_tc_acceptances', JSON.stringify(defaultAcceptances));
-    return defaultAcceptances;
-  });
+  const [versions, setVersions] = useState([]);
+  const [acceptances, setAcceptances] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState(null);
@@ -132,6 +33,119 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
   const [newHighlights, setNewHighlights] = useState(['']);
   const [newContent, setNewContent] = useState('');
   const [setActiveImmediately, setSetActiveImmediately] = useState(true);
+
+  const defaultVersions = [
+    {
+      id: 1,
+      version: 'v1.0.0',
+      title: 'Syarat dan Ketentuan Awal Care Fund',
+      content: `### 1. Ketentuan Umum\nSelamat datang di Care Fund. Dengan mengakses atau menggunakan platform kami, Anda menyetujui untuk terikat oleh Syarat dan Ketentuan ini.\n\n### 2. Pendaftaran Akun\nUntuk menggunakan fitur donasi dan edukasi tertentu, Anda harus mendaftar akun dan memberikan informasi yang akurat. Anda bertanggung jawab menjaga kerahasiaan kata sandi Anda.`,
+      highlights: [
+        'Ketentuan pendaftaran akun dan perlindungan kredensial.',
+        'Pengenaan biaya operasional maksimal 5% untuk pemeliharaan platform.'
+      ],
+      status: 'inactive',
+      publishedAt: '2024-01-12T08:00:00Z',
+      author: 'Admin CareFund',
+      acceptedCount: 120
+    },
+    {
+      id: 2,
+      version: 'v2.0.0',
+      title: 'Syarat dan Ketentuan v2.0.0 - Pembaruan Kebijakan Transparansi & Biaya',
+      content: `### 1. Ketentuan Layanan Pembaruan\nKami telah memperbarui Syarat dan Ketentuan kami untuk meningkatkan transparansi penyaluran dana serta kepatuhan terhadap regulasi perlindungan data pribadi (UU PDP).\n\n### 2. Sistem Transparansi & Distribusi\nSetiap donasi kini dilengkapi dengan pelaporan real-time yang dapat diakses melalui Dashboard Komunitas.`,
+      highlights: [
+        'Penurunan biaya admin platform dari 5% menjadi 3.5% flat.',
+        'Peningkatan keamanan data KYC sesuai regulasi UU PDP terbaru.'
+      ],
+      status: 'active',
+      publishedAt: '2026-02-10T09:00:00Z',
+      author: 'Super Admin CareFund',
+      acceptedCount: 98
+    }
+  ];
+
+  const defaultAcceptances = [
+    {
+      id: 1,
+      userName: 'Ahmad Santoso',
+      userEmail: 'ahmad@email.com',
+      version: 'v2.0.0',
+      acceptedAt: '2026-02-11T10:15:30Z'
+    },
+    {
+      id: 2,
+      userName: 'Jessica Tan',
+      userEmail: 'jessica@email.com',
+      version: 'v2.0.0',
+      acceptedAt: '2026-02-12T14:20:00Z'
+    }
+  ];
+
+  const loadAllData = async () => {
+    setLoading(true);
+    let loadedFromApi = false;
+
+    try {
+      const response = await api.get('/term-versions');
+      const data = response.data?.data || response.data;
+      if (Array.isArray(data) && data.length > 0) {
+        const sortedData = [...data].sort((a, b) => (b.version_id || b.id) - (a.version_id || a.id));
+        const mappedVersions = sortedData.map((item, idx) => {
+          const lines = (item.content || '').split('\n').filter(l => l.startsWith('-') || l.startsWith('*') || l.length > 20);
+          const itemHighlights = lines.slice(0, 3).map(l => l.replace(/^[-*\s]+/, '').trim());
+
+          return {
+            id: item.version_id || item.id,
+            version: item.version_number || 'v1.0.0',
+            title: `Syarat & Ketentuan Versi ${item.version_number}`,
+            content: item.content || '',
+            highlights: itemHighlights.length > 0 ? itemHighlights : ['Pembaruan ketentuan layanan platform.'],
+            status: idx === 0 ? 'active' : 'inactive',
+            publishedAt: item.effective_date || item.created_at || new Date().toISOString(),
+            author: 'System Admin',
+            acceptedCount: 0
+          };
+        });
+        setVersions(mappedVersions);
+        localStorage.setItem('carefund_tc_versions', JSON.stringify(mappedVersions));
+        loadedFromApi = true;
+      }
+    } catch (err) {
+      console.warn('Gagal memuat versi S&K dari API, menggunakan localStorage/fallback:', err);
+    }
+
+    if (!loadedFromApi) {
+      const storedVersions = localStorage.getItem('carefund_tc_versions');
+      if (storedVersions) {
+        try {
+          setVersions(JSON.parse(storedVersions));
+        } catch (e) {
+          setVersions(defaultVersions);
+        }
+      } else {
+        setVersions(defaultVersions);
+        localStorage.setItem('carefund_tc_versions', JSON.stringify(defaultVersions));
+      }
+    }
+
+    const storedAcceptances = localStorage.getItem('carefund_tc_acceptances');
+    if (storedAcceptances) {
+      try {
+        setAcceptances(JSON.parse(storedAcceptances));
+      } catch (e) {
+        setAcceptances(defaultAcceptances);
+      }
+    } else {
+      setAcceptances(defaultAcceptances);
+      localStorage.setItem('carefund_tc_acceptances', JSON.stringify(defaultAcceptances));
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadAllData();
+  }, []);
 
   const saveVersionsToStorage = (updatedVersions) => {
     localStorage.setItem('carefund_tc_versions', JSON.stringify(updatedVersions));
@@ -145,7 +159,6 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
 
   const activeVersion = versions.find(v => v.status === 'active') || null;
 
-  // Highlights management helpers
   const handleAddHighlight = () => {
     setNewHighlights([...newHighlights, '']);
   };
@@ -162,7 +175,6 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
     setNewHighlights(updated.length > 0 ? updated : ['']);
   };
 
-  // Publish new T&C
   const handlePublish = async (e) => {
     e.preventDefault();
     if (!newVersion.trim() || !newTitle.trim() || !newContent.trim()) {
@@ -175,19 +187,31 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
       return;
     }
 
-    // Check version naming uniqueness
     if (versions.some(v => v.version.toLowerCase() === newVersion.trim().toLowerCase())) {
       Swal.fire({
         title: 'Gagal!',
-        text: 'Versi ini sudah ada! Gunakan string versi baru yang unik (contoh: v2.1.0).',
+        text: 'Versi ini sudah ada!',
         icon: 'error',
         confirmButtonColor: '#149187'
       });
       return;
     }
 
-    const cleanedHighlights = newHighlights.filter(h => h.trim() !== '');
+    const todayDateStr = new Date().toISOString().split('T')[0];
 
+    let apiSuccess = false;
+    try {
+      await api.post('/term-versions', {
+        version_number: newVersion.trim(),
+        content: newContent,
+        effective_date: todayDateStr
+      });
+      apiSuccess = true;
+    } catch (err) {
+      console.warn('Gagal menerbitkan T&C baru ke backend API, membuat lokal:', err);
+    }
+
+    const cleanedHighlights = newHighlights.filter(h => h.trim() !== '');
     const newTc = {
       id: Date.now(),
       version: newVersion.trim(),
@@ -202,17 +226,15 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
 
     let updatedVersions = [...versions];
     if (setActiveImmediately) {
-      // Deactivate other versions
       updatedVersions = updatedVersions.map(v => ({
         ...v,
         status: 'inactive'
       }));
     }
 
-    updatedVersions.unshift(newTc); // Add new version to front
+    updatedVersions.unshift(newTc);
     saveVersionsToStorage(updatedVersions);
 
-    // Reset Form
     setNewVersion('');
     setNewTitle('');
     setNewHighlights(['']);
@@ -220,9 +242,13 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
     setSetActiveImmediately(true);
     setShowCreateForm(false);
 
+    if (apiSuccess) {
+      loadAllData();
+    }
+
     Swal.fire({
       title: 'Berhasil!',
-      text: `T&C Versi ${newTc.version} berhasil diterbitkan!${setActiveImmediately ? ' Semua user terdaftar akan diminta menyetujui versi baru ini pada kunjungan berikutnya.' : ''}`,
+      text: `T&C Versi ${newTc.version} berhasil diterbitkan!`,
       icon: 'success',
       confirmButtonColor: '#149187'
     });
@@ -253,11 +279,26 @@ Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan ka
     });
 
     if (result.isConfirmed) {
+      // 1. Try sending to the backend Laravel API
+      let apiSuccess = false;
+      try {
+        await api.delete(`/term-versions/${id}`);
+        apiSuccess = true;
+      } catch (err) {
+        console.warn('Gagal menghapus T&C dari backend API, memperbarui lokal saja:', err);
+      }
+
+      // 2. Perform local update
       const updated = versions.filter(v => v.id !== id);
       saveVersionsToStorage(updated);
       if (selectedVersion?.id === id) {
         setSelectedVersion(null);
       }
+
+      if (apiSuccess) {
+        loadAllData();
+      }
+
       Swal.fire({
         title: 'Dihapus!',
         text: `T&C versi ${vToDelete?.version} berhasil dihapus.`,

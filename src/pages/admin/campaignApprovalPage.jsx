@@ -1,18 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, X, ShieldCheck, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { getPendingCampaigns, updateCampaignStatus } from '../../utils/campaignDb';
+import api from '../../utils/api';
 
 const CampaignApprovalPage = () => {
-  const [pendingCampaigns, setPendingCampaigns] = useState(getPendingCampaigns());
+  const [pendingCampaigns, setPendingCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchPendingCampaigns = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/programs');
+      const data = response.data?.data || response.data;
+      if (Array.isArray(data)) {
+        // Filter for pending campaigns
+        const apiPending = data.filter(item => (item.status || '').toLowerCase() === 'pending');
+        if (apiPending.length > 0) {
+          const mapped = apiPending.map(item => ({
+            id: item.program_id,
+            title: item.program_name || 'Kampanye Donasi Baru',
+            user: item.user?.full_name || 'Relawan Peduli',
+            docStatus: 'KTP & Dokumen Terverifikasi',
+            category: 'Sosial Kemanusiaan',
+            target: item.target_amount || 0,
+            status: 'pending'
+          }));
+          setPendingCampaigns(mapped);
+          setLoading(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Gagal memuat kampanye pending dari API, menggunakan mock data:', err);
+    }
+    
+    // Fallback to local mock data
+    setPendingCampaigns(getPendingCampaigns());
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchPendingCampaigns();
+  }, []);
 
   const handleAction = async (id, action) => {
     const isApprove = action === 'Approve';
+    const nextStatus = isApprove ? 'approved' : 'rejected';
     const message = isApprove
       ? "Kampanye disetujui dan sekarang tampil di publik!"
       : "Kampanye ditolak. User akan menerima notifikasi.";
-    
-    updateCampaignStatus(id, isApprove ? 'approved' : 'rejected');
+
+    // 1. Try backend API call
+    try {
+      await api.patch(`/programs/${id}`, { status: nextStatus });
+    } catch (err) {
+      console.warn('Gagal memperbarui status kampanye ke API, memperbarui lokal saja:', err);
+    }
+
+    // 2. Local fallback update
+    updateCampaignStatus(id, nextStatus);
 
     await Swal.fire({
       title: isApprove ? 'Disetujui!' : 'Ditolak!',
@@ -22,7 +69,7 @@ const CampaignApprovalPage = () => {
       confirmButtonColor: '#147D73'
     });
     
-    setPendingCampaigns(getPendingCampaigns());
+    fetchPendingCampaigns();
   };
 
   return (
