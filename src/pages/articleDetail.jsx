@@ -1,19 +1,50 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
-import { getArticleById, incrementViews } from '../utils/articleDb';
+import api from '../utils/api';
 
 const ArtikelDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [article, setArticle] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchArticleAndRecordView = async () => {
+      try {
+        const response = await api.get(`/education-articles/${id}`);
+        const articleData = response.data?.data || response.data;
+        setArticle(articleData);
+
+        // Record view if user is logged in
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          if (user && user.id) {
+            await api.post('/education-views', { article_id: id, user_id: user.id });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch article or record view:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (id) {
-      incrementViews(id);
+      fetchArticleAndRecordView();
     }
   }, [id]);
 
-  const article = getArticleById(id);
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="bg-[#F6F9F8] min-h-screen pb-24 pt-20 flex flex-col items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#147D73]"></div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   if (!article) {
     return (
@@ -56,7 +87,7 @@ const ArtikelDetail = () => {
             {/* Badges / Tags */}
             <div className="flex gap-3 mb-4">
               <span className="bg-[#C6F0E5] text-[#0F655C] text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                {article.category}
+                {article.category || 'Edukasi'}
               </span>
               <span className="bg-gray-200 text-gray-600 text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider">
                 Digital Literasi
@@ -71,14 +102,14 @@ const ArtikelDetail = () => {
             {/* Meta Info Penulis */}
             <div className="flex items-center gap-3">
               <img 
-                src={article.authorAvatar} 
-                alt={article.authorName} 
+                src={`https://ui-avatars.com/api/?name=${article.author?.full_name || 'Admin'}&background=147D73&color=fff`} 
+                alt={article.author?.full_name || 'Admin CareFund'} 
                 className="w-10 h-10 rounded-full object-cover"
               />
               <div>
-                <p className="font-bold text-slate-900 text-sm">{article.authorName}</p>
+                <p className="font-bold text-slate-900 text-sm">{article.author?.full_name || 'Admin CareFund'}</p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  {article.date} <span className="mx-1.5">•</span> 5 menit baca <span className="mx-1.5">•</span> Dilihat {article.views} kali
+                  {new Date(article.published_at || article.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})} <span className="mx-1.5">•</span> {article.read_time ? `${article.read_time} menit baca` : '5 menit baca'}
                 </p>
               </div>
             </div>
@@ -87,7 +118,7 @@ const ArtikelDetail = () => {
           {/* --- GAMBAR HERO --- */}
           <div className="mb-12">
             <img 
-              src={article.image || 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=1200&q=80'} 
+              src={article.thumbnail_url || 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=1200&q=80'} 
               alt="Ilustrasi Artikel" 
               className="w-full aspect-21/9 object-cover rounded-xl shadow-sm"
             />

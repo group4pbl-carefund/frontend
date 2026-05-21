@@ -4,7 +4,7 @@ import MainLayout from '../layouts/mainLayout';
 import ArticleCard from '../components/articleCard';
 import CategoryCard from '../components/categoryCard';
 import SearchBar from '../components/searchBar';
-import { getArticles } from '../utils/articleDb';
+import api from '../utils/api';
 
 const categoryCards = [
   {
@@ -51,15 +51,36 @@ const categoryCards = [
 const EdukasiPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Dapatkan seluruh artikel yang terbit
-  const publishedArticles = getArticles().filter(a => a.status === 'PUBLISHED');
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await api.get('/education-articles');
+        const data = response.data?.data || response.data;
+        if (Array.isArray(data)) {
+          setArticles(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch education articles:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArticles();
+  }, []);
 
-  // Filter berdasarkan input search
+  const publishedArticles = articles.filter(a => (a.status || '').toUpperCase() === 'PUBLISHED');
+
   const filteredArticles = publishedArticles.filter(article => {
-    return article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           (article.subtitle && article.subtitle.toLowerCase().includes(searchQuery.toLowerCase()));
+    const title = article.title || '';
+    const category = article.category || '';
+    const subtitle = article.content ? article.content.substring(0, 50) : '';
+    
+    return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           subtitle.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   return (
@@ -110,11 +131,11 @@ const EdukasiPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {filteredArticles.map((article) => (
                   <ArticleCard 
-                    key={article.id}
-                    id={article.id}
-                    category={article.category}
-                    image={article.image || 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=600&q=80'}
-                    readTime="5 menit baca"
+                    key={article.article_id}
+                    id={article.article_id}
+                    category={article.category || 'Umum'}
+                    image={article.thumbnail_url || 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=600&q=80'}
+                    readTime={article.read_time ? `${article.read_time} menit baca` : "5 menit baca"}
                     title={article.title}
                   />
                 ))}

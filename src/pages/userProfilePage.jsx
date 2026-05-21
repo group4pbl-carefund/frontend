@@ -4,13 +4,12 @@ import {
     ArrowLeft, Mail, Phone, MapPin, History, Award,
     HandHeart, Calendar, CheckCircle2, ChevronRight,
     Settings, CreditCard, LogOut, Download, Share2, Heart, PlusCircle, Megaphone,
-    Users, Plus, MessageSquare, Camera
+    Users, Plus, MessageSquare, Camera, GraduationCap, Hospital, Leaf
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import StatCard from "../components/statCard";
 import DonationHistoryItem from "../components/donationHistoryItem";
-import { getCampaigns, updateCampaignDays, addCampaignUpdate } from "../utils/campaignDb";
 import api from "../utils/api";
 
 const certificateData = [
@@ -70,8 +69,24 @@ const UserProfilePage = () => {
     const [isUploading, setIsUploading] = useState(false);
 
     // Campaign Management States
-    const [campaigns, setCampaigns] = useState(() => getCampaigns());
-    const [activeCampaign, setActiveCampaign] = useState(() => campaigns[0] || null);
+    const [campaigns, setCampaigns] = useState([]);
+    const [activeCampaign, setActiveCampaign] = useState(null);
+
+    React.useEffect(() => {
+        if (user && user.id) {
+            api.get(`/program-campaigns?user_id=${user.id}`)
+                .then(res => {
+                    const data = res.data?.data || res.data;
+                    if (Array.isArray(data)) {
+                        setCampaigns(data);
+                        if (data.length > 0) {
+                            setActiveCampaign(data[0]);
+                        }
+                    }
+                })
+                .catch(err => console.error("Error fetching campaigns:", err));
+        }
+    }, [user]);
 
     const handleAvatarChange = async (e) => {
         const file = e.target.files[0];
@@ -134,21 +149,29 @@ const UserProfilePage = () => {
         });
 
         if (result.isConfirmed) {
-            const newDays = activeCampaign.daysLeft + 7;
-            updateCampaignDays(activeCampaign.id, newDays);
+            try {
+                const res = await api.post(`/program-campaigns/${activeCampaign.campaign_id}/extend`);
+                const updatedCampaign = res.data?.data || res.data;
+                
+                // Update local state
+                setCampaigns(campaigns.map(c => c.campaign_id === activeCampaign.campaign_id ? updatedCampaign : c));
+                setActiveCampaign(updatedCampaign);
 
-            // Refresh local state
-            setActiveCampaign({
-                ...activeCampaign,
-                daysLeft: newDays
-            });
-
-            Swal.fire({
-                title: 'Berhasil!',
-                text: `Durasi kampanye berhasil diperpanjang menjadi ${newDays} hari.`,
-                icon: 'success',
-                confirmButtonColor: '#2ea391'
-            });
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: `Durasi kampanye berhasil diperpanjang.`,
+                    icon: 'success',
+                    confirmButtonColor: '#2ea391'
+                });
+            } catch (err) {
+                console.error("Error extending campaign:", err);
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat memperpanjang durasi.',
+                    icon: 'error',
+                    confirmButtonColor: '#2ea391'
+                });
+            }
         }
     };
 
@@ -173,19 +196,48 @@ const UserProfilePage = () => {
         });
 
         if (text) {
-            addCampaignUpdate(activeCampaign.id, text);
+            try {
+                // Because DistributionUpdate might require distribution_id, we send a dummy or mapping
+                const payload = {
+                    distribution_id: activeCampaign.program_id, // As a fallback for current backend
+                    title: 'Update Laporan',
+                    content: text,
+                    notes: text,
+                    status: 'published',
+                    updated_by: user.id
+                };
+                await api.post('/distribution-updates', payload);
 
-            // Ambil data kampanye terbaru dengan updatenya
-            const updatedList = getCampaigns();
-            const updatedCampaign = updatedList.find(c => c.id === activeCampaign.id);
-            setActiveCampaign(updatedCampaign);
+                // Add to local state manually for now so it shows up
+                const newUpdate = {
+                    id: Date.now(),
+                    date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+                    text: text
+                };
+                
+                const updatedActive = {
+                    ...activeCampaign,
+                    updates: activeCampaign.updates ? [newUpdate, ...activeCampaign.updates] : [newUpdate]
+                };
+                
+                setCampaigns(campaigns.map(c => c.campaign_id === activeCampaign.campaign_id ? updatedActive : c));
+                setActiveCampaign(updatedActive);
 
-            Swal.fire({
-                title: 'Berhasil Diterbitkan!',
-                text: 'Laporan kabar terbaru Anda telah berhasil dikirimkan ke seluruh donatur kampanye ini.',
-                icon: 'success',
-                confirmButtonColor: '#2ea391'
-            });
+                Swal.fire({
+                    title: 'Berhasil Diterbitkan!',
+                    text: 'Laporan kabar terbaru Anda telah berhasil dikirimkan.',
+                    icon: 'success',
+                    confirmButtonColor: '#2ea391'
+                });
+            } catch (err) {
+                console.error("Error creating update:", err);
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menerbitkan laporan.',
+                    icon: 'error',
+                    confirmButtonColor: '#2ea391'
+                });
+            }
         }
     };
 
@@ -428,9 +480,15 @@ const UserProfilePage = () => {
                                                     <p className="text-[10px] uppercase font-bold opacity-60">Program Didukung</p>
                                                 </div>
                                                 <div className="flex -space-x-2">
-                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#28a792] flex items-center justify-center">🎓</div>
-                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#28a792] flex items-center justify-center">🏥</div>
-                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#28a792] flex items-center justify-center">🌿</div>
+                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#28a792] flex items-center justify-center">
+                                                        <GraduationCap size={18} className="text-white" />
+                                                    </div>
+                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#28a792] flex items-center justify-center">
+                                                        <Hospital size={18} className="text-white" />
+                                                    </div>
+                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#28a792] flex items-center justify-center">
+                                                        <Leaf size={18} className="text-white" />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -495,7 +553,9 @@ const UserProfilePage = () => {
 
                                 {!activeCampaign ? (
                                     <div className="border-2 border-dashed border-slate-200 p-12 rounded-[2rem] text-center text-slate-400 font-medium bg-slate-50/50">
-                                        <div className="text-5xl mb-4">📢</div>
+                                        <div className="flex justify-center mb-4 text-slate-300">
+                                            <Megaphone size={48} />
+                                        </div>
                                         <p className="font-bold text-slate-500 italic">Tidak ada kampanye aktif untuk dikelola saat ini.</p>
                                         <Link to="/buat-kampanye" className="inline-block mt-4 bg-[#2ea391] text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-[#258778] transition-all shadow-md shadow-teal-500/10">
                                             Buat Kampanye Pertama Anda
@@ -506,10 +566,10 @@ const UserProfilePage = () => {
                                         {/* DETAIL RINGKASAN */}
                                         <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                                             <span className="text-[10px] font-black bg-[#E8F3F1] text-[#2ea391] px-3 py-1 rounded-full uppercase tracking-widest">
-                                                {activeCampaign.category}
+                                                {activeCampaign.program?.category || activeCampaign.category || 'UMUM'}
                                             </span>
-                                            <h3 className="text-xl font-bold text-slate-900 mt-2">{activeCampaign.title}</h3>
-                                            <p className="text-xs text-slate-400 font-bold mt-1 uppercase">Oleh: {activeCampaign.user}</p>
+                                            <h3 className="text-xl font-bold text-slate-900 mt-2">{activeCampaign.program?.program_name || activeCampaign.title}</h3>
+                                            <p className="text-xs text-slate-400 font-bold mt-1 uppercase">Oleh: {activeCampaign.user || user.name}</p>
                                         </div>
 
                                         {/* STATS GRID */}
@@ -518,7 +578,7 @@ const UserProfilePage = () => {
                                             <div className="p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100/50">
                                                 <div className="bg-blue-600/10 text-blue-600 w-10 h-10 rounded-xl flex items-center justify-center mb-3"><Users size={20} /></div>
                                                 <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Total Donatur</p>
-                                                <h2 className="text-2xl font-black text-slate-900 mt-1">{activeCampaign.donorsCount.toLocaleString('id-ID')} <span className="text-xs font-medium">Orang</span></h2>
+                                                <h2 className="text-2xl font-black text-slate-900 mt-1">{(activeCampaign.donor_count || activeCampaign.donorsCount || 0).toLocaleString('id-ID')} <span className="text-xs font-medium">Orang</span></h2>
                                             </div>
 
                                             {/* Sisa Waktu & Extend */}
@@ -526,7 +586,11 @@ const UserProfilePage = () => {
                                                 <div className="bg-[#2ea391]/10 text-[#2ea391] w-10 h-10 rounded-xl flex items-center justify-center mb-3"><Calendar size={20} /></div>
                                                 <p className="text-[10px] font-black text-teal-400 uppercase tracking-widest">Sisa Waktu</p>
                                                 <div className="flex items-end justify-between">
-                                                    <h2 className="text-2xl font-black text-slate-900 mt-1">{activeCampaign.daysLeft} <span className="text-xs font-medium">Hari</span></h2>
+                                                    <h2 className="text-2xl font-black text-slate-900 mt-1">
+                                                        {activeCampaign.program?.end_date ? 
+                                                            Math.max(0, Math.ceil((new Date(activeCampaign.program.end_date) - new Date()) / (1000 * 60 * 60 * 24))) 
+                                                            : (activeCampaign.daysLeft || 0)} <span className="text-xs font-medium">Hari</span>
+                                                    </h2>
                                                     <button onClick={handleExtendDays} className="text-[#2ea391] hover:scale-115 transition-all p-1 bg-white rounded-lg shadow-sm border border-slate-100"><Plus size={16} /></button>
                                                 </div>
                                             </div>
@@ -534,12 +598,14 @@ const UserProfilePage = () => {
                                             {/* Persentase Dana */}
                                             <div className="p-6 bg-slate-900 rounded-[2rem] text-white">
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Pencapaian Dana</p>
-                                                <h2 className="text-3xl font-black text-teal-400 italic">{Math.min(100, Math.round((activeCampaign.collected / activeCampaign.target) * 100))}%</h2>
+                                                <h2 className="text-3xl font-black text-teal-400 italic">
+                                                    {Math.min(100, Math.round(((activeCampaign.current_amount || activeCampaign.collected || 0) / (activeCampaign.program?.target_amount || activeCampaign.target || 1)) * 100))}%
+                                                </h2>
                                                 <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                                                    <div className="bg-teal-500 h-full" style={{ width: `${Math.min(100, Math.round((activeCampaign.collected / activeCampaign.target) * 100))}%` }}></div>
+                                                    <div className="bg-teal-500 h-full" style={{ width: `${Math.min(100, Math.round(((activeCampaign.current_amount || activeCampaign.collected || 0) / (activeCampaign.program?.target_amount || activeCampaign.target || 1)) * 100))}%` }}></div>
                                                 </div>
                                                 <p className="text-[9px] text-slate-400 mt-2 uppercase tracking-wide">
-                                                    Rp {activeCampaign.collected.toLocaleString('id-ID')} / Rp {activeCampaign.target.toLocaleString('id-ID')}
+                                                    Rp {(activeCampaign.current_amount || activeCampaign.collected || 0).toLocaleString('id-ID')} / Rp {(activeCampaign.program?.target_amount || activeCampaign.target || 0).toLocaleString('id-ID')}
                                                 </p>
                                             </div>
                                         </div>

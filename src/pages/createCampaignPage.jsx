@@ -7,11 +7,13 @@ const CreateCampaignPage = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [beneficiaryType, setBeneficiaryType] = useState('diri_sendiri');
+  const [durationMode, setDurationMode] = useState('days');
 
   const [formData, setFormData] = useState({
     title: '',
     category: 'Kesehatan',
-    deadline: '',
+    durationDays: '',
+    deadlineDate: '',
     target: '',
     description: '',
     recipientName: '',
@@ -52,6 +54,26 @@ const CreateCampaignPage = () => {
     return sum + amt;
   }, 0);
 
+  const getComputedEndDate = () => {
+    if (!formData.durationDays) return '-';
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    const duration = parseInt(formData.durationDays) || 0;
+    endDate.setDate(startDate.getDate() + duration);
+    return endDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
+  const getComputedDuration = () => {
+    if (!formData.deadlineDate) return '-';
+    const selectedDate = new Date(formData.deadlineDate);
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0); // reset time
+    selectedDate.setHours(0, 0, 0, 0);
+    const diffTime = selectedDate - startDate;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  };
+
   const handleSubmit = async () => {
     if (!formData.title.trim() || !formData.target || !formData.description.trim() || !formData.recipientName.trim()) {
       Swal.fire({
@@ -63,7 +85,8 @@ const CreateCampaignPage = () => {
       return;
     }
 
-    if (parseFloat(formData.target) < 1000000) {
+    const rawTarget = parseFloat(formData.target.replace(/\./g, '')) || 0;
+    if (rawTarget < 1000000) {
       Swal.fire({
         title: 'Target Dana Terlalu Rendah!',
         text: 'Minimal target dana penggalangan adalah Rp 1.000.000.',
@@ -91,12 +114,31 @@ const CreateCampaignPage = () => {
       return;
     }
 
+    const startDate = new Date();
+    let endDate = new Date(startDate);
+    if (durationMode === 'days') {
+      const duration = parseInt(formData.durationDays) || 0;
+      endDate.setDate(startDate.getDate() + duration);
+    } else {
+      if (formData.deadlineDate) {
+        endDate = new Date(formData.deadlineDate);
+      } else {
+        Swal.fire({
+          title: 'Formulir Belum Lengkap!',
+          text: 'Harap pilih tanggal batas waktu kampanye.',
+          icon: 'warning',
+          confirmButtonColor: '#147D73'
+        });
+        return;
+      }
+    }
+
     const payload = {
       program_name: formData.title.trim(),
       category: formData.category,
-      end_date: formData.deadline,
-      start_date: new Date().toISOString().split('T')[0], // Hari ini sebagai start_date
-      target_amount: parseFloat(formData.target),
+      end_date: endDate.toISOString().split('T')[0],
+      start_date: startDate.toISOString().split('T')[0], // Hari ini sebagai start_date
+      target_amount: parseFloat(formData.target.replace(/\./g, '')),
       description: formData.description.trim(),
       recipient_name: formData.recipientName.trim(),
       bank_name: formData.bankName,
@@ -133,9 +175,7 @@ const CreateCampaignPage = () => {
   const Topbar = () => (
     <div className="bg-white px-8 py-4 flex justify-between items-center border-b border-gray-100 sticky top-0 z-50">
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#147D73] to-[#0F655C] text-white font-bold text-sm shadow-md">
-          CF
-        </div>
+        <img src="/pavicon.png" alt="Care Fund Logo" className="h-8 w-8 object-contain" />
         <span className="text-lg font-extrabold tracking-tight text-[#0F655C]">
           Care Fund
         </span>
@@ -244,14 +284,52 @@ const CreateCampaignPage = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Batas Waktu</label>
-                  <input
-                    type="date"
-                    min={today}
-                    className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all cursor-pointer"
-                    value={formData.deadline}
-                    onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                  />
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Durasi Kampanye</label>
+                    <div className="flex bg-slate-200 rounded-lg p-0.5">
+                      <button 
+                        type="button"
+                        onClick={() => setDurationMode('days')} 
+                        className={`text-[10px] font-bold px-2 py-1 rounded-md transition-all ${durationMode === 'days' ? 'bg-white text-[#147D73] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                        Durasi Hari
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => setDurationMode('date')} 
+                        className={`text-[10px] font-bold px-2 py-1 rounded-md transition-all ${durationMode === 'date' ? 'bg-white text-[#147D73] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                        Pilih Tanggal
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {durationMode === 'days' ? (
+                    <div>
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="Contoh: 30"
+                        className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all"
+                        value={formData.durationDays}
+                        onChange={(e) => setFormData({ ...formData, durationDays: e.target.value })}
+                      />
+                      <p className="text-[10px] text-slate-500 mt-2">
+                        Tenggat Akhir: <span className="font-bold text-[#147D73]">{formData.durationDays ? getComputedEndDate() : '-'}</span>
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        type="date"
+                        min={today}
+                        className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all cursor-pointer"
+                        value={formData.deadlineDate}
+                        onChange={(e) => setFormData({ ...formData, deadlineDate: e.target.value })}
+                      />
+                      <p className="text-[10px] text-slate-500 mt-2">
+                        Total Durasi: <span className="font-bold text-[#147D73]">{formData.deadlineDate ? `${getComputedDuration()} Hari` : '-'}</span>
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -262,11 +340,15 @@ const CreateCampaignPage = () => {
                     <span className="text-slate-900 font-bold">Rp</span>
                   </div>
                   <input
-                    type="number"
+                    type="text"
                     placeholder="0"
                     className="w-full bg-slate-100 text-slate-900 font-bold py-4 pl-12 pr-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all"
                     value={formData.target}
-                    onChange={(e) => setFormData({ ...formData, target: e.target.value })}
+                    onChange={(e) => {
+                      const rawValue = e.target.value.replace(/\D/g, '');
+                      const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                      setFormData({ ...formData, target: formattedValue });
+                    }}
                   />
                 </div>
                 <p className="text-xs text-slate-400 mt-2">Minimal target dana adalah Rp 1.000.000</p>
