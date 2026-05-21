@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../../layouts/mainLayout';
 import ArticleCard from '../../components/articleCard';
+import api from '../../utils/api';
+import { getArticles } from '../../utils/articleDb';
 
 // --- DATA DUMMY ---
 const categoryCards = [
@@ -72,6 +74,48 @@ const articleCards = [
 
 const AdminEdukasiPage = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await api.get('/education-articles');
+        const data = response.data?.data || response.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setArticles(data);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('Failed to fetch education articles from API, using fallback:', err);
+      }
+      
+      // Fallback
+      const dummyData = getArticles().map(article => ({
+        ...article,
+        article_id: article.id,
+        thumbnail_url: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=600&q=80',
+        read_time: '5'
+      }));
+      setArticles(dummyData);
+      setLoading(false);
+    };
+    fetchArticles();
+  }, []);
+
+  const publishedArticles = articles.filter(a => (a.status || '').toUpperCase() === 'PUBLISHED');
+
+  const filteredArticles = publishedArticles.filter(article => {
+    const title = article.title || '';
+    const category = article.category || '';
+    const subtitle = article.content ? article.content.substring(0, 50) : '';
+    
+    return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           subtitle.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
     <MainLayout>
@@ -109,6 +153,8 @@ const AdminEdukasiPage = () => {
                 type="text"
                 placeholder="Cari artikel edukasi..."
                 className="block w-full pl-11 pr-4 py-4 border border-gray-100 rounded-2xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#147D73] focus:border-[#147D73] sm:text-sm transition-shadow"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
@@ -152,18 +198,24 @@ const AdminEdukasiPage = () => {
               <p className="text-slate-500">Update terbaru mengenai keamanan dan teknologi filantropi.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {articleCards.map((article) => (
-                <ArticleCard 
-                  key={article.id}
-                  id={article.id}
-                  category={article.category}
-                  image={article.image}
-                  readTime={article.readTime}
-                  title={article.title}
-                />
-              ))}
-            </div>
+            {filteredArticles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {filteredArticles.map((article) => (
+                  <ArticleCard 
+                    key={article.article_id}
+                    id={article.article_id}
+                    category={article.category || 'Umum'}
+                    image={article.thumbnail_url || 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=600&q=80'}
+                    readTime={article.read_time ? `${article.read_time} menit baca` : "5 menit baca"}
+                    title={article.title}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white p-12 rounded-[2rem] border border-gray-100 text-center text-slate-400 font-medium italic">
+                Tidak ada artikel edukasi yang ditemukan untuk kata kunci tersebut.
+              </div>
+            )}
           </div>
 
         </div>

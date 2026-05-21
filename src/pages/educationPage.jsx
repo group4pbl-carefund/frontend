@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import ArticleCard from '../components/articleCard';
 import CategoryCard from '../components/categoryCard';
 import SearchBar from '../components/searchBar';
 import api from '../utils/api';
+import { getArticles } from '../utils/articleDb';
 
 const categoryCards = [
   {
@@ -59,14 +60,24 @@ const EdukasiPage = () => {
       try {
         const response = await api.get('/education-articles');
         const data = response.data?.data || response.data;
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setArticles(data);
+          setLoading(false);
+          return;
         }
       } catch (err) {
-        console.error('Failed to fetch education articles:', err);
-      } finally {
-        setLoading(false);
+        console.warn('Failed to fetch education articles from API, using fallback:', err);
       }
+      
+      // Fallback
+      const dummyData = getArticles().map(article => ({
+        ...article,
+        article_id: article.id,
+        thumbnail_url: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=600&q=80',
+        read_time: '5'
+      }));
+      setArticles(dummyData);
+      setLoading(false);
     };
     fetchArticles();
   }, []);
