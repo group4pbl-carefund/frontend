@@ -1,18 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import CampaignCard from '../components/donationCard';
 import FeaturesSection from '../components/featuresSection';
 import HeroSection from '../components/heroSection';
 import StatsSection from '../components/statsSection';
-import { getCampaigns } from '../utils/campaignDb';
+import api from '../utils/api'; 
 
 const LandingPage = () => {
-  // Ambil data kampanye dinamis
-  const allCampaigns = getCampaigns();
-  
-  // Ambil maksimal 3 kampanye dengan status 'approved' (aktif/jalan) untuk ditampilkan di beranda
-  const activeCampaigns = allCampaigns.filter(c => c.status === 'approved').slice(0, 3);
+  const [activeCampaigns, setActiveCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/api/program-campaigns')
+      .then((res) => {
+        const allCampaigns = Array.isArray(res.data) ? res.data : (res.data.data || []);
+        
+        const filtered = allCampaigns
+          .filter(c => c.status === 'approved')
+          .slice(0, 3);
+          
+        setActiveCampaigns(filtered);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Gagal mengambil data dari backend:", err);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <MainLayout>
@@ -31,35 +46,46 @@ const LandingPage = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {activeCampaigns.map((campaign) => {
-            const collectedAmountStr = campaign.collected >= 1000000000 
-              ? `Rp ${(campaign.collected / 1000000000).toFixed(1)} Miliar`
-              : campaign.collected >= 1000000 
-                ? `Rp ${(campaign.collected / 1000000).toFixed(1)} Juta`
-                : `Rp ${campaign.collected.toLocaleString('id-ID')}`;
-            
-            const targetAmountStr = `Rp ${campaign.target.toLocaleString('id-ID')}`;
-            const progressPercentage = Math.min(100, Math.round((campaign.collected / campaign.target) * 100));
+        {/* Indikator Loading */}
+        {loading ? (
+          <div className="text-center py-12 text-slate-500 font-medium">
+            Memuat program donasi dari Care Fund...
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {activeCampaigns.map((campaign) => {
+              // 4. Data Mapping variabel dari Backend (Sesuaikan nama kolom database kalian jika berbeda)
+              const collected = Number(campaign.collected || campaign.current_donation || 0);
+              const target = Number(campaign.target || campaign.target_donation || 1);
+              
+              const collectedAmountStr = collected >= 1000000000 
+                ? `Rp ${(collected / 1000000000).toFixed(1)} Miliar`
+                : collected >= 1000000 
+                  ? `Rp ${(collected / 1000000).toFixed(1)} Juta`
+                  : `Rp ${collected.toLocaleString('id-ID')}`;
+              
+              const targetAmountStr = `Rp ${target.toLocaleString('id-ID')}`;
+              const progressPercentage = Math.min(100, Math.round((collected / target) * 100));
 
-            return (
-              <CampaignCard 
-                key={campaign.id}
-                id={campaign.id}
-                imageSrc={campaign.imageSrc || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"}
-                category={campaign.category}
-                title={campaign.title}
-                description={campaign.description}
-                collectedAmount={collectedAmountStr}
-                progressPercentage={progressPercentage}
-                targetAmount={targetAmountStr}
-              />
-            );
-          })}
-        </div>
+              return (
+                <CampaignCard 
+                  key={campaign.id}
+                  id={campaign.id}
+                  imageSrc={campaign.imageSrc || campaign.image_url || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"}
+                  category={campaign.category?.name || campaign.category || "Umum"}
+                  title={campaign.title}
+                  description={campaign.description}
+                  collectedAmount={collectedAmountStr}
+                  progressPercentage={progressPercentage}
+                  targetAmount={targetAmountStr}
+                />
+              );
+            })}
+          </div>
+        )}
       </section>
-      <FeaturesSection />
-
+      
+      <featuresSection />
     </MainLayout>
   );
 };

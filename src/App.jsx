@@ -29,14 +29,15 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/about-us" element={<AboutUsPage />} />
         <Route path="/accept-terms" element={<TermsAcceptancePage />} />
+        
+        {/* Pindah ke sini: Biar orang bisa liat detail donasi tanpa keblokir Guard */}
+        <Route path="/donasi/:id" element={<DonationDetailPage />} />
 
-        {/* Protected Routes (Semua di dalam Guard) */}
         <Route element={<TermsGuard />}>
           <Route path="/user-profile" element={<UserProfilePage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -48,6 +49,7 @@ function App() {
           <Route path="/manage-campaign" element={<ManageCampaignPage />} />
           <Route path="/buat-kampanye" element={<CreateCampaignPage />} />
 
+          {/* Rute Admin */}
           <Route path="/admin/approval-campaign" element={<CampaignApprovalPage />} />
           <Route path="/admin/edukasi/manage/create" element={<CreateArticlePage />} />
           <Route path="/admin/edukasi/manage/edit/:id" element={<EditArticlePage />} />
@@ -56,7 +58,6 @@ function App() {
           
           <Route path="/admin/*" element={<AdminDashboardPage />} />
           
-          <Route path="/donasi/:id" element={<DonationDetailPage />} />
           <Route path="/donasi/:id/checkout" element={<CheckoutPage />} />
         </Route>
       </Routes>
