@@ -121,27 +121,51 @@ const UserManagementTab = () => {
     });
 
     if (formValues) {
-      const getInitials = (name) => {
-        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-      };
-
-      const newUser = {
-        id: Date.now(),
-        name: formValues.name,
+      const newUserPayload = {
+        full_name: formValues.name,
         email: formValues.email,
-        avatar: getInitials(formValues.name),
-        kyc: 'Unverified',
-        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+        password: 'password123', // Default password for admin-created users
+        password_confirmation: 'password123',
+        is_verified: false
       };
 
-      setUsersList([newUser, ...usersList]);
+      try {
+        await api.post('/users', newUserPayload);
+        
+        // Refresh data from API
+        const response = await api.get('/users');
+        const data = response.data?.data || response.data;
+        if (Array.isArray(data)) {
+          const mappedUsers = data.map(item => {
+            const getInitials = (name) => (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            return {
+              id: item.id,
+              name: item.full_name || 'No Name',
+              email: item.email || 'no-email@carefund.com',
+              avatar: getInitials(item.full_name || 'No Name'),
+              kyc: item.is_verified ? 'Verified' : 'Unverified',
+              raw_is_verified: item.is_verified,
+              date: new Date(item.created_at || Date.now()).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+            };
+          });
+          setUsersList(mappedUsers);
+        }
 
-      Swal.fire({
-        title: 'Berhasil!',
-        text: `${formValues.name} telah berhasil ditambahkan sebagai user baru platform!`,
-        icon: 'success',
-        confirmButtonColor: '#147D73'
-      });
+        Swal.fire({
+          title: 'Berhasil!',
+          text: `${formValues.name} telah berhasil ditambahkan sebagai user baru platform!`,
+          icon: 'success',
+          confirmButtonColor: '#147D73'
+        });
+      } catch (err) {
+        console.error('Gagal menambahkan user ke API:', err);
+        Swal.fire({
+          title: 'Gagal!',
+          text: err.response?.data?.message || 'Gagal menambahkan pengguna ke database.',
+          icon: 'error',
+          confirmButtonColor: '#147D73'
+        });
+      }
     }
   };
 
@@ -286,14 +310,37 @@ const UserManagementTab = () => {
                         Ubah Status
                       </button>
                       <button 
-                        onClick={() => {
-                          setUsersList(usersList.filter(u => u.id !== user.id));
-                          Swal.fire({
-                            title: 'Dihapus!',
-                            text: 'Pengguna berhasil dihapus dari sistem.',
-                            icon: 'success',
-                            confirmButtonColor: '#147D73'
+                        onClick={async () => {
+                          const result = await Swal.fire({
+                            title: 'Apakah Anda Yakin?',
+                            text: `Hapus pengguna ${user.name} secara permanen?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#aaa',
+                            confirmButtonText: 'Ya, Hapus'
                           });
+
+                          if (result.isConfirmed) {
+                            try {
+                              await api.delete(`/users/${user.id}`);
+                              setUsersList(usersList.filter(u => u.id !== user.id));
+                              Swal.fire({
+                                title: 'Dihapus!',
+                                text: 'Pengguna berhasil dihapus dari sistem.',
+                                icon: 'success',
+                                confirmButtonColor: '#147D73'
+                              });
+                            } catch (err) {
+                              console.error('Gagal menghapus user dari API:', err);
+                              Swal.fire({
+                                title: 'Gagal!',
+                                text: err.response?.data?.message || 'Gagal menghapus pengguna.',
+                                icon: 'error',
+                                confirmButtonColor: '#147D73'
+                              });
+                            }
+                          }
                         }}
                         className="text-red-500 hover:text-red-700 text-xs font-bold transition-colors"
                       >

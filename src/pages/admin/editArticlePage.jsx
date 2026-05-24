@@ -23,6 +23,7 @@ const EditArticlePage = () => {
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Ambil data artikel dari API dengan fallback
   useEffect(() => {
@@ -93,6 +94,7 @@ const EditArticlePage = () => {
 
     const apiStatus = article.status === 'PUBLISHED' ? 'published' : 'draft';
 
+    setIsSubmitting(true);
     // 1. Try backend API call
     try {
       await api.put(`/education-articles/${id}`, {
@@ -102,29 +104,37 @@ const EditArticlePage = () => {
         status: apiStatus,
         published_at: apiStatus === 'published' ? new Date().toISOString().split('T')[0] : null
       });
+
+      // 2. Local fallback update
+      updateArticle(id, {
+        title: article.title,
+        category: article.category,
+        authorName: article.authorName,
+        status: article.status,
+        featured: article.featured,
+        metaDescription: article.metaDescription,
+        content: updatedContent
+      });
+
+      await Swal.fire({
+        title: 'Sukses!',
+        text: 'Artikel berhasil diperbarui!',
+        icon: 'success',
+        confirmButtonText: 'Kembali',
+        confirmButtonColor: '#147D73'
+      });
+      navigate('/admin/edukasi/manage');
     } catch (err) {
-      console.warn("Gagal memperbarui artikel di API backend, memperbarui lokal saja:", err);
+      console.error("Gagal memperbarui artikel di API backend:", err);
+      Swal.fire({
+        title: 'Gagal Memperbarui!',
+        text: err.response?.data?.message || 'Terjadi kesalahan saat menghubungi backend.',
+        icon: 'error',
+        confirmButtonColor: '#147D73'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // 2. Local fallback update
-    updateArticle(id, {
-      title: article.title,
-      category: article.category,
-      authorName: article.authorName,
-      status: article.status,
-      featured: article.featured,
-      metaDescription: article.metaDescription,
-      content: updatedContent
-    });
-
-    await Swal.fire({
-      title: 'Sukses!',
-      text: 'Artikel berhasil diperbarui!',
-      icon: 'success',
-      confirmButtonText: 'Kembali',
-      confirmButtonColor: '#147D73'
-    });
-    navigate('/admin/edukasi/manage');
   };
 
   if (isLoading) {
@@ -167,15 +177,17 @@ const EditArticlePage = () => {
             <div className="flex items-center gap-3 ml-11 md:ml-0">
               <button 
                 onClick={() => navigate('/admin/edukasi/manage')}
-                className="bg-gray-200 hover:bg-gray-300 text-slate-700 font-bold py-2.5 px-6 rounded-xl transition-colors text-sm"
+                disabled={isSubmitting}
+                className={`bg-gray-200 hover:bg-gray-300 text-slate-700 font-bold py-2.5 px-6 rounded-xl transition-colors text-sm ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 Cancel
               </button>
               <button 
                 onClick={handleUpdate} 
-                className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm text-sm"
+                disabled={isSubmitting}
+                className={`bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm text-sm ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Update Changes
+                {isSubmitting ? 'Updating...' : 'Update Changes'}
               </button>
             </div>
           </div>

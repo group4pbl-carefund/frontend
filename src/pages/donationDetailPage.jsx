@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
+import api from '../utils/api';
 const DonationDetailPage = () => {
     const { id } = useParams(); 
     const navigate = useNavigate();
@@ -16,13 +15,13 @@ const DonationDetailPage = () => {
                 setLoading(true);
                 
                 // Mengambil data kampanye asli dari Laravel
-                const res = await axios.get(`http://127.0.0.1:8000/api/program-campaigns/${id}`);
+                const res = await api.get(`/program-campaigns/${id}`);
                 const dataUtama = res.data?.data || res.data;
                 setCampaign(dataUtama);
 
                 // Mengambil data donatur asli
                 try {
-                    const donorRes = await axios.get(`http://127.0.0.1:8000/api/program-campaigns/${id}/donors`);
+                    const donorRes = await api.get(`/program-campaigns/${id}/donors`);
                     const dataDonatur = donorRes.data?.data || donorRes.data;
                     setDonors(Array.isArray(dataDonatur) ? dataDonatur : []);
                 } catch (e) {
@@ -49,17 +48,19 @@ const DonationDetailPage = () => {
     }
 
     // PENGAMAN UTAMA: Jika API Laravel kosong/eror, script ini mengisi data agar web tetap tampil.
-    const displayCampaign = campaign || {
-        title: id === "3" ? "Tanggap Darurat Bencana Alam" : "Bantuan Dana Pendidikan Anak Bangsa",
-        target_amount: 50000000,
-        current_amount: 15000000,
-        days_left: 12,
-        story: "Program bantuan kemanusiaan ini bertujuan untuk meringankan beban saudara-saudara kita yang membutuhkan melalui penyaluran bantuan logistik, akomodasi, dan kebutuhan pokok secara transparan dan akuntabel.",
-        category: id === "3" ? "Bencana Alam" : "Pendidikan"
-    };
+    const fallbackTitle = id === "3" ? "Tanggap Darurat Bencana Alam" : "Bantuan Dana Pendidikan Anak Bangsa";
+    const displayCampaign = campaign || {};
+    
+    const displayTitle = displayCampaign.program?.program_name || displayCampaign.title || fallbackTitle;
+    const displayTarget = displayCampaign.program?.target_amount || displayCampaign.target_amount || 50000000;
+    const displayCurrent = displayCampaign.current_amount || displayCampaign.current_amount || 15000000;
+    const displayDaysLeft = displayCampaign.program?.end_date ? Math.max(0, Math.ceil((new Date(displayCampaign.program.end_date) - new Date()) / (1000 * 60 * 60 * 24))) : (displayCampaign.days_left || 12);
+    const displayStory = displayCampaign.program?.description || displayCampaign.story || "Program bantuan kemanusiaan ini bertujuan untuk meringankan beban saudara-saudara kita yang membutuhkan melalui penyaluran bantuan logistik, akomodasi, dan kebutuhan pokok secara transparan dan akuntabel.";
+    const displayCategory = displayCampaign.program?.category || (id === "3" ? "Bencana Alam" : "Pendidikan");
+    const displayImage = displayCampaign.program?.image_url || displayCampaign.image_url;
 
-    const currentAmount = Number(displayCampaign.current_amount) || 0;
-    const targetAmount = Number(displayCampaign.target_amount) || 1;
+    const currentAmount = Number(displayCurrent) || 0;
+    const targetAmount = Number(displayTarget) || 1;
     const percentage = Math.min(Math.round((currentAmount / targetAmount) * 100), 100);
 
     return (
@@ -88,8 +89,8 @@ const DonationDetailPage = () => {
                     
                     {/* Kotak Gambar */}
                     <div className="rounded-2xl overflow-hidden bg-gray-100 aspect-video md:aspect-square flex items-center justify-center border border-gray-200">
-                        {displayCampaign.image_url ? (
-                            <img src={displayCampaign.image_url} alt={displayCampaign.title} className="w-full h-full object-cover" />
+                        {displayImage ? (
+                            <img src={displayImage} alt={displayTitle} className="w-full h-full object-cover" />
                         ) : (
                             <div className="text-gray-400 text-center p-6">
                                 <p className="text-6xl mb-3">✨</p>
@@ -102,10 +103,10 @@ const DonationDetailPage = () => {
                     <div className="space-y-8">
                         <div>
                             <span className="px-4 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-semibold uppercase tracking-wider">
-                                {displayCampaign.category?.name || displayCampaign.category}
+                                {displayCategory}
                             </span>
                             <h1 className="text-3xl md:text-4xl font-bold mt-4 text-gray-900 leading-tight">
-                                {displayCampaign.title}
+                                {displayTitle}
                             </h1>
                         </div>
 
@@ -120,7 +121,7 @@ const DonationDetailPage = () => {
                             </div>
                             <div className="flex justify-between text-sm text-gray-600 font-medium pt-1">
                                 <span>{percentage}% Tercapai</span>
-                                <span className="text-amber-600">{displayCampaign.days_left} Hari Tersisa</span>
+                                <span className="text-amber-600">{displayDaysLeft} Hari Tersisa</span>
                             </div>
                         </div>
 
@@ -138,7 +139,7 @@ const DonationDetailPage = () => {
                 <div className="bg-white p-8 rounded-3xl border border-gray-100 space-y-6">
                     <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-100 pb-4">Cerita Penggalangan Dana</h2>
                     <p className="text-gray-700 leading-relaxed whitespace-pre-line text-base">
-                        {displayCampaign.story || displayCampaign.description}
+                        {displayStory}
                     </p>
                 </div>
 

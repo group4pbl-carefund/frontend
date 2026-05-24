@@ -9,6 +9,7 @@ import api from '../../utils/api';
 const CreateArticlePage = () => {
   const navigate = useNavigate();
   const editorRef = useRef(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -48,6 +49,7 @@ const CreateArticlePage = () => {
 
     const apiStatus = isDraft ? 'draft' : (formData.status === 'PUBLISHED' ? 'published' : 'draft');
 
+    setIsSubmitting(true);
     // 1. Try backend API call
     try {
       await api.post('/education-articles', {
@@ -58,27 +60,35 @@ const CreateArticlePage = () => {
         status: apiStatus,
         published_at: apiStatus === 'published' ? new Date().toISOString().split('T')[0] : null
       });
+
+      // 2. Local fallback update (optional, to keep UI synced if needed)
+      const newArticle = {
+        ...formData,
+        content: editorContent,
+        status: isDraft ? 'DRAFT' : formData.status
+      };
+      addArticle(newArticle);
+
+      await Swal.fire({
+        title: 'Sukses!',
+        text: isDraft ? 'Artikel berhasil disimpan sebagai Draft!' : 'Artikel berhasil diterbitkan secara live!',
+        icon: 'success',
+        confirmButtonText: 'Kembali ke Manage',
+        confirmButtonColor: '#147D73'
+      });
+
+      navigate('/admin/edukasi/manage');
     } catch (err) {
-      console.warn("Gagal menyimpan artikel ke API backend, menyimpan lokal:", err);
+      console.error("Gagal menyimpan artikel ke API backend:", err);
+      Swal.fire({
+        title: 'Gagal Menyimpan!',
+        text: err.response?.data?.message || 'Terjadi kesalahan saat menghubungi backend.',
+        icon: 'error',
+        confirmButtonColor: '#147D73'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // 2. Local fallback update
-    const newArticle = {
-      ...formData,
-      content: editorContent,
-      status: isDraft ? 'DRAFT' : formData.status
-    };
-    addArticle(newArticle);
-
-    await Swal.fire({
-      title: 'Sukses!',
-      text: isDraft ? 'Artikel berhasil disimpan sebagai Draft!' : 'Artikel berhasil diterbitkan secara live!',
-      icon: 'success',
-      confirmButtonText: 'Kembali ke Manage',
-      confirmButtonColor: '#147D73'
-    });
-
-    navigate('/admin/edukasi/manage');
   };
 
   return (
@@ -111,15 +121,17 @@ const CreateArticlePage = () => {
             <div className="flex items-center gap-3 ml-11 md:ml-0">
               <button 
                 onClick={() => handleSave(true)}
-                className="bg-gray-200 hover:bg-gray-300 text-slate-700 font-bold py-2.5 px-6 rounded-xl transition-colors text-sm"
+                disabled={isSubmitting}
+                className={`bg-gray-200 hover:bg-gray-300 text-slate-700 font-bold py-2.5 px-6 rounded-xl transition-colors text-sm ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 Save as Draft
               </button>
               <button 
                 onClick={() => handleSave(false)} 
-                className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm text-sm"
+                disabled={isSubmitting}
+                className={`bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm text-sm ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Publish
+                {isSubmitting ? 'Processing...' : 'Publish'}
               </button>
             </div>
           </div>

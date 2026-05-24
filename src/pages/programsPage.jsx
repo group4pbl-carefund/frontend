@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import CampaignCard from '../components/donationCard';
 import SearchBar from '../components/searchBar';
-import { getCampaigns } from '../utils/campaignDb';
-
+import api from '../utils/api';
 const categories = ['Semua', 'Pendidikan', 'Kesehatan', 'Bencana Alam', 'Sosial', 'Lingkungan'];
 
 const ProgramsPage = () => {
@@ -12,17 +11,39 @@ const ProgramsPage = () => {
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Ambil data kampanye dinamis
-  const allCampaigns = getCampaigns();
+  const [allCampaigns, setAllCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      try {
+        const response = await api.get('/program-campaigns');
+        const data = response.data?.data || response.data;
+        if (Array.isArray(data)) {
+          setAllCampaigns(data);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil data kampanye:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCampaigns();
+  }, []);
   
-  // Filter hanya kampanye dengan status 'approved' (status masih jalan dan aktif)
-  const activeCampaigns = allCampaigns.filter(c => c.status === 'approved');
+  // Filter hanya kampanye dengan status 'approved' pada program
+  const activeCampaigns = allCampaigns.filter(c => c.program?.status === 'approved' || c.status === 'approved');
 
   const filteredCampaigns = activeCampaigns.filter(campaign => {
+    const campaignCategory = campaign.program?.category || campaign.category || 'Umum';
     const matchesCategory = activeCategory === 'Semua' || 
-      campaign.category.toLowerCase() === activeCategory.toLowerCase();
-    const matchesSearch = campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (campaign.description && campaign.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      campaignCategory.toLowerCase() === activeCategory.toLowerCase();
+    
+    const title = campaign.program?.program_name || campaign.title || '';
+    const desc = campaign.program?.description || campaign.description || '';
+
+    const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      desc.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -80,26 +101,33 @@ const ProgramsPage = () => {
 
         {/* Content Section */}
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 pt-12">
-          {filteredCampaigns.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center py-20 text-slate-500 font-bold">
+              Memuat data program...
+            </div>
+          ) : filteredCampaigns.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCampaigns.map((campaign) => {
-                const collectedAmountStr = campaign.collected >= 1000000000 
-                  ? `Rp ${(campaign.collected / 1000000000).toFixed(1)} Miliar`
-                  : campaign.collected >= 1000000 
-                    ? `Rp ${(campaign.collected / 1000000).toFixed(1)} Juta`
-                    : `Rp ${campaign.collected.toLocaleString('id-ID')}`;
+                const collected = campaign.current_amount || campaign.collected || 0;
+                const target = campaign.program?.target_amount || campaign.target || 1;
                 
-                const targetAmountStr = `Rp ${campaign.target.toLocaleString('id-ID')}`;
-                const progressPercentage = Math.min(100, Math.round((campaign.collected / campaign.target) * 100));
+                const collectedAmountStr = collected >= 1000000000 
+                  ? `Rp ${(collected / 1000000000).toFixed(1)} Miliar`
+                  : collected >= 1000000 
+                    ? `Rp ${(collected / 1000000).toFixed(1)} Juta`
+                    : `Rp ${collected.toLocaleString('id-ID')}`;
+                
+                const targetAmountStr = `Rp ${target.toLocaleString('id-ID')}`;
+                const progressPercentage = Math.min(100, Math.round((collected / target) * 100));
 
                 return (
-                  <div key={campaign.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div key={campaign.campaign_id || campaign.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <CampaignCard 
-                      id={campaign.id}
-                      imageSrc={campaign.imageSrc || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"}
-                      category={campaign.category}
-                      title={campaign.title}
-                      description={campaign.description}
+                      id={campaign.campaign_id || campaign.id}
+                      imageSrc={campaign.program?.image_url || campaign.imageSrc || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"}
+                      category={campaign.program?.category || campaign.category || 'Umum'}
+                      title={campaign.program?.program_name || campaign.title}
+                      description={campaign.program?.description || campaign.description}
                       collectedAmount={collectedAmountStr}
                       progressPercentage={progressPercentage}
                       targetAmount={targetAmountStr}

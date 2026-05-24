@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
+import api from '../utils/api';
 const CheckoutPage = () => {
     const { id } = useParams(); 
     const navigate = useNavigate();
@@ -37,8 +36,7 @@ const CheckoutPage = () => {
                 anonymous: anonymous ? 1 : 0,
                 comment: comment.trim() || null // Dikirim ke Laravel untuk riwayat donatur
             };
-            
-            const response = await axios.post('http://127.0.0.1:8000/api/donations', payload);
+            const response = await api.post('/donations', payload);
             
             if (response.data?.success === true || response.status === 200 || response.status === 201) {
                 setIsPending(true);

@@ -12,12 +12,12 @@ const LandingPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/api/program-campaigns')
+    api.get('/program-campaigns')
       .then((res) => {
         const allCampaigns = Array.isArray(res.data) ? res.data : (res.data.data || []);
         
         const filtered = allCampaigns
-          .filter(c => c.status === 'approved')
+          .filter(c => c.program?.status === 'approved' || c.status === 'approved')
           .slice(0, 3);
           
         setActiveCampaigns(filtered);
@@ -54,9 +54,9 @@ const LandingPage = () => {
         ) : (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {activeCampaigns.map((campaign) => {
-              // 4. Data Mapping variabel dari Backend (Sesuaikan nama kolom database kalian jika berbeda)
-              const collected = Number(campaign.collected || campaign.current_donation || 0);
-              const target = Number(campaign.target || campaign.target_donation || 1);
+              // 4. Data Mapping variabel dari Backend
+              const collected = Number(campaign.current_amount || campaign.collected || 0);
+              const target = Number(campaign.program?.target_amount || campaign.target || 1);
               
               const collectedAmountStr = collected >= 1000000000 
                 ? `Rp ${(collected / 1000000000).toFixed(1)} Miliar`
@@ -69,12 +69,12 @@ const LandingPage = () => {
 
               return (
                 <CampaignCard 
-                  key={campaign.id}
-                  id={campaign.id}
-                  imageSrc={campaign.imageSrc || campaign.image_url || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"}
-                  category={campaign.category?.name || campaign.category || "Umum"}
-                  title={campaign.title}
-                  description={campaign.description}
+                  key={campaign.campaign_id || campaign.id}
+                  id={campaign.campaign_id || campaign.id}
+                  imageSrc={campaign.program?.image_url || campaign.imageSrc || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"}
+                  category={campaign.program?.category || campaign.category || "Umum"}
+                  title={campaign.program?.program_name || campaign.title}
+                  description={campaign.program?.description || campaign.description}
                   collectedAmount={collectedAmountStr}
                   progressPercentage={progressPercentage}
                   targetAmount={targetAmountStr}

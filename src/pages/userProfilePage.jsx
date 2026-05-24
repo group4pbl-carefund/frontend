@@ -6,7 +6,7 @@ import {
     Settings, CreditCard, LogOut, Download, Share2, Heart, PlusCircle, Megaphone,
     Users, Plus, MessageSquare, Camera, GraduationCap, Hospital, Leaf
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import StatCard from "../components/statCard";
 import DonationHistoryItem from "../components/donationHistoryItem";
@@ -57,6 +57,7 @@ const donationData = [
 ];
 
 const UserProfilePage = () => {
+    const navigate = useNavigate();
     // State untuk mengatur tab yang aktif
     const [activeTab, setActiveTab] = useState('riwayat');
 
@@ -68,25 +69,7 @@ const UserProfilePage = () => {
 
     const [isUploading, setIsUploading] = useState(false);
 
-    // Campaign Management States
-    const [campaigns, setCampaigns] = useState([]);
-    const [activeCampaign, setActiveCampaign] = useState(null);
 
-    React.useEffect(() => {
-        if (user && user.id) {
-            api.get(`/program-campaigns?user_id=${user.id}`)
-                .then(res => {
-                    const data = res.data?.data || res.data;
-                    if (Array.isArray(data)) {
-                        setCampaigns(data);
-                        if (data.length > 0) {
-                            setActiveCampaign(data[0]);
-                        }
-                    }
-                })
-                .catch(err => console.error("Error fetching campaigns:", err));
-        }
-    }, [user]);
 
     const handleAvatarChange = async (e) => {
         const file = e.target.files[0];
@@ -134,112 +117,7 @@ const UserProfilePage = () => {
         window.location.href = '/login';
     };
 
-    const handleExtendDays = async () => {
-        if (!activeCampaign) return;
 
-        const result = await Swal.fire({
-            title: 'Perpanjang Durasi',
-            text: 'Apakah Anda yakin ingin menambahkan 7 hari ke durasi penggalangan dana?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Perpanjang',
-            cancelButtonText: 'Batal',
-            confirmButtonColor: '#2ea391',
-            cancelButtonColor: '#aaa'
-        });
-
-        if (result.isConfirmed) {
-            try {
-                const res = await api.post(`/program-campaigns/${activeCampaign.campaign_id}/extend`);
-                const updatedCampaign = res.data?.data || res.data;
-                
-                // Update local state
-                setCampaigns(campaigns.map(c => c.campaign_id === activeCampaign.campaign_id ? updatedCampaign : c));
-                setActiveCampaign(updatedCampaign);
-
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: `Durasi kampanye berhasil diperpanjang.`,
-                    icon: 'success',
-                    confirmButtonColor: '#2ea391'
-                });
-            } catch (err) {
-                console.error("Error extending campaign:", err);
-                Swal.fire({
-                    title: 'Gagal!',
-                    text: 'Terjadi kesalahan saat memperpanjang durasi.',
-                    icon: 'error',
-                    confirmButtonColor: '#2ea391'
-                });
-            }
-        }
-    };
-
-    const handleCreateUpdate = async () => {
-        if (!activeCampaign) return;
-
-        const { value: text } = await Swal.fire({
-            title: 'Buat Kabar Terbaru',
-            input: 'textarea',
-            inputLabel: 'Laporkan perkembangan kondisi penerima manfaat atau transparansi penggunaan dana kepada donatur.',
-            inputPlaceholder: 'Tulis laporan kabar terbaru di sini...',
-            showCancelButton: true,
-            confirmButtonText: 'Terbitkan Laporan',
-            cancelButtonText: 'Batal',
-            confirmButtonColor: '#2ea391',
-            cancelButtonColor: '#aaa',
-            inputValidator: (value) => {
-                if (!value) {
-                    return 'Isi laporan tidak boleh kosong!';
-                }
-            }
-        });
-
-        if (text) {
-            try {
-                // Because DistributionUpdate might require distribution_id, we send a dummy or mapping
-                const payload = {
-                    distribution_id: activeCampaign.program_id, // As a fallback for current backend
-                    title: 'Update Laporan',
-                    content: text,
-                    notes: text,
-                    status: 'published',
-                    updated_by: user.id
-                };
-                await api.post('/distribution-updates', payload);
-
-                // Add to local state manually for now so it shows up
-                const newUpdate = {
-                    id: Date.now(),
-                    date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-                    text: text
-                };
-                
-                const updatedActive = {
-                    ...activeCampaign,
-                    updates: activeCampaign.updates ? [newUpdate, ...activeCampaign.updates] : [newUpdate]
-                };
-                
-                setCampaigns(campaigns.map(c => c.campaign_id === activeCampaign.campaign_id ? updatedActive : c));
-                setActiveCampaign(updatedActive);
-
-                Swal.fire({
-                    title: 'Berhasil Diterbitkan!',
-                    text: 'Laporan kabar terbaru Anda telah berhasil dikirimkan.',
-                    icon: 'success',
-                    confirmButtonColor: '#2ea391'
-                });
-            } catch (err) {
-                console.error("Error creating update:", err);
-                Swal.fire({
-                    title: 'Gagal!',
-                    text: 'Terjadi kesalahan saat menerbitkan laporan.',
-                    icon: 'error',
-                    confirmButtonColor: '#2ea391'
-                });
-            }
-        }
-    };
 
     return (
         <MainLayout>
@@ -325,9 +203,9 @@ const UserProfilePage = () => {
                                     <ChevronRight size={16} />
                                 </button>
                                 <div className="my-2 border-t border-slate-50"></div>
-                                <button onClick={() => setActiveTab('campaign')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'campaign' ? 'bg-slate-50 text-[#2ea391] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
+                                <button onClick={() => navigate('/manage-campaign')} className="w-full flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-slate-50 group transition-all">
                                     <div className="flex items-center gap-3"><Megaphone size={20} /><span>Kelola Kampanye Saya</span></div>
-                                    <ChevronRight size={16} />
+                                    <ChevronRight size={16} className="text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
                                 </button>
                                 <button className="w-full flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-slate-50 group">
                                     <div className="flex items-center gap-3"><Settings size={20} /><span>Pengaturan Akun</span></div>
@@ -525,129 +403,7 @@ const UserProfilePage = () => {
                             </div>
                         )}
 
-                        {/* TAB KELOLA KAMPANYE */}
-                        {activeTab === 'campaign' && (
-                            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8 text-left">
-                                {/* HEADER */}
-                                <div className="flex justify-between items-start mb-6">
-                                    <div>
-                                        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Kelola Kampanye Saya</h2>
-                                        <p className="text-slate-500 mt-1 font-medium text-sm">Pantau perkembangan, anggaran, dan transparansi dana Anda.</p>
-                                    </div>
-                                    {activeCampaign && (
-                                        <button
-                                            onClick={() => {
-                                                Swal.fire({
-                                                    title: 'Bagikan Kampanye!',
-                                                    text: `Link kampanye "${activeCampaign.title}" telah disalin ke clipboard Anda!`,
-                                                    icon: 'success',
-                                                    confirmButtonColor: '#2ea391'
-                                                });
-                                            }}
-                                            className="flex items-center gap-2 px-5 py-2.5 border border-slate-200 rounded-2xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
-                                        >
-                                            <Share2 size={16} /> Bagikan
-                                        </button>
-                                    )}
-                                </div>
 
-                                {!activeCampaign ? (
-                                    <div className="border-2 border-dashed border-slate-200 p-12 rounded-[2rem] text-center text-slate-400 font-medium bg-slate-50/50">
-                                        <div className="flex justify-center mb-4 text-slate-300">
-                                            <Megaphone size={48} />
-                                        </div>
-                                        <p className="font-bold text-slate-500 italic">Tidak ada kampanye aktif untuk dikelola saat ini.</p>
-                                        <Link to="/buat-kampanye" className="inline-block mt-4 bg-[#2ea391] text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-[#258778] transition-all shadow-md shadow-teal-500/10">
-                                            Buat Kampanye Pertama Anda
-                                        </Link>
-                                    </div>
-                                ) : (
-                                    <>
-                                        {/* DETAIL RINGKASAN */}
-                                        <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                                            <span className="text-[10px] font-black bg-[#E8F3F1] text-[#2ea391] px-3 py-1 rounded-full uppercase tracking-widest">
-                                                {activeCampaign.program?.category || activeCampaign.category || 'UMUM'}
-                                            </span>
-                                            <h3 className="text-xl font-bold text-slate-900 mt-2">{activeCampaign.program?.program_name || activeCampaign.title}</h3>
-                                            <p className="text-xs text-slate-400 font-bold mt-1 uppercase">Oleh: {activeCampaign.user || user.name}</p>
-                                        </div>
-
-                                        {/* STATS GRID */}
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            {/* Total Donatur */}
-                                            <div className="p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100/50">
-                                                <div className="bg-blue-600/10 text-blue-600 w-10 h-10 rounded-xl flex items-center justify-center mb-3"><Users size={20} /></div>
-                                                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Total Donatur</p>
-                                                <h2 className="text-2xl font-black text-slate-900 mt-1">{(activeCampaign.donor_count || activeCampaign.donorsCount || 0).toLocaleString('id-ID')} <span className="text-xs font-medium">Orang</span></h2>
-                                            </div>
-
-                                            {/* Sisa Waktu & Extend */}
-                                            <div className="p-6 bg-teal-50/50 rounded-[2rem] border border-teal-100/50">
-                                                <div className="bg-[#2ea391]/10 text-[#2ea391] w-10 h-10 rounded-xl flex items-center justify-center mb-3"><Calendar size={20} /></div>
-                                                <p className="text-[10px] font-black text-teal-400 uppercase tracking-widest">Sisa Waktu</p>
-                                                <div className="flex items-end justify-between">
-                                                    <h2 className="text-2xl font-black text-slate-900 mt-1">
-                                                        {activeCampaign.program?.end_date ? 
-                                                            Math.max(0, Math.ceil((new Date(activeCampaign.program.end_date) - new Date()) / (1000 * 60 * 60 * 24))) 
-                                                            : (activeCampaign.daysLeft || 0)} <span className="text-xs font-medium">Hari</span>
-                                                    </h2>
-                                                    <button onClick={handleExtendDays} className="text-[#2ea391] hover:scale-115 transition-all p-1 bg-white rounded-lg shadow-sm border border-slate-100"><Plus size={16} /></button>
-                                                </div>
-                                            </div>
-
-                                            {/* Persentase Dana */}
-                                            <div className="p-6 bg-slate-900 rounded-[2rem] text-white">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Pencapaian Dana</p>
-                                                <h2 className="text-3xl font-black text-teal-400 italic">
-                                                    {Math.min(100, Math.round(((activeCampaign.current_amount || activeCampaign.collected || 0) / (activeCampaign.program?.target_amount || activeCampaign.target || 1)) * 100))}%
-                                                </h2>
-                                                <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                                                    <div className="bg-teal-500 h-full" style={{ width: `${Math.min(100, Math.round(((activeCampaign.current_amount || activeCampaign.collected || 0) / (activeCampaign.program?.target_amount || activeCampaign.target || 1)) * 100))}%` }}></div>
-                                                </div>
-                                                <p className="text-[9px] text-slate-400 mt-2 uppercase tracking-wide">
-                                                    Rp {(activeCampaign.current_amount || activeCampaign.collected || 0).toLocaleString('id-ID')} / Rp {(activeCampaign.program?.target_amount || activeCampaign.target || 0).toLocaleString('id-ID')}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        {/* UPDATE SECTION */}
-                                        <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                            <div>
-                                                <h4 className="text-lg font-bold text-slate-800">Update Kabar Terbaru</h4>
-                                                <p className="text-slate-400 text-xs mt-0.5">Berikan laporan penggunaan dana agar donatur tetap percaya.</p>
-                                            </div>
-                                            <button
-                                                onClick={handleCreateUpdate}
-                                                className="bg-[#2ea391] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#258778] transition-all shadow-md shadow-teal-500/10"
-                                            >
-                                                Buat Laporan
-                                            </button>
-                                        </div>
-
-                                        {/* DAFTAR LAPORAN YANG SUDAH DITERBITKAN */}
-                                        <div>
-                                            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                                <MessageSquare size={20} className="text-[#2ea391]" /> Laporan Kabar Terbaru ({activeCampaign.updates?.length || 0})
-                                            </h3>
-                                            <div className="space-y-4">
-                                                {activeCampaign.updates && activeCampaign.updates.length > 0 ? (
-                                                    activeCampaign.updates.map((upd) => (
-                                                        <div key={upd.id} className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
-                                                            <p className="text-[10px] font-bold text-slate-400 mb-1">{upd.date}</p>
-                                                            <p className="text-slate-700 text-sm font-medium leading-relaxed">{upd.text}</p>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div className="border-2 border-dashed border-slate-100 p-6 rounded-2xl text-center text-slate-400 text-sm font-medium italic">
-                                                        Belum ada laporan perkembangan yang diterbitkan untuk kampanye ini.
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
