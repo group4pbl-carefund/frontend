@@ -53,11 +53,9 @@ const CmsEdukasiPage = () => {
         return;
       }
     } catch (err) {
-      console.warn('Gagal memuat artikel dari API, menggunakan fallback mock:', err);
+      console.error('Gagal memuat artikel dari API:', err);
+      setArticles([]);
     }
-
-    // Fallback
-    setArticles(getArticles());
     setLoading(false);
   };
 
@@ -117,9 +115,7 @@ const CmsEdukasiPage = () => {
         console.warn('Gagal menghapus artikel dari API, menghapus lokal saja:', err);
       }
 
-      // 2. Local fallback update
-      deleteArticle(id);
-      
+
       Swal.fire({
         title: 'Dihapus!',
         text: 'Artikel berhasil dihapus.',

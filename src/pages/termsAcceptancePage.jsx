@@ -43,47 +43,9 @@ const TermsAcceptancePage = () => {
           return;
         }
       } catch (err) {
-        console.warn('Gagal memuat T&C dari API, menggunakan data lokal / fallback:', err);
+        console.error('Gagal memuat T&C dari API:', err);
+        setActiveTc(null);
       }
-
-      // Fallback to localStorage/default
-      const storedVersions = localStorage.getItem('carefund_tc_versions');
-      let active = null;
-      
-      if (storedVersions) {
-        try {
-          const versions = JSON.parse(storedVersions);
-          active = versions.find(v => v.status === 'active');
-        } catch (e) {
-          console.error('Error parsing versions', e);
-        }
-      }
-
-      if (!active) {
-        active = {
-          version_id: 2,
-          version: 'v2.0.0',
-          title: 'Syarat dan Ketentuan v2.0.0 - Pembaruan Kebijakan Transparansi & Biaya',
-          content: `### 1. Ketentuan Layanan Pembaruan
-Kami telah memperbarui Syarat dan Ketentuan kami untuk meningkatkan transparansi penyaluran dana serta kepatuhan terhadap regulasi perlindungan data pribadi (UU PDP).
-
-### 2. Sistem Transparansi & Distribusi
-Setiap donasi kini dilengkapi dengan pelaporan real-time yang dapat diakses melalui Dashboard Komunitas. Biaya administrasi platform disesuaikan menjadi flat 3.5% untuk semua kampanye non-bencana, sedangkan kampanye bencana tetap 0% (tanpa potongan).
-
-### 3. Kebijakan Privasi Baru (Kepatuhan UU PDP)
-Kami berkomitmen melindungi data pribadi Anda. Data sensitif seperti foto KTP untuk verifikasi KYC dienkripsi menggunakan standar industri dan tidak akan dibagikan kepada pihak ketiga tanpa persetujuan eksplisit Anda.
-
-### 4. Mekanisme Audit Publik
-Care Fund berhak menunjuk auditor independen untuk mengaudit laporan keuangan kampanye secara berkala demi menjamin dana disalurkan tepat saran.`,
-          highlights: [
-            'Penurunan biaya admin platform dari 5% menjadi 3.5% flat.',
-            'Peningkatan keamanan data KYC sesuai regulasi UU PDP terbaru.',
-            'Implementasi mekanisme audit independen untuk transparansi penuh.',
-            'Pelaporan real-time di Dashboard Komunitas untuk setiap donasi.'
-          ]
-        };
-      }
-      setActiveTc(active);
       setLoading(false);
     };
 

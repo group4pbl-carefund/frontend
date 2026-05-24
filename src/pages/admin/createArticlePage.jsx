@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Editor } from '@tinymce/tinymce-react';
 import MainLayout from '../../layouts/mainLayout';
 import Swal from 'sweetalert2';
-import { addArticle } from '../../utils/articleDb';
+
 import api from '../../utils/api';
 
 const CreateArticlePage = () => {
@@ -61,13 +61,6 @@ const CreateArticlePage = () => {
         published_at: apiStatus === 'published' ? new Date().toISOString().split('T')[0] : null
       });
 
-      // 2. Local fallback update (optional, to keep UI synced if needed)
-      const newArticle = {
-        ...formData,
-        content: editorContent,
-        status: isDraft ? 'DRAFT' : formData.status
-      };
-      addArticle(newArticle);
 
       await Swal.fire({
         title: 'Sukses!',

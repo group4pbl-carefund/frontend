@@ -22,13 +22,6 @@ const UserManagementTab = () => {
   const [activeFilter, setActiveFilter] = useState('Semua');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const defaultUsers = [
-    { id: 1, name: 'Ahmad Santoso', email: 'ahmad@email.com', avatar: 'AS', kyc: 'Verified', date: '12 Okt 2023' },
-    { id: 2, name: 'Jane Doe', email: 'jane@email.com', avatar: 'JD', kyc: 'Pending', date: '15 Okt 2023' },
-    { id: 3, name: 'Jessica Tan', email: 'jessica@email.com', avatar: 'JT', kyc: 'Verified', date: '20 Okt 2023' },
-    { id: 4, name: 'Bambang Pamungkas', email: 'bambang@email.com', avatar: 'BP', kyc: 'Pending', date: '22 Okt 2023' },
-    { id: 5, name: 'Dewi Lestari', email: 'dewi@email.com', avatar: 'DL', kyc: 'Unverified', date: '25 Okt 2023' }
-  ];
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -57,9 +50,9 @@ const UserManagementTab = () => {
           return;
         }
       } catch (err) {
-        console.warn('Gagal memuat daftar pengguna dari API, menggunakan fallback:', err);
+        console.error('Gagal memuat daftar pengguna dari API:', err);
+        setUsersList([]);
       }
-      setUsersList(defaultUsers);
       setLoading(false);
     };
 

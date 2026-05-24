@@ -89,17 +89,9 @@ const AdminEdukasiPage = () => {
           return;
         }
       } catch (err) {
-        console.warn('Failed to fetch education articles from API, using fallback:', err);
+        console.error('Failed to fetch education articles from API:', err);
+        setArticles([]);
       }
-      
-      // Fallback
-      const dummyData = getArticles().map(article => ({
-        ...article,
-        article_id: article.id,
-        thumbnail_url: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=600&q=80',
-        read_time: '5'
-      }));
-      setArticles(dummyData);
       setLoading(false);
     };
     fetchArticles();

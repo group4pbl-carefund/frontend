@@ -34,62 +34,14 @@ const TermsManagementTab = () => {
   const [newContent, setNewContent] = useState('');
   const [setActiveImmediately, setSetActiveImmediately] = useState(true);
 
-  const defaultVersions = [
-    {
-      id: 1,
-      version: 'v1.0.0',
-      title: 'Syarat dan Ketentuan Awal Care Fund',
-      content: `### 1. Ketentuan Umum\nSelamat datang di Care Fund. Dengan mengakses atau menggunakan platform kami, Anda menyetujui untuk terikat oleh Syarat dan Ketentuan ini.\n\n### 2. Pendaftaran Akun\nUntuk menggunakan fitur donasi dan edukasi tertentu, Anda harus mendaftar akun dan memberikan informasi yang akurat. Anda bertanggung jawab menjaga kerahasiaan kata sandi Anda.`,
-      highlights: [
-        'Ketentuan pendaftaran akun dan perlindungan kredensial.',
-        'Pengenaan biaya operasional maksimal 5% untuk pemeliharaan platform.'
-      ],
-      status: 'inactive',
-      publishedAt: '2024-01-12T08:00:00Z',
-      author: 'Admin CareFund',
-      acceptedCount: 120
-    },
-    {
-      id: 2,
-      version: 'v2.0.0',
-      title: 'Syarat dan Ketentuan v2.0.0 - Pembaruan Kebijakan Transparansi & Biaya',
-      content: `### 1. Ketentuan Layanan Pembaruan\nKami telah memperbarui Syarat dan Ketentuan kami untuk meningkatkan transparansi penyaluran dana serta kepatuhan terhadap regulasi perlindungan data pribadi (UU PDP).\n\n### 2. Sistem Transparansi & Distribusi\nSetiap donasi kini dilengkapi dengan pelaporan real-time yang dapat diakses melalui Dashboard Komunitas.`,
-      highlights: [
-        'Penurunan biaya admin platform dari 5% menjadi 3.5% flat.',
-        'Peningkatan keamanan data KYC sesuai regulasi UU PDP terbaru.'
-      ],
-      status: 'active',
-      publishedAt: '2026-02-10T09:00:00Z',
-      author: 'Super Admin CareFund',
-      acceptedCount: 98
-    }
-  ];
-
-  const defaultAcceptances = [
-    {
-      id: 1,
-      userName: 'Ahmad Santoso',
-      userEmail: 'ahmad@email.com',
-      version: 'v2.0.0',
-      acceptedAt: '2026-02-11T10:15:30Z'
-    },
-    {
-      id: 2,
-      userName: 'Jessica Tan',
-      userEmail: 'jessica@email.com',
-      version: 'v2.0.0',
-      acceptedAt: '2026-02-12T14:20:00Z'
-    }
-  ];
 
   const loadAllData = async () => {
     setLoading(true);
-    let loadedFromApi = false;
 
     try {
       const response = await api.get('/term-versions');
       const data = response.data?.data || response.data;
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         const sortedData = [...data].sort((a, b) => (b.version_id || b.id) - (a.version_id || a.id));
         const mappedVersions = sortedData.map((item, idx) => {
           const lines = (item.content || '').split('\n').filter(l => l.startsWith('-') || l.startsWith('*') || l.length > 20);
@@ -108,38 +60,27 @@ const TermsManagementTab = () => {
           };
         });
         setVersions(mappedVersions);
-        localStorage.setItem('carefund_tc_versions', JSON.stringify(mappedVersions));
-        loadedFromApi = true;
+      } else {
+        setVersions([]);
       }
     } catch (err) {
-      console.warn('Gagal memuat versi S&K dari API, menggunakan localStorage/fallback:', err);
+      console.error('Gagal memuat versi S&K dari API:', err);
+      setVersions([]);
     }
 
-    if (!loadedFromApi) {
-      const storedVersions = localStorage.getItem('carefund_tc_versions');
-      if (storedVersions) {
-        try {
-          setVersions(JSON.parse(storedVersions));
-        } catch (e) {
-          setVersions(defaultVersions);
-        }
+    try {
+      const response = await api.get('/user-terms-agreements');
+      const data = response.data?.data || response.data;
+      if (Array.isArray(data)) {
+        setAcceptances(data);
       } else {
-        setVersions(defaultVersions);
-        localStorage.setItem('carefund_tc_versions', JSON.stringify(defaultVersions));
+        setAcceptances([]);
       }
+    } catch (err) {
+      console.error('Gagal memuat persetujuan S&K dari API:', err);
+      setAcceptances([]);
     }
 
-    const storedAcceptances = localStorage.getItem('carefund_tc_acceptances');
-    if (storedAcceptances) {
-      try {
-        setAcceptances(JSON.parse(storedAcceptances));
-      } catch (e) {
-        setAcceptances(defaultAcceptances);
-      }
-    } else {
-      setAcceptances(defaultAcceptances);
-      localStorage.setItem('carefund_tc_acceptances', JSON.stringify(defaultAcceptances));
-    }
     setLoading(false);
   };
 

@@ -11,46 +11,6 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     
-    // HARDCODED BYPASS FOR TESTING
-    if (formData.email === 'admin@carefund.com' && formData.password === 'admin123') {
-      localStorage.setItem('token', 'dummy-admin-token');
-      localStorage.setItem('user', JSON.stringify({
-        id: 1,
-        full_name: 'Admin CareFund',
-        email: 'admin@carefund.com',
-        role: 'admin'
-      }));
-      await Swal.fire({
-        title: 'Berhasil!',
-        text: 'Login Berhasil (Admin Bypass)!',
-        icon: 'success',
-        confirmButtonText: 'Masuk Dashboard',
-        confirmButtonColor: '#2ea391'
-      });
-      window.location.href = '/admin';
-      return;
-    }
-
-    if (formData.email === 'user@carefund.com' && formData.password === 'user123') {
-      localStorage.setItem('token', 'dummy-user-token');
-      localStorage.setItem('user', JSON.stringify({
-        id: 2,
-        full_name: 'Regular User',
-        email: 'user@carefund.com',
-        role: 'user',
-        acceptedTermsVersion: 'v1.0.0'
-      }));
-      await Swal.fire({
-        title: 'Berhasil!',
-        text: 'Login Berhasil (User Bypass)!',
-        icon: 'success',
-        confirmButtonText: 'Masuk Dashboard',
-        confirmButtonColor: '#2ea391'
-      });
-      window.location.href = '/dashboard';
-      return;
-    }
-
     // ACTUAL API LOGIN
     try {
       const response = await api.post('/login', {
@@ -135,18 +95,6 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* Bypass Info Tooltip/Hint */}
-          <div className="mt-8 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-            <p className="text-[10px] font-bold text-gray-400 uppercase mb-2 text-center tracking-tighter">Testing Credentials (Bypass)</p>
-            <div className="flex justify-between text-[11px] text-gray-600 px-2">
-              <span>Admin: admin@carefund.com</span>
-              <span>Pass: admin123</span>
-            </div>
-            <div className="flex justify-between text-[11px] text-gray-600 px-2 mt-1">
-              <span>User: user@carefund.com</span>
-              <span>Pass: user123</span>
-            </div>
-          </div>
 
           <p className="text-center text-sm mt-8 text-gray-600 font-medium">
             New to Care Fund?{' '}

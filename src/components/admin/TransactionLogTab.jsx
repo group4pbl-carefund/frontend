@@ -24,52 +24,6 @@ const TransactionLogTab = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStatus, setActiveStatus] = useState('All');
 
-  const defaultTransactions = [
-    {
-      id: '#TRX-93231',
-      date: '19 Mei 2026',
-      time: '14:22',
-      user: 'Jane Doe',
-      avatar: 'JD',
-      program: 'Clean Water Initiative',
-      amount: 'Rp 500.000',
-      method: 'Bank Transfer',
-      status: 'SUCCESS'
-    },
-    {
-      id: '#TRX-93232',
-      date: '19 Mei 2026',
-      time: '15:10',
-      user: 'Ahmad Rizky',
-      avatar: 'AR',
-      program: 'General Fund',
-      amount: 'Rp 1.250.000',
-      method: 'QRIS',
-      status: 'PENDING'
-    },
-    {
-      id: '#TRX-93233',
-      date: '18 Mei 2026',
-      time: '15:45',
-      user: 'Sarah Wilson',
-      avatar: 'SW',
-      program: 'Scholarship Fund',
-      amount: 'Rp 200.000',
-      method: 'Credit Card',
-      status: 'FAILED'
-    },
-    {
-      id: '#TRX-93234',
-      date: '18 Mei 2026',
-      time: '16:02',
-      user: 'Budi Mulia',
-      avatar: 'BM',
-      program: 'Emergency Relief',
-      amount: 'Rp 5.000.000',
-      method: 'Bank Transfer',
-      status: 'SUCCESS'
-    }
-  ];
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -108,14 +62,9 @@ const TransactionLogTab = () => {
           return;
         }
       } catch (err) {
-        console.warn('Gagal memuat log transaksi dari API, menggunakan fallback:', err);
+        console.error('Gagal memuat log transaksi dari API:', err);
+        setLogsList([]);
       }
-      // Add rawAmount to defaultTransactions for calculations
-      const defaultWithRaw = defaultTransactions.map(t => ({
-        ...t,
-        rawAmount: parseInt(t.amount.replace(/[^0-9]/g, ''))
-      }));
-      setLogsList(defaultWithRaw);
       setLoading(false);
     };
 

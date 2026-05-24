@@ -47,17 +47,15 @@ const DonationDetailPage = () => {
         );
     }
 
-    // PENGAMAN UTAMA: Jika API Laravel kosong/eror, script ini mengisi data agar web tetap tampil.
-    const fallbackTitle = id === "3" ? "Tanggap Darurat Bencana Alam" : "Bantuan Dana Pendidikan Anak Bangsa";
     const displayCampaign = campaign || {};
     
-    const displayTitle = displayCampaign.program?.program_name || displayCampaign.title || fallbackTitle;
-    const displayTarget = displayCampaign.program?.target_amount || displayCampaign.target_amount || 50000000;
-    const displayCurrent = displayCampaign.current_amount || displayCampaign.current_amount || 15000000;
-    const displayDaysLeft = displayCampaign.program?.end_date ? Math.max(0, Math.ceil((new Date(displayCampaign.program.end_date) - new Date()) / (1000 * 60 * 60 * 24))) : (displayCampaign.days_left || 12);
-    const displayStory = displayCampaign.program?.description || displayCampaign.story || "Program bantuan kemanusiaan ini bertujuan untuk meringankan beban saudara-saudara kita yang membutuhkan melalui penyaluran bantuan logistik, akomodasi, dan kebutuhan pokok secara transparan dan akuntabel.";
-    const displayCategory = displayCampaign.program?.category || (id === "3" ? "Bencana Alam" : "Pendidikan");
-    const displayImage = displayCampaign.program?.image_url || displayCampaign.image_url;
+    const displayTitle = displayCampaign.program?.program_name || displayCampaign.title || '';
+    const displayTarget = displayCampaign.program?.target_amount || displayCampaign.target_amount || 0;
+    const displayCurrent = displayCampaign.current_amount || displayCampaign.current_amount || 0;
+    const displayDaysLeft = displayCampaign.program?.end_date ? Math.max(0, Math.ceil((new Date(displayCampaign.program.end_date) - new Date()) / (1000 * 60 * 60 * 24))) : (displayCampaign.days_left || 0);
+    const displayStory = displayCampaign.program?.description || displayCampaign.story || '';
+    const displayCategory = displayCampaign.program?.category || '';
+    const displayImage = displayCampaign.program?.image_url || displayCampaign.image_url || '';
 
     const currentAmount = Number(displayCurrent) || 0;
     const targetAmount = Number(displayTarget) || 1;

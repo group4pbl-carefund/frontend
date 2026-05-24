@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Editor } from '@tinymce/tinymce-react';
 import MainLayout from '../../layouts/mainLayout';
 import Swal from 'sweetalert2';
-import { getArticleById, updateArticle } from '../../utils/articleDb';
+
 import api from '../../utils/api';
 
 const EditArticlePage = () => {
@@ -47,31 +47,15 @@ const EditArticlePage = () => {
           loadedFromApi = true;
         }
       } catch (err) {
-        console.warn('Gagal mengambil detail artikel dari API, menggunakan lokal:', err);
-      }
-
-      if (!loadedFromApi) {
-        const existing = getArticleById(id);
-        if (existing) {
-          setArticle({
-            title: existing.title || '',
-            category: existing.category || 'Security',
-            authorName: existing.authorName || 'Editorial Team',
-            status: existing.status || 'PUBLISHED',
-            featured: existing.featured || false,
-            metaDescription: existing.metaDescription || '',
-            content: existing.content || ''
-          });
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: 'Artikel tidak ditemukan!',
-            icon: 'error',
-            confirmButtonColor: '#147D73'
-          }).then(() => {
-            navigate('/admin/edukasi/manage');
-          });
-        }
+        console.error('Gagal mengambil detail artikel dari API:', err);
+        Swal.fire({
+          title: 'Error!',
+          text: 'Artikel tidak ditemukan!',
+          icon: 'error',
+          confirmButtonColor: '#147D73'
+        }).then(() => {
+          navigate('/admin/edukasi/manage');
+        });
       }
       setIsLoading(false);
     };
@@ -105,16 +89,6 @@ const EditArticlePage = () => {
         published_at: apiStatus === 'published' ? new Date().toISOString().split('T')[0] : null
       });
 
-      // 2. Local fallback update
-      updateArticle(id, {
-        title: article.title,
-        category: article.category,
-        authorName: article.authorName,
-        status: article.status,
-        featured: article.featured,
-        metaDescription: article.metaDescription,
-        content: updatedContent
-      });
 
       await Swal.fire({
         title: 'Sukses!',

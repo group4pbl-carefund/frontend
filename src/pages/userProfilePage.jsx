@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainLayout from "../layouts/mainLayout";
 import {
     ArrowLeft, Mail, Phone, MapPin, History, Award,
@@ -12,50 +12,6 @@ import StatCard from "../components/statCard";
 import DonationHistoryItem from "../components/donationHistoryItem";
 import api from "../utils/api";
 
-const certificateData = [
-    {
-        id: 1,
-        title: "Bantuan Pendidikan Anak Pedalaman Kalimantan",
-        amount: "Rp 500.000",
-        image: "https://images.unsplash.com/photo-1589330694653-ded6df03f754?q=80&w=400"
-    },
-    {
-        id: 2,
-        title: "Air Bersih untuk Desa Terpencil NTT",
-        amount: "Rp 250.000",
-        image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=400"
-    },
-    {
-        id: 3,
-        title: "Pemulihan Ekonomi Korban Bencana",
-        amount: "Rp 1.000.000",
-        image: "https://images.unsplash.com/photo-1518111244092-26a9926c48f2?q=80&w=400"
-    }
-];
-
-const donationData = [
-    {
-        image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=200&q=80",
-        category: "Pendidikan",
-        categoryColor: "text-blue-600",
-        bgColor: "bg-blue-50",
-        date: "28 Mar 2026",
-        title: "Bantuan Pendidikan Anak Pedalaman Kalimantan",
-        amount: "Rp 502.500",
-        showBukti: true,
-    },
-    {
-        image: "https://images.unsplash.com/photo-1504159506876-f8338247a14a?auto=format&fit=crop&w=200&q=80",
-        category: "Infrastruktur",
-        categoryColor: "text-emerald-600",
-        bgColor: "bg-emerald-50",
-        date: "25 Mar 2026",
-        title: "Air Bersih untuk Desa Terpencil NTT",
-        amount: "Rp 502.500",
-        showBukti: false,
-    },
-];
-
 const UserProfilePage = () => {
     const navigate = useNavigate();
     // State untuk mengatur tab yang aktif
@@ -68,6 +24,73 @@ const UserProfilePage = () => {
     });
 
     const [isUploading, setIsUploading] = useState(false);
+
+    // State untuk integrasi backend
+    const [userDonations, setUserDonations] = useState([]);
+    const [stats, setStats] = useState({
+        totalDonasi: 0,
+        bergabung: '',
+        dampakOrang: 0,
+        programDidukung: 0
+    });
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (!user) return;
+
+            try {
+                // Set 'bergabung' dari data user
+                const joinDate = user.created_at ? new Date(user.created_at) : new Date();
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+                const bergabungFormatted = `${monthNames[joinDate.getMonth()]} ${joinDate.getFullYear()}`;
+
+                // Fetch all donations (fallback if specific user endpoint isn't available)
+                const res = await api.get('/donations');
+                const allDonations = res.data?.data || [];
+
+                // Filter donations for this user
+                const myDonations = allDonations.filter(d => d.user_id === user.id);
+
+                // Sort by latest
+                myDonations.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                setUserDonations(myDonations);
+
+                // Calculate stats
+                let totalDonasi = 0;
+                const uniquePrograms = new Set();
+
+                myDonations.forEach(d => {
+                    // Cek status pembayaran untuk menghitung total donasi sukses
+                    if (d.payment_status === 'success' || d.payment_status === 'paid' || d.payment_status === 'settlement') {
+                        totalDonasi += parseFloat(d.amount || 0);
+                        if (d.program_campaign_id) {
+                            uniquePrograms.add(d.program_campaign_id);
+                        }
+                    }
+                });
+
+                // Asumsi sederhana: 1 donasi bisa berdampak ke ~5 orang
+                const dampakOrang = uniquePrograms.size * 10 + Math.floor(totalDonasi / 100000);
+
+                setStats({
+                    totalDonasi,
+                    bergabung: bergabungFormatted,
+                    dampakOrang,
+                    programDidukung: uniquePrograms.size
+                });
+
+            } catch (err) {
+                console.error("Gagal memuat data donasi pengguna:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, [user]);
+
+
 
 
 
@@ -223,9 +246,9 @@ const UserProfilePage = () => {
                     <div className="lg:col-span-8 space-y-8">
                         {/* STATS */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <StatCard icon={<CreditCard size={20} />} label="Total Donasi" value="Rp 1.750k" colorClass="bg-emerald-50 text-emerald-600" />
-                            <StatCard icon={<Calendar size={20} />} label="Bergabung" value="Jan 2026" colorClass="bg-teal-50 text-teal-600" />
-                            <StatCard icon={<HandHeart size={20} />} label="Dampak" value="8 Orang" colorClass="bg-orange-50 text-orange-600" />
+                            <StatCard icon={<CreditCard size={20} />} label="Total Donasi" value={`Rp ${stats.totalDonasi.toLocaleString('id-ID')}`} colorClass="bg-emerald-50 text-emerald-600" />
+                            <StatCard icon={<Calendar size={20} />} label="Bergabung" value={stats.bergabung} colorClass="bg-teal-50 text-teal-600" />
+                            <StatCard icon={<HandHeart size={20} />} label="Dampak" value={`${stats.dampakOrang} Orang`} colorClass="bg-orange-50 text-orange-600" />
                         </div>
 
                         {/* TAB RIWAYAT */}
@@ -236,9 +259,29 @@ const UserProfilePage = () => {
                                     <button className="text-sm font-bold text-[#2ea391] hover:underline">Lihat Semua</button>
                                 </div>
                                 <div className="divide-y divide-slate-50">
-                                    {donationData.map((item, index) => (
-                                        <DonationHistoryItem key={index} {...item} />
-                                    ))}
+                                    {isLoading ? (
+                                        <div className="p-8 text-center text-slate-500">Memuat riwayat...</div>
+                                    ) : userDonations.length > 0 ? (
+                                        userDonations.map((d, index) => {
+                                            const statusLower = d.payment_status?.toLowerCase();
+                                            const isSuccess = ['success', 'paid', 'settlement'].includes(statusLower);
+                                            return (
+                                                <DonationHistoryItem
+                                                    key={d.id || index}
+                                                    image={d.program?.image_url || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=200&q=80"}
+                                                    category={d.program?.category || "Program"}
+                                                    categoryColor={isSuccess ? "text-emerald-600" : "text-amber-600"}
+                                                    bgColor={isSuccess ? "bg-emerald-50" : "bg-amber-50"}
+                                                    date={new Date(d.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    title={d.program?.title || d.program?.program_name || "Donasi Kemanusiaan"}
+                                                    amount={`Rp ${parseFloat(d.amount).toLocaleString('id-ID')}`}
+                                                    showBukti={isSuccess}
+                                                />
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="p-8 text-center text-slate-500">Belum ada riwayat donasi.</div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -258,40 +301,48 @@ const UserProfilePage = () => {
 
                                 {/* GRID SERTIFIKAT */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {certificateData.map((cert) => (
-                                        <div key={cert.id} className="bg-white rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-50 flex flex-col hover:shadow-lg transition-all duration-300">
-                                            {/* Gambar Sertifikat */}
-                                            <div className="aspect-[1.5/1] rounded-2xl overflow-hidden mb-6 bg-slate-100">
-                                                <img
-                                                    src={cert.image}
-                                                    alt={cert.title}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
+                                    {isLoading ? (
+                                        <div className="col-span-full py-8 text-center text-slate-500">Memuat sertifikat...</div>
+                                    ) : userDonations.filter(d => ['success', 'paid', 'settlement'].includes(d.payment_status?.toLowerCase())).length > 0 ? (
+                                        userDonations
+                                            .filter(d => ['success', 'paid', 'settlement'].includes(d.payment_status?.toLowerCase()))
+                                            .map((cert) => (
+                                                <div key={cert.id} className="bg-white rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-50 flex flex-col hover:shadow-lg transition-all duration-300">
+                                                    {/* Gambar Sertifikat */}
+                                                    <div className="aspect-[1.5/1] rounded-2xl overflow-hidden mb-6 bg-slate-100">
+                                                        <img
+                                                            src={cert.program?.image_url || "https://images.unsplash.com/photo-1589330694653-ded6df03f754?q=80&w=400"}
+                                                            alt={cert.program?.title || "Sertifikat Donasi"}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    </div>
 
-                                            {/* Info */}
-                                            <div className="mb-8">
-                                                <h3 className="font-bold text-slate-800 text-lg leading-snug mb-2 line-clamp-2">
-                                                    {cert.title}
-                                                </h3>
-                                                <p className="text-[#28a792] font-black text-xl">
-                                                    {cert.amount}
-                                                </p>
-                                            </div>
+                                                    {/* Info */}
+                                                    <div className="mb-8">
+                                                        <h3 className="font-bold text-slate-800 text-lg leading-snug mb-2 line-clamp-2">
+                                                            {cert.program?.title || cert.program?.program_name || "Bantuan Kemanusiaan"}
+                                                        </h3>
+                                                        <p className="text-[#28a792] font-black text-xl">
+                                                            Rp {parseFloat(cert.amount).toLocaleString('id-ID')}
+                                                        </p>
+                                                    </div>
 
-                                            {/* Tombol Action */}
-                                            <div className="flex items-center gap-2 mt-auto">
-                                                <button className="flex-grow flex items-center justify-center gap-2 bg-[#28a792] text-white py-3 px-4 rounded-xl font-bold text-[13px] hover:bg-[#218d7c] transition-all shadow-md shadow-teal-900/5 active:scale-95">
-                                                    <Download size={16} strokeWidth={2.5} />
-                                                    Download Sertifikat
-                                                </button>
+                                                    {/* Tombol Action */}
+                                                    <div className="flex items-center gap-2 mt-auto">
+                                                        <button className="flex-grow flex items-center justify-center gap-2 bg-[#28a792] text-white py-3 px-4 rounded-xl font-bold text-[13px] hover:bg-[#218d7c] transition-all shadow-md shadow-teal-900/5 active:scale-95">
+                                                            <Download size={16} strokeWidth={2.5} />
+                                                            Download Sertifikat
+                                                        </button>
 
-                                                <button className="flex-shrink-0 w-11 h-11 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 hover:text-slate-600 border border-slate-100 transition-all active:scale-95">
-                                                    <Share2 size={16} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
+                                                        <button className="flex-shrink-0 w-11 h-11 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-100 hover:text-slate-600 border border-slate-100 transition-all active:scale-95">
+                                                            <Share2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                    ) : (
+                                        <div className="col-span-full py-8 text-center text-slate-500">Belum ada sertifikat donasi.</div>
+                                    )}
                                 </div>
 
                                 {/* IMPACT MILESTONE */}
@@ -301,7 +352,7 @@ const UserProfilePage = () => {
                                             Impact Milestone
                                         </span>
                                         <h2 className="text-[#0F2F29] text-4xl lg:text-5xl font-[900] mb-5 leading-[1.1] tracking-tight">
-                                            Anda Telah Membantu<br />120+ Keluarga
+                                            Anda Telah Membantu<br />{stats.dampakOrang}+ Keluarga
                                         </h2>
                                         <p className="text-[#2D5A51] text-base md:text-lg mb-8 max-w-[400px] leading-relaxed opacity-90">
                                             Kumpulan sertifikat ini adalah bukti nyata perjalanan kedermawanan Anda. Teruslah menjadi bagian dari solusi global.
@@ -345,16 +396,16 @@ const UserProfilePage = () => {
                                         {/* Sisi Kanan */}
                                         <div className="flex-1 w-full grid grid-cols-2 gap-4">
                                             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[2rem] p-6 h-32 flex flex-col justify-center">
-                                                <h4 className="text-xl font-black">1.750.000</h4>
+                                                <h4 className="text-xl font-black">{stats.totalDonasi.toLocaleString('id-ID')}</h4>
                                                 <p className="text-[10px] uppercase font-bold opacity-60">Total Rupiah Donasi</p>
                                             </div>
                                             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[2rem] p-6 h-32 flex flex-col justify-center">
-                                                <h4 className="text-xl font-black">~150</h4>
+                                                <h4 className="text-xl font-black">~{stats.dampakOrang}</h4>
                                                 <p className="text-[10px] uppercase font-bold opacity-60">Orang Terbantu</p>
                                             </div>
                                             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[2rem] p-6 col-span-2 flex justify-between items-center h-24">
                                                 <div>
-                                                    <h4 className="text-3xl font-black">3</h4>
+                                                    <h4 className="text-3xl font-black">{stats.programDidukung}</h4>
                                                     <p className="text-[10px] uppercase font-bold opacity-60">Program Didukung</p>
                                                 </div>
                                                 <div className="flex -space-x-2">
@@ -382,9 +433,9 @@ const UserProfilePage = () => {
                                                 <div className="w-8 h-[2px] bg-[#28a792]"></div>
                                                 <span className="text-[10px] font-bold text-[#28a792] uppercase">A Message of Gratitude</span>
                                             </div>
-                                            <h3 className="text-3xl font-bold">Terima Kasih, Ahmad!</h3>
+                                            <h3 className="text-3xl font-bold">Terima Kasih, {user?.full_name ? user.full_name.split(' ')[0] : 'Orang Baik'}!</h3>
                                             <p className="text-slate-500 italic text-lg leading-relaxed">
-                                                "Dukungan Anda telah memungkinkan 15 anak mendapatkan beasiswa penuh tahun ini."
+                                                "Dukungan Anda telah memungkinkan lebih banyak orang mendapatkan bantuan tahun ini."
                                             </p>
                                             <p className="font-bold text-slate-800">— Direktur Program Care Fund</p>
                                         </div>

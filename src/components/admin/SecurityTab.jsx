@@ -17,38 +17,6 @@ const SecurityTab = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Semua');
 
-  const defaultLogs = [
-    {
-      status: 'INVESTIGATING',
-      priority: 'HIGH',
-      category: 'Suspicious',
-      description: 'Multiple failed login attempts',
-      details: 'Detected from non-standard region (IP: 192.168.45.12)',
-      date: '2026-05-19',
-      time: '14:23 PM',
-      user: 'user_jdoe88'
-    },
-    {
-      status: 'FLAGGED',
-      priority: 'MEDIUM',
-      category: 'Transaction',
-      description: 'Large donation transaction flagged',
-      details: 'Amount exceeding $10k standard threshold',
-      date: '2026-05-19',
-      time: '11:05 AM',
-      user: 'system_audit'
-    },
-    {
-      status: 'RESOLVED',
-      priority: 'LOW',
-      category: 'System',
-      description: 'Automatic certificate renewal',
-      details: 'SSL certificate for subdomain successfully renewed',
-      date: '2026-05-18',
-      time: '09:45 AM',
-      user: 'cloud_manager'
-    }
-  ];
 
   useEffect(() => {
     const fetchSecurityLogs = async () => {
@@ -74,9 +42,9 @@ const SecurityTab = () => {
           return;
         }
       } catch (err) {
-        console.warn('Gagal memuat log keamanan dari API, menggunakan data fallback:', err);
+        console.error('Gagal memuat log keamanan dari API:', err);
+        setLogsList([]);
       }
-      setLogsList(defaultLogs);
       setLoading(false);
     };
 
