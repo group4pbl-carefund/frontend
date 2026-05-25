@@ -171,12 +171,9 @@ const CreateArticlePage = () => {
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Author</label>
-                    <input 
-                      type="text" 
-                      className="w-full bg-slate-100 text-slate-900 font-medium py-3.5 px-5 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#147D73]/20 border-none"
-                      value={formData.authorName}
-                      onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
-                    />
+                    <div className="w-full bg-slate-100/50 text-slate-500 font-medium py-3.5 px-5 rounded-xl border border-slate-200">
+                      Otomatis tersimpan sebagai akun Anda
+                    </div>
                   </div>
                 </div>
 

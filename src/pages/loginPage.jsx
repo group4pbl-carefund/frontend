@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShieldCheck } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '../utils/api';
 
@@ -117,7 +118,7 @@ const LoginPage = () => {
       <div className="w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl">
         <div className="bg-[#1a1a1a] p-10 text-center text-white relative">
           <div className="bg-[#2ea391] w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#2ea391]/20 rotate-3">
-            <span className="text-white text-2xl">🛡️</span>
+            <ShieldCheck className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight">Welcome Back</h2>
           <p className="text-gray-400 text-sm mt-1">Continue your mission of kindness</p>

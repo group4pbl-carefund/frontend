@@ -111,12 +111,26 @@ const TermsAcceptancePage = () => {
     window.location.href = '/login';
   };
 
-  if (loading || !activeTc) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#E0F2F1] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <RefreshCw className="w-8 h-8 text-[#149187] animate-spin" />
           <p className="text-sm font-semibold text-teal-800">Memuat Dokumen Persetujuan...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!activeTc) {
+    return (
+      <div className="min-h-screen bg-[#E0F2F1] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mb-2" />
+          <h2 className="text-xl font-bold text-slate-800">Gagal Memuat Dokumen</h2>
+          <p className="text-sm font-semibold text-red-800">Tidak dapat memuat data Syarat & Ketentuan. Harap periksa koneksi atau hubungi admin.</p>
+          <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-[#149187] text-white rounded-xl text-xs font-bold hover:bg-[#0f7c73]">Coba Lagi</button>
+          <button onClick={handleLogout} className="mt-2 text-xs font-bold text-slate-500 hover:text-slate-700 underline">Logout Sementara</button>
         </div>
       </div>
     );
@@ -214,7 +228,7 @@ const TermsAcceptancePage = () => {
             {/* Terms and Conditions full text box */}
             <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 h-[320px] overflow-y-auto mb-6 text-xs text-slate-700 leading-relaxed space-y-4 shadow-inner">
               {activeTc.content ? (
-                activeTc.content.split('\n\n').map((para, i) => {
+                activeTc.content.replace(/\\n/g, '\n').split('\n\n').map((para, i) => {
                   if (para.startsWith('### ')) {
                     return <h4 key={i} className="text-sm font-bold text-gray-800 pt-2">{para.replace('### ', '')}</h4>;
                   } else if (para.startsWith('- ') || para.startsWith('* ')) {

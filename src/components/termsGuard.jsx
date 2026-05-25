@@ -1,13 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import api from '../utils/api';
 
 const TermsGuard = () => {
   const token = localStorage.getItem('token');
   const userStr = localStorage.getItem('user');
   const location = useLocation();
 
-  // If user is not logged in, they are not bound by user terms yet.
-  // The login/register pages handle their own flow.
+  const [loading, setLoading] = useState(true);
+  const [activeVersion, setActiveVersion] = useState(null);
+
+  useEffect(() => {
+    // If user is not logged in, they are not bound by user terms yet.
+    if (!token || !userStr) {
+      setLoading(false);
+      return;
+    }
+    
+    let user = null;
+    try {
+      user = JSON.parse(userStr);
+    } catch (e) {
+      setLoading(false);
+      return;
+    }
+
+    // Admin role is exempted from acceptance gate
+    if (user && user.role === 'admin') {
+      setLoading(false);
+      return;
+    }
+
+    const fetchVersion = async () => {
+      try {
+        const response = await api.get('/term-versions');
+        const versions = response.data?.data || response.data;
+        if (Array.isArray(versions) && versions.length > 0) {
+          const sorted = [...versions].sort((a, b) => b.version_id - a.version_id);
+          setActiveVersion(sorted[0].version_number);
+        }
+      } catch (e) {
+        console.error('Error reading terms versions', e);
+      }
+      setLoading(false);
+    };
+
+    fetchVersion();
+  }, [token, userStr]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#E0F2F1] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-[#149187] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-semibold text-teal-800">Memeriksa Sesi...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!token || !userStr) {
     return <Outlet />;
   }
@@ -16,32 +67,17 @@ const TermsGuard = () => {
   try {
     user = JSON.parse(userStr);
   } catch (e) {
-    console.error('Error parsing user from localStorage', e);
     return <Outlet />;
   }
 
-  // Admin role is exempted from acceptance gate (they edit terms)
   if (user && user.role === 'admin') {
     return <Outlet />;
-  }
-
-  // Fetch the current active terms version from localStorage
-  let activeVersion = 'v2.0.0';
-  try {
-    const versionsStr = localStorage.getItem('carefund_tc_versions');
-    if (versionsStr) {
-      const versions = JSON.parse(versionsStr);
-      const active = versions.find(v => v.status === 'active');
-      if (active) activeVersion = active.version;
-    }
-  } catch (e) {
-    console.error('Error reading terms versions', e);
   }
 
   const userAcceptedVersion = user ? user.acceptedTermsVersion : null;
 
   // If the user hasn't accepted the active version, block them and redirect
-  if (userAcceptedVersion !== activeVersion) {
+  if (activeVersion && String(userAcceptedVersion) !== String(activeVersion)) {
     return <Navigate to="/accept-terms" replace state={{ from: location.pathname }} />;
   }
 

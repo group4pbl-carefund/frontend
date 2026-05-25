@@ -8,6 +8,7 @@ const ArtikelDetail = () => {
   const navigate = useNavigate();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
+  const viewRecorded = React.useRef(false);
 
   useEffect(() => {
     const fetchArticleAndRecordView = async () => {
@@ -17,11 +18,14 @@ const ArtikelDetail = () => {
         setArticle(articleData);
 
         // Record view if user is logged in
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-          const user = JSON.parse(userStr);
-          if (user && user.id) {
-            await api.post('/education-views', { article_id: id, user_id: user.id });
+        if (!viewRecorded.current) {
+          viewRecorded.current = true;
+          const userStr = localStorage.getItem('user');
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            if (user && user.id) {
+              await api.post('/education-views', { article_id: id, user_id: user.id });
+            }
           }
         }
       } catch (error) {

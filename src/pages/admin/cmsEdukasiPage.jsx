@@ -42,7 +42,7 @@ const CmsEdukasiPage = () => {
             authorName: item.author?.full_name || 'Editorial Team',
             authorAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.author?.full_name || 'Admin')}&background=147D73&color=fff`,
             date: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-            views: (item.views_count || 120).toString(),
+            views: (item.views_count || 0).toString(),
             status: statVal,
             statusColor: statCol,
             content: item.content || ''

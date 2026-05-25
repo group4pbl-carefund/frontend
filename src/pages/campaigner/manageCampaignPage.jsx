@@ -154,7 +154,7 @@ const ManageCampaignPage = () => {
       <MainLayout>
         <div className="p-10 bg-[#F4F7F6] min-h-screen flex flex-col items-center justify-center">
           <p className="text-slate-500 font-bold italic mb-4">Tidak ada kampanye aktif untuk dikelola saat ini.</p>
-          <button onClick={() => navigate('/profil')} className="text-[#147D73] font-bold underline">Kembali ke Profil</button>
+          <button onClick={() => navigate('/user-profile')} className="text-[#147D73] font-bold underline">Kembali ke Profil</button>
         </div>
       </MainLayout>
     );
@@ -174,7 +174,7 @@ const ManageCampaignPage = () => {
       {/* HEADER */}
       <div className="flex justify-between items-start mb-10 max-w-6xl mx-auto">
         <div>
-          <button onClick={() => navigate('/profil')} className="flex items-center text-sm font-bold text-[#147D73] hover:opacity-70 transition-opacity mb-4">
+          <button onClick={() => navigate('/user-profile')} className="flex items-center text-sm font-bold text-[#147D73] hover:opacity-70 transition-opacity mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" /> Kembali ke Profil
           </button>
           <h1 className="text-4xl font-black text-slate-900 tracking-tight">Kelola Kampanye</h1>

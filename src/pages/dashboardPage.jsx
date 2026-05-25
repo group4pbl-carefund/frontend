@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Wallet, Users, ClipboardList, CheckCircle } from 'lucide-react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -11,6 +12,7 @@ import {
   ArcElement,
 } from 'chart.js';
 import MainLayout from '../layouts/mainLayout';
+import api from '../utils/api';
 
 ChartJS.register(
   CategoryScale,
@@ -23,19 +25,46 @@ ChartJS.register(
 );
 
 const DashboardPage = () => {
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState({
+    stats: {},
+    donation_trend: { labels: [], data: [] },
+    category_data: { labels: [], data: [] },
+    featured_programs: [],
+    activities: [],
+    distributions: []
+  });
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await api.get('/dashboard');
+        if (response.data?.success) {
+          setDashboardData(response.data.data);
+        }
+      } catch (error) {
+        console.error('Gagal memuat data dashboard:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   const statsData = [
-    { title: 'Total Dana Terkumpul', value: 'Rp 4.250.000.000', badge: '+12.5%', icon: '💰' },
-    { title: 'Penerima Manfaat', value: '12.840 Jiwa', icon: '👥' },
-    { title: 'Program Aktif', value: '45 Program', icon: '📋' },
-    { title: 'Distribusi Selesai', value: '1.205 Kasus', icon: '✅' },
+    { title: 'Total Dana Terkumpul', value: dashboardData.stats.total_dana || 'Rp 0', icon: <Wallet className="w-7 h-7 text-[#147D73]" /> },
+    { title: 'Penerima Manfaat', value: dashboardData.stats.penerima_manfaat || '0 Jiwa', icon: <Users className="w-7 h-7 text-[#147D73]" /> },
+    { title: 'Program Aktif', value: dashboardData.stats.program_aktif || '0 Program', icon: <ClipboardList className="w-7 h-7 text-[#147D73]" /> },
+    { title: 'Distribusi Selesai', value: dashboardData.stats.distribusi_selesai || '0 Kasus', icon: <CheckCircle className="w-7 h-7 text-[#147D73]" /> },
   ];
 
   const donationTrendData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+    labels: dashboardData.donation_trend.labels.reverse(), // Show oldest to newest
     datasets: [
       {
-        label: '2024',
-        data: [650, 590, 800, 810, 560, 550],
+        label: new Date().getFullYear().toString(),
+        data: dashboardData.donation_trend.data.reverse(),
         borderColor: '#147D73',
         backgroundColor: 'rgba(20, 125, 115, 0.1)',
         tension: 0.3,
@@ -45,50 +74,30 @@ const DashboardPage = () => {
   };
 
   const categoryData = {
-    labels: ['Pendidikan', 'Kesehatan', 'Bencana Alam', 'Sosial'],
+    labels: dashboardData.category_data.labels,
     datasets: [
       {
-        data: [40, 25, 20, 15],
-        backgroundColor: ['#147D73', '#60C9B3', '#F59E0B', '#8B5CF6'],
+        data: dashboardData.category_data.data,
+        backgroundColor: ['#147D73', '#60C9B3', '#F59E0B', '#8B5CF6', '#3B82F6', '#EF4444'],
         borderWidth: 0,
       },
     ],
   };
 
-  const featuredPrograms = [
-    {
-      category: 'PENDIDIKAN',
-      location: 'KALIMANTAN TIMUR',
-      title: 'Bantuan Pendidikan Anak Pedalaman Kalimantan',
-      collected: 'Rp 38.750.000',
-      target: 'Rp 50.000.000',
-      progress: 78,
-      deadline: 'Berakhir dalam 12 hari',
-      donors: '1.240 Donatur',
-    },
-    {
-      category: 'KESEHATAN',
-      location: 'SULAWESI SELATAN',
-      title: 'Operasi Katarak Gratis Lansia Pesisir',
-      collected: 'Rp 82.100.000',
-      target: 'Rp 90.000.000',
-      progress: 91,
-      deadline: 'Berakhir dalam 3 hari',
-      donors: '3.150 Donatur',
-    },
-  ];
+  const { featured_programs: featuredPrograms, activities, distributions } = dashboardData;
 
-  const activities = [
-    { title: 'Beasiswa Kuliah 2024', date: '12 Mei 2024', category: 'Pendidikan' },
-    { title: 'Bantuan Pendidikan Anak', date: '10 Mei 2024', category: 'Pendidikan' },
-    { title: 'Klinik Desa Berdaya', date: '08 Mei 2024', category: 'Kesehatan' },
-  ];
-
-  const distributions = [
-    { amount: 'Rp 150.000.000', status: 'SELESAI' },
-    { amount: 'Rp 75.250.000', status: 'SELESAI' },
-    { amount: 'Rp 210.000.000', status: 'PROSES' },
-  ];
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-[#149187] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm font-semibold text-teal-800">Memuat Data Dashboard...</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>

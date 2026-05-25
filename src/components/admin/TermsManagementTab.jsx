@@ -72,7 +72,14 @@ const TermsManagementTab = () => {
       const response = await api.get('/user-terms-agreements');
       const data = response.data?.data || response.data;
       if (Array.isArray(data)) {
-        setAcceptances(data);
+        const mappedAcceptances = data.map(item => ({
+          id: item.agreement_id || item.id,
+          userName: item.user?.full_name || item.userName || 'Unknown User',
+          userEmail: item.user?.email || item.userEmail || 'unknown@example.com',
+          version: item.version?.version_number || item.version || 'v1.0.0',
+          acceptedAt: item.agreed_at || item.acceptedAt || new Date().toISOString()
+        }));
+        setAcceptances(mappedAcceptances);
       } else {
         setAcceptances([]);
       }
