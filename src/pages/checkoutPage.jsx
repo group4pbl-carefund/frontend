@@ -5,7 +5,7 @@ import Navbar from '../components/navbar';
 import { ArrowLeft, CheckCircle2, ShieldCheck, Download, Lock, Check } from 'lucide-react';
 
 const CheckoutPage = () => {
-    const { id } = useParams(); 
+    const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -17,10 +17,11 @@ const CheckoutPage = () => {
 
     // State kontrol alur halaman
     const [loading, setLoading] = useState(true);
-    const [isPending, setIsPending] = useState(false); 
-    const [isSuccess, setIsSuccess] = useState(false); 
+    const [isPending, setIsPending] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [error, setError] = useState(null);
     const [orderId, setOrderId] = useState('');
+    const [donationId, setDonationId] = useState(null);
     const [campaignTitle, setCampaignTitle] = useState('Bantuan Pendidikan Anak Pedalaman Kalimantan');
     const [timeLeft, setTimeLeft] = useState(898); // 14:58 in seconds
 
@@ -40,26 +41,33 @@ const CheckoutPage = () => {
             hasPosted.current = true;
 
             try {
-                // Ambil judul kampanye untuk halaman sukses
+                let currentProgramId = Number(id); // fallback
                 try {
                     const campRes = await api.get(`/program-campaigns/${id}`);
                     const campData = campRes.data?.data || campRes.data;
                     setCampaignTitle(campData.program?.program_name || campData.title || 'Program Donasi Care Fund');
+                    if (campData.program_id) {
+                        currentProgramId = Number(campData.program_id);
+                    }
                 } catch (e) {
                     console.log('Gagal ambil judul kampanye', e);
                 }
 
                 const payload = {
-                    campaign_id: Number(id),
+                    program_id: currentProgramId,
                     amount: amount,
                     fee_amount: 2500,
                     payment_method: paymentMethod,
-                    anonymous: anonymous ? 1 : 0,
-                    comment: comment.trim() || null
+                    is_anonymous: anonymous ? 1 : 0,
+                    notes: comment.trim() || null
                 };
-                
+
                 const response = await api.post('/donations', payload);
-                
+
+                // Simpan donation ID dari backend
+                const createdDonationId = response.data?.data?.id || response.data?.id;
+                if (createdDonationId) setDonationId(createdDonationId);
+
                 // Buat mock order ID
                 const randomId = Math.floor(10000 + Math.random() * 90000);
                 setOrderId(`#RS-${randomId}-CF`);
@@ -69,7 +77,7 @@ const CheckoutPage = () => {
                 console.warn("Koneksi API backend dialihkan ke mode simulasi aman.");
                 const randomId = Math.floor(10000 + Math.random() * 90000);
                 setOrderId(`#RS-${randomId}-CF`);
-                setIsPending(true); 
+                setIsPending(true);
             } finally {
                 setLoading(false);
             }
@@ -84,7 +92,14 @@ const CheckoutPage = () => {
         return `${m}:${s}`;
     };
 
-    const handleSudahBayar = () => {
+    const handleSudahBayar = async () => {
+        try {
+            if (donationId) {
+                await api.patch(`/donations/${donationId}/complete`);
+            }
+        } catch (err) {
+            console.error("Failed to complete donation", err);
+        }
         setIsPending(false);
         setIsSuccess(true);
     };
@@ -101,16 +116,16 @@ const CheckoutPage = () => {
         return (
             <div className="min-h-screen bg-[#EEF5F4] text-slate-900 pb-20">
                 <Navbar />
-                
+
                 <main className="max-w-[800px] mx-auto px-6 pt-12 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="w-20 h-20 bg-[#006059] text-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-teal-900/20">
                         <Check className="w-10 h-10" strokeWidth={3} />
                     </div>
-                    
+
                     <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
-                        Terima Kasih, Kebaikan Anda Telah<br/>Tersalurkan!
+                        Terima Kasih, Kebaikan Anda Telah<br />Tersalurkan!
                     </h1>
-                    
+
                     <p className="text-slate-600 mb-10 max-w-lg mx-auto leading-relaxed">
                         Donasi Anda telah berhasil kami terima dan akan segera digunakan untuk program <span className="font-bold text-[#147D73]">{campaignTitle}</span>.
                     </p>
@@ -159,20 +174,20 @@ const CheckoutPage = () => {
                             </div>
                             <ArrowLeft className="w-4 h-4 text-slate-400 rotate-180" />
                         </div>
-                        
+
                         {/* Decorative background circle */}
                         <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#EAF3F2] rounded-full opacity-50 blur-2xl pointer-events-none"></div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row justify-center gap-4 mb-10">
-                        <button 
+                        <button
                             onClick={() => navigate('/user-profile')}
                             className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 px-8 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-teal-900/20"
                         >
                             <ShieldCheck className="w-5 h-5" />
                             Lihat Sertifikat Donasi
                         </button>
-                        <button 
+                        <button
                             onClick={() => navigate('/dashboard')}
                             className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3.5 px-8 rounded-xl flex items-center justify-center gap-2 transition-colors"
                         >
@@ -195,17 +210,17 @@ const CheckoutPage = () => {
         return (
             <div className="min-h-screen bg-[#EEF5F4] text-slate-900 pb-20">
                 <Navbar />
-                
+
                 <main className="max-w-[1000px] mx-auto px-6 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <button 
-                        onClick={() => navigate(-1)} 
+                    <button
+                        onClick={() => navigate(-1)}
                         className="mb-8 p-2 rounded-full hover:bg-slate-200 transition-colors inline-flex"
                     >
                         <ArrowLeft className="w-6 h-6 text-slate-800" />
                     </button>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-start">
-                        
+
                         {/* LEFT: PAYMENT WIDGET */}
                         <div>
                             <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-white text-center mb-6">
@@ -253,7 +268,7 @@ const CheckoutPage = () => {
                         {/* RIGHT: INSTRUCTIONS */}
                         <div className="pt-4">
                             <h2 className="text-xl font-bold text-slate-900 mb-8">Cara bayar</h2>
-                            
+
                             <div className="space-y-8 mb-12 relative">
                                 {/* Connecting line */}
                                 <div className="absolute left-3.5 top-5 bottom-5 w-0.5 bg-slate-200 z-0"></div>
@@ -303,7 +318,7 @@ const CheckoutPage = () => {
                             </div>
 
                             <div className="space-y-3">
-                                <button 
+                                <button
                                     onClick={handleSudahBayar}
                                     className="w-full bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-teal-900/20"
                                 >

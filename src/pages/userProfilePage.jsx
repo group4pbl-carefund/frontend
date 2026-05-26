@@ -62,7 +62,8 @@ const UserProfilePage = () => {
 
                 myDonations.forEach(d => {
                     // Cek status pembayaran untuk menghitung total donasi sukses
-                    if (d.payment_status === 'success' || d.payment_status === 'paid' || d.payment_status === 'settlement') {
+                    const statusLower = d.payment_status?.toLowerCase();
+                    if (statusLower === 'success' || statusLower === 'paid' || statusLower === 'settlement' || statusLower === 'completed') {
                         totalDonasi += parseFloat(d.amount || 0);
                         if (d.program_campaign_id) {
                             uniquePrograms.add(d.program_campaign_id);
@@ -264,7 +265,7 @@ const UserProfilePage = () => {
                                     ) : userDonations.length > 0 ? (
                                         userDonations.map((d, index) => {
                                             const statusLower = d.payment_status?.toLowerCase();
-                                            const isSuccess = ['success', 'paid', 'settlement'].includes(statusLower);
+                                            const isSuccess = ['success', 'paid', 'settlement', 'completed'].includes(statusLower);
                                             return (
                                                 <DonationHistoryItem
                                                     key={d.id || index}
@@ -303,9 +304,9 @@ const UserProfilePage = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {isLoading ? (
                                         <div className="col-span-full py-8 text-center text-slate-500">Memuat sertifikat...</div>
-                                    ) : userDonations.filter(d => ['success', 'paid', 'settlement'].includes(d.payment_status?.toLowerCase())).length > 0 ? (
+                                    ) : userDonations.filter(d => ['success', 'paid', 'settlement', 'completed'].includes(d.payment_status?.toLowerCase())).length > 0 ? (
                                         userDonations
-                                            .filter(d => ['success', 'paid', 'settlement'].includes(d.payment_status?.toLowerCase()))
+                                            .filter(d => ['success', 'paid', 'settlement', 'completed'].includes(d.payment_status?.toLowerCase()))
                                             .map((cert) => (
                                                 <div key={cert.id} className="bg-white rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-slate-50 flex flex-col hover:shadow-lg transition-all duration-300">
                                                     {/* Gambar Sertifikat */}
