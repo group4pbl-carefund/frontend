@@ -1,30 +1,41 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import api from '../utils/api';
 
 const CreateCampaignPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const editData = location.state?.editData;
+
   const [currentStep, setCurrentStep] = useState(1);
-  const [beneficiaryType, setBeneficiaryType] = useState('diri_sendiri');
-  const [durationMode, setDurationMode] = useState('days');
+  const [beneficiaryType, setBeneficiaryType] = useState(editData?.beneficiary_type || 'diri_sendiri');
+  const [durationMode, setDurationMode] = useState(editData?.end_date ? 'date' : 'days');
 
   const [formData, setFormData] = useState({
-    title: '',
-    category: 'Kesehatan',
+    title: editData?.program_name || '',
+    category: editData?.category || 'Kesehatan',
     durationDays: '',
-    deadlineDate: '',
-    target: '',
-    description: '',
-    recipientName: '',
-    bankName: 'Bank BCA',
-    accountNumber: '',
-    accountOwner: ''
+    deadlineDate: editData?.end_date || '',
+    target: editData?.target_amount 
+      ? Math.floor(Number(editData.target_amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") 
+      : '',
+    description: editData?.description || '',
+    recipientName: editData?.recipient_name || '',
+    bankName: editData?.bank_name || 'Bank BCA',
+    accountNumber: editData?.account_number || '',
+    accountOwner: editData?.account_owner || ''
   });
 
-  const [rabItems, setRabItems] = useState([
-    { id: 1, description: '', amount: '' }
-  ]);
+  const [rabItems, setRabItems] = useState(
+    editData?.rab_items?.length > 0
+      ? editData.rab_items.map((item, idx) => ({ 
+          id: idx + 1, 
+          description: item.description, 
+          amount: Math.floor(Number(item.amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") 
+        }))
+      : [{ id: 1, description: '', amount: '' }]
+  );
 
   // Mendapatkan tanggal hari ini dengan format YYYY-MM-DD untuk batasan input kalender
   const today = new Date().toISOString().split('T')[0];
@@ -50,7 +61,7 @@ const CreateCampaignPage = () => {
   };
 
   const totalRabEstimation = rabItems.reduce((sum, item) => {
-    const amt = parseFloat(item.amount) || 0;
+    const amt = parseFloat(item.amount.toString().replace(/\./g, '')) || 0;
     return sum + amt;
   }, 0);
 
@@ -141,26 +152,40 @@ const CreateCampaignPage = () => {
       target_amount: parseFloat(formData.target.replace(/\./g, '')),
       description: formData.description.trim(),
       recipient_name: formData.recipientName.trim(),
+      beneficiary_type: beneficiaryType,
       bank_name: formData.bankName,
       account_number: formData.accountNumber.trim(),
       account_owner: formData.accountOwner.trim(),
       status: 'pending',
       created_by: userId,
-      rab_items: rabItems
+      rab_items: rabItems.map(item => ({
+        ...item,
+        amount: parseFloat(item.amount.toString().replace(/\./g, '')) || 0
+      }))
     };
 
     try {
-      await api.post('/programs', payload);
+      if (editData?.program_id) {
+        await api.patch(`/programs/${editData.program_id}`, payload);
+        await Swal.fire({
+          title: 'Perubahan Tersimpan!',
+          text: 'Revisi kampanye berhasil disimpan dan masuk ke dalam antrean persetujuan admin!',
+          icon: 'success',
+          confirmButtonText: 'Kembali ke Dashboard',
+          confirmButtonColor: '#147D73'
+        });
+      } else {
+        await api.post('/programs', payload);
+        await Swal.fire({
+          title: 'Pengajuan Berhasil!',
+          text: 'Kampanye berhasil diajukan dan masuk ke dalam antrean persetujuan tim admin!',
+          icon: 'success',
+          confirmButtonText: 'Kembali ke Dashboard',
+          confirmButtonColor: '#147D73'
+        });
+      }
 
-      await Swal.fire({
-        title: 'Pengajuan Berhasil!',
-        text: 'Kampanye berhasil diajukan dan masuk ke dalam antrean persetujuan tim admin!',
-        icon: 'success',
-        confirmButtonText: 'Kembali ke Dashboard',
-        confirmButtonColor: '#147D73'
-      });
-
-      navigate('/dashboard');
+      navigate('/manage-campaign');
     } catch (error) {
       console.error("Error creating campaign:", error);
       Swal.fire({
@@ -271,7 +296,9 @@ const CreateCampaignPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Kategori Donasi</label>
+                  <div className="flex items-center mb-2 min-h-[28px]">
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Kategori Donasi</label>
+                  </div>
                   <select
                     className="w-full bg-slate-100 text-slate-600 font-medium py-4 px-5 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none focus:ring-4 focus:ring-[#147D73]/10 transition-all appearance-none cursor-pointer"
                     value={formData.category}
@@ -284,7 +311,7 @@ const CreateCampaignPage = () => {
                   </select>
                 </div>
                 <div>
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex justify-between items-center mb-2 min-h-[28px]">
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Durasi Kampanye</label>
                     <div className="flex bg-slate-200 rounded-lg p-0.5">
                       <button 
@@ -417,11 +444,15 @@ const CreateCampaignPage = () => {
                       </div>
                       <div className="col-span-4 md:col-span-3">
                         <input
-                          type="number"
+                          type="text"
                           placeholder="0"
                           className="w-full bg-slate-100 text-slate-700 font-bold py-3 px-3 md:px-4 rounded-xl border border-transparent focus:bg-white focus:border-[#147D73] outline-none text-right"
                           value={item.amount}
-                          onChange={(e) => handleRabChange(item.id, 'amount', e.target.value)}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/\D/g, '');
+                            const formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                            handleRabChange(item.id, 'amount', formattedValue);
+                          }}
                         />
                       </div>
                       <div className="col-span-1 flex justify-center">
@@ -438,8 +469,16 @@ const CreateCampaignPage = () => {
                     <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                     Tambah Item Anggaran
                   </button>
-                  <div className="text-slate-600 font-medium text-sm w-full md:w-auto text-right md:text-left border-t md:border-none pt-3 md:pt-0 border-gray-200">
-                    Total Estimasi: <span className="font-extrabold text-[#147D73] text-lg ml-2">Rp {totalRabEstimation.toLocaleString('id-ID')}</span>
+                  <div className="w-full md:w-auto border-t md:border-none pt-3 md:pt-0 border-gray-200 flex flex-col items-end text-right">
+                    <div className={`text-sm font-medium ${totalRabEstimation > (parseFloat(formData.target.replace(/\D/g, '')) || 0) ? 'text-red-600' : 'text-slate-600'}`}>
+                      Total Estimasi: <span className={`font-extrabold text-lg ml-2 ${totalRabEstimation > (parseFloat(formData.target.replace(/\D/g, '')) || 0) ? 'text-red-600' : 'text-[#147D73]'}`}>Rp {totalRabEstimation.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">
+                      Maksimal Biaya Diajukan: <span className="font-bold text-slate-600">Rp {formData.target || '0'}</span>
+                    </div>
+                    {totalRabEstimation > (parseFloat(formData.target.replace(/\D/g, '')) || 0) && (
+                      <p className="text-[10px] text-red-500 font-bold mt-1 bg-red-50 px-2 py-1 rounded">Total estimasi melebihi batas maksimal!</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -552,11 +591,15 @@ const CreateCampaignPage = () => {
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nomor Rekening</label>
                     <input
-                      type="number"
+                      type="text"
+                      maxLength="18"
                       placeholder="Contoh: 1234567890"
                       className="w-full bg-slate-100 text-slate-900 font-medium py-4 px-5 rounded-xl outline-none focus:bg-white focus:border-[#147D73] border border-transparent focus:ring-4 focus:ring-[#147D73]/10 transition-all"
                       value={formData.accountNumber}
-                      onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(/\D/g, '');
+                        setFormData({ ...formData, accountNumber: numericValue.slice(0, 18) });
+                      }}
                     />
                   </div>
                   <div>
@@ -618,6 +661,18 @@ const CreateCampaignPage = () => {
                     });
                     return;
                   }
+                  if (currentStep === 2) {
+                    const maxTarget = parseFloat(formData.target.replace(/\D/g, '')) || 0;
+                    if (totalRabEstimation > maxTarget) {
+                      Swal.fire({
+                        title: 'Total RAB Berlebih',
+                        text: 'Total estimasi biaya Anda tidak boleh melebihi maksimal target dana yang diajukan.',
+                        icon: 'error',
+                        confirmButtonColor: '#147D73'
+                      });
+                      return;
+                    }
+                  }
                   setCurrentStep(prev => prev + 1);
                 }}
                 className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 px-8 rounded-xl flex items-center transition-colors shadow-sm"
@@ -631,7 +686,7 @@ const CreateCampaignPage = () => {
                 onClick={handleSubmit}
                 className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 px-8 rounded-xl flex items-center transition-colors shadow-sm"
               >
-                Ajukan Kampanye
+                {editData ? 'Simpan Revisi' : 'Ajukan Kampanye'}
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
               </button>
             )}

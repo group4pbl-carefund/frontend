@@ -172,7 +172,7 @@ const ManageCampaignPage = () => {
     <MainLayout>
       <div className="p-10 bg-[#F4F7F6] min-h-screen">
       {/* HEADER */}
-      <div className="flex justify-between items-start mb-10 max-w-6xl mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 max-w-6xl mx-auto gap-4">
         <div>
           <button onClick={() => navigate('/user-profile')} className="flex items-center text-sm font-bold text-[#147D73] hover:opacity-70 transition-opacity mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" /> Kembali ke Profil
@@ -180,30 +180,95 @@ const ManageCampaignPage = () => {
           <h1 className="text-4xl font-black text-slate-900 tracking-tight">Kelola Kampanye</h1>
           <p className="text-slate-500 mt-1 font-medium italic">Pantau perkembangan, anggaran, dan transparansi dana Anda.</p>
         </div>
-        <button 
-          onClick={() => {
-            Swal.fire({
-              title: 'Bagikan Kampanye!',
-              text: `Link kampanye "${activeCampaign.title}" telah disalin ke clipboard Anda!`,
-              icon: 'success',
-              confirmButtonColor: '#147D73'
-            });
-          }}
-          className="flex items-center gap-2 px-6 py-3 border-2 border-slate-100 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
-        >
-          <Share2 size={18} /> Bagikan
-        </button>
+        
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          {campaigns.length > 1 && (
+            <div className="flex-1 md:flex-none">
+              <select 
+                className="w-full md:w-64 bg-white border border-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl outline-none focus:border-[#147D73] cursor-pointer"
+                value={activeCampaign.campaign_id}
+                onChange={(e) => {
+                  const selected = campaigns.find(c => c.campaign_id === parseInt(e.target.value));
+                  if (selected) setActiveCampaign(selected);
+                }}
+              >
+                {campaigns.map(c => (
+                  <option key={c.campaign_id} value={c.campaign_id}>
+                    {c.program?.program_name || c.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <button 
+            onClick={() => {
+              Swal.fire({
+                title: 'Bagikan Kampanye!',
+                text: `Link kampanye "${activeCampaign.title || activeCampaign.program?.program_name}" telah disalin ke clipboard Anda!`,
+                icon: 'success',
+                confirmButtonColor: '#147D73'
+              });
+            }}
+            className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all w-full md:w-auto"
+          >
+            <Share2 size={18} /> Bagikan
+          </button>
+        </div>
       </div>
 
       <div className="max-w-6xl mx-auto">
         {/* DETAIL RINGKASAN */}
         <div className="mb-6 p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm">
-          <span className="text-[10px] font-black bg-[#E8F3F1] text-[#147D73] px-3 py-1 rounded-full uppercase tracking-widest">
-            {activeCampaign.program?.category || activeCampaign.category || 'UMUM'}
-          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-black bg-[#E8F3F1] text-[#147D73] px-3 py-1 rounded-full uppercase tracking-widest">
+              {activeCampaign.program?.category || activeCampaign.category || 'UMUM'}
+            </span>
+            {activeCampaign.program?.status === 'pending' && (
+              <span className="text-[10px] font-black bg-amber-100 text-amber-700 px-3 py-1 rounded-full uppercase tracking-widest">
+                Menunggu Persetujuan
+              </span>
+            )}
+            {activeCampaign.program?.status === 'approved' && (
+              <span className="text-[10px] font-black bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full uppercase tracking-widest">
+                Aktif
+              </span>
+            )}
+            {activeCampaign.program?.status === 'rejected' && (
+              <span className="text-[10px] font-black bg-red-100 text-red-700 px-3 py-1 rounded-full uppercase tracking-widest">
+                Ditolak
+              </span>
+            )}
+            {activeCampaign.program?.status === 'revision' && (
+              <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-3 py-1 rounded-full uppercase tracking-widest">
+                Butuh Revisi
+              </span>
+            )}
+          </div>
           <h2 className="text-2xl font-black text-slate-900 mt-2">{activeCampaign.program?.program_name || activeCampaign.title}</h2>
           <p className="text-xs text-slate-400 font-bold mt-1 uppercase">Oleh: {activeCampaign.user || user?.name || 'Anda'}</p>
         </div>
+
+        {/* ADMIN FEEDBACK */}
+        {(activeCampaign.program?.status === 'rejected' || activeCampaign.program?.status === 'revision') && activeCampaign.program?.admin_feedback && (
+          <div className={`mb-10 p-6 rounded-[2rem] border shadow-sm ${activeCampaign.program.status === 'rejected' ? 'bg-red-50 border-red-100' : 'bg-blue-50 border-blue-100'}`}>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h3 className={`text-sm font-black mb-2 uppercase tracking-widest ${activeCampaign.program.status === 'rejected' ? 'text-red-700' : 'text-blue-700'}`}>
+                  Catatan dari Admin ({activeCampaign.program.status === 'rejected' ? 'Ditolak' : 'Butuh Revisi'})
+                </h3>
+                <p className="text-slate-700 text-sm whitespace-pre-wrap font-medium">{activeCampaign.program.admin_feedback}</p>
+              </div>
+              {activeCampaign.program.status === 'revision' && (
+                <button
+                  onClick={() => navigate('/buat-kampanye', { state: { editData: activeCampaign.program } })}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl text-sm transition-colors shadow-sm flex-shrink-0 whitespace-nowrap"
+                >
+                  Edit Kampanye
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
       {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 max-w-6xl mx-auto">

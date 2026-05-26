@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Package } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '../../utils/api';
 
@@ -16,6 +17,14 @@ const CampaignApprovalTab = () => {
       if (Array.isArray(data)) {
         // Filter for pending campaigns
         const apiPending = data.filter(item => (item.status || '').toLowerCase() === 'pending');
+        const formatBeneficiaryType = (type) => {
+          if (!type) return 'Umum';
+          if (type === 'diri_sendiri') return 'Diri Sendiri';
+          if (type === 'keluarga') return 'Keluarga';
+          if (type === 'orang_lain') return 'Orang Lain / Teman';
+          if (type === 'organisasi') return 'Organisasi / Panti Asuhan';
+          return type;
+        };
         const mapped = apiPending.map(item => ({
           id: item.program_id,
           title: item.program_name || 'Kampanye Donasi Baru',
@@ -29,9 +38,9 @@ const CampaignApprovalTab = () => {
           story: item.description || "Tidak ada deskripsi",
           rab: Array.isArray(item.rab_items) ? item.rab_items : [],
           beneficiaryName: item.recipient_name || item.beneficiary_type || "Tidak ditentukan",
-          beneficiaryType: item.beneficiary_type || "Umum",
+          beneficiaryType: formatBeneficiaryType(item.beneficiary_type),
           documents: Array.isArray(item.documents) ? item.documents : [],
-          submittedBy: item.user?.full_name || 'user',
+          submittedBy: item.user?.full_name || item.user_name || 'user',
           submittedAt: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja'
         }));
         setPendingCampaigns(mapped);
@@ -241,10 +250,11 @@ const CampaignApprovalTab = () => {
                       {selectedCampaign.rab.length > 0 ? selectedCampaign.rab.map((item, idx) => (
                         <div key={item.id || idx} className="bg-slate-50 p-4 rounded-2xl flex items-center justify-between">
                           <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-lg shadow-sm">{item.icon || '📦'}</div>
+                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-lg shadow-sm">
+                              <Package size={20} className="text-[#147D73]" />
+                            </div>
                             <div>
-                              <p className="font-bold text-slate-900 text-sm">{item.item || item.name || 'Item'}</p>
-                              <p className="text-[10px] text-slate-500">{item.desc || item.description || ''}</p>
+                              <p className="font-bold text-slate-900 text-sm">{item.desc || item.description || 'Item RAB'}</p>
                             </div>
                           </div>
                           <span className="font-bold text-slate-900 text-sm">
