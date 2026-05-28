@@ -82,7 +82,7 @@ const RegisterPage = () => {
         text: 'Kata sandi tidak cocok!',
         icon: 'error',
         confirmButtonText: 'Coba Lagi',
-        confirmButtonColor: '#2ea391'
+        confirmButtonColor: '#147D73'
       });
     }
     setCurrentStep(2);
@@ -97,7 +97,7 @@ const RegisterPage = () => {
         text: 'Nomor NIK KTP harus terdiri dari 16 digit angka!',
         icon: 'warning',
         confirmButtonText: 'Kembali',
-        confirmButtonColor: '#2ea391'
+        confirmButtonColor: '#147D73'
       });
     }
 
@@ -145,7 +145,7 @@ const RegisterPage = () => {
         text: 'Akun Anda berhasil dibuat. Silakan verifikasi email Anda.',
         icon: 'success',
         confirmButtonText: 'Lanjutkan',
-        confirmButtonColor: '#2ea391'
+        confirmButtonColor: '#147D73'
       });
 
       setCurrentStep(3); // Go to OTP verification step
@@ -164,7 +164,7 @@ const RegisterPage = () => {
         text: errorMsg,
         icon: 'error',
         confirmButtonText: 'Coba Lagi',
-        confirmButtonColor: '#2ea391'
+        confirmButtonColor: '#147D73'
       });
     } finally {
       setLoading(false);
@@ -181,7 +181,7 @@ const RegisterPage = () => {
         text: 'Harap masukkan 6 digit kode OTP secara lengkap!',
         icon: 'warning',
         confirmButtonText: 'Kembali',
-        confirmButtonColor: '#2ea391'
+        confirmButtonColor: '#147D73'
       });
     }
 
@@ -197,7 +197,7 @@ const RegisterPage = () => {
         text: 'Selamat! Akun email Anda telah berhasil diverifikasi.',
         icon: 'success',
         confirmButtonText: 'Lanjutkan',
-        confirmButtonColor: '#2ea391'
+        confirmButtonColor: '#147D73'
       });
 
       setCurrentStep(4); // Finish!
@@ -208,7 +208,7 @@ const RegisterPage = () => {
         text: error.response?.data?.message || 'Kode OTP salah atau telah kedaluwarsa.',
         icon: 'error',
         confirmButtonText: 'Coba Lagi',
-        confirmButtonColor: '#2ea391'
+        confirmButtonColor: '#147D73'
       });
     } finally {
       setLoading(false);
@@ -231,7 +231,7 @@ const RegisterPage = () => {
         text: 'Kode OTP baru telah dikirimkan ke email Anda.',
         icon: 'success',
         confirmButtonText: 'Oke',
-        confirmButtonColor: '#2ea391'
+        confirmButtonColor: '#147D73'
       });
 
       setResendTimer(60); // 60s cooldown
@@ -242,7 +242,7 @@ const RegisterPage = () => {
         text: error.response?.data?.message || 'Gagal mengirim ulang OTP.',
         icon: 'error',
         confirmButtonText: 'Oke',
-        confirmButtonColor: '#2ea391'
+        confirmButtonColor: '#147D73'
       });
     } finally {
       setLoading(false);
@@ -250,31 +250,31 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f9f7] flex flex-col items-center py-10 font-sans">
+    <div className="min-h-screen bg-[#F4F7F6] flex flex-col items-center py-10 font-sans">
 
       {/* Dynamic 4-Step Stepper Header */}
       <div className="flex items-center gap-6 md:gap-10 mb-10 overflow-x-auto max-w-full px-4 py-2">
         <div className="text-center min-w-[70px]">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 1 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>1</div>
-          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 1 ? 'text-[#2ea391]' : 'text-gray-400'}`}>ACCOUNT</p>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 1 ? 'bg-[#147D73] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>1</div>
+          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 1 ? 'text-[#147D73]' : 'text-gray-400'}`}>ACCOUNT</p>
         </div>
-        <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 2 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
+        <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 2 ? 'bg-[#147D73]' : 'bg-gray-300'}`}></div>
 
         <div className="text-center min-w-[70px]">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 2 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>2</div>
-          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 2 ? 'text-[#2ea391]' : 'text-gray-400'}`}>KYC</p>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 2 ? 'bg-[#147D73] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>2</div>
+          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 2 ? 'text-[#147D73]' : 'text-gray-400'}`}>KYC</p>
         </div>
-        <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 3 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
+        <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 3 ? 'bg-[#147D73]' : 'bg-gray-300'}`}></div>
 
         <div className="text-center min-w-[70px]">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 3 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>3</div>
-          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 3 ? 'text-[#2ea391]' : 'text-gray-400'}`}>VERIFY</p>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 3 ? 'bg-[#147D73] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>3</div>
+          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 3 ? 'text-[#147D73]' : 'text-gray-400'}`}>VERIFY</p>
         </div>
-        <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 4 ? 'bg-[#2ea391]' : 'bg-gray-300'}`}></div>
+        <div className={`h-[2px] w-10 md:w-16 ${currentStep >= 4 ? 'bg-[#147D73]' : 'bg-gray-300'}`}></div>
 
         <div className="text-center min-w-[70px]">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 4 ? 'bg-[#2ea391] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>4</div>
-          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 4 ? 'text-[#2ea391]' : 'text-gray-400'}`}>FINISH</p>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mx-auto transition-all ${currentStep >= 4 ? 'bg-[#147D73] text-white shadow-sm' : 'bg-gray-200 text-gray-500'}`}>4</div>
+          <p className={`text-[10px] md:text-xs mt-1 font-bold ${currentStep >= 4 ? 'text-[#147D73]' : 'text-gray-400'}`}>FINISH</p>
         </div>
       </div>
 
@@ -290,13 +290,13 @@ const RegisterPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Full Name</label>
-                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="John Doe"
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="John Doe"
                     value={formData.full_name}
                     onChange={(e) => setFormData({ ...formData, full_name: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Email Address</label>
-                  <input type="email" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="john.doe@example.com"
+                  <input type="email" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="john.doe@example.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
                 </div>
@@ -305,19 +305,19 @@ const RegisterPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Phone Number</label>
-                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="+62 812..."
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="+62 812..."
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Date of Birth</label>
-                  <input type="date" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all text-gray-600"
+                  <input type="date" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all text-gray-600"
                     value={formData.date_of_birth}
                     onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Gender</label>
-                  <select className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all text-gray-600"
+                  <select className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all text-gray-600"
                     value={formData.gender}
                     onChange={(e) => setFormData({ ...formData, gender: e.target.value })} required>
                     <option value="male">Male</option>
@@ -329,7 +329,7 @@ const RegisterPage = () => {
 
               <div>
                 <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Address</label>
-                <textarea className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all resize-none h-24" placeholder="Your full residential address..."
+                <textarea className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all resize-none h-24" placeholder="Your full residential address..."
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })} required />
               </div>
@@ -337,19 +337,19 @@ const RegisterPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">City</label>
-                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="Jakarta"
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="Jakarta"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">State/Province</label>
-                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="DKI Jakarta"
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="DKI Jakarta"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Country</label>
-                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="Indonesia"
+                  <input type="text" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="Indonesia"
                     value={formData.country}
                     onChange={(e) => setFormData({ ...formData, country: e.target.value })} required />
                 </div>
@@ -358,18 +358,18 @@ const RegisterPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Password</label>
-                  <input type="password" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="••••••••"
+                  <input type="password" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="••••••••"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Confirm Password</label>
-                  <input type="password" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#2ea391] transition-all" placeholder="••••••••"
+                  <input type="password" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="••••••••"
                     value={formData.confirm_password}
                     onChange={(e) => setFormData({ ...formData, confirm_password: e.target.value })} required />
                 </div>
               </div>
-              <button className="w-full bg-[#2ea391] text-white py-4 rounded-xl font-bold transition-all hover:bg-[#258778] active:scale-[0.99]">
+              <button className="w-full bg-[#147D73] text-white py-4 rounded-xl font-bold transition-all hover:bg-[#0F655C] active:scale-[0.99]">
                 Continue to KYC Verification →
               </button>
             </form>
@@ -400,7 +400,7 @@ const RegisterPage = () => {
                   maxLength={16}
                   value={nik}
                   onChange={(e) => setNik(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="w-full bg-gray-100 p-4 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#2ea391]/20 border border-transparent focus:border-[#2ea391] font-bold text-gray-800 tracking-widest text-center text-lg transition-all"
+                  className="w-full bg-gray-100 p-4 rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-[#147D73]/20 border border-transparent focus:border-[#147D73] font-bold text-gray-800 tracking-widest text-center text-lg transition-all"
                   placeholder="317101xxxxxxxxxx"
                   required
                 />
@@ -424,7 +424,7 @@ const RegisterPage = () => {
                 <label
                   htmlFor="ktp-file-input"
                   className={`border-2 border-dashed rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${idPreview
-                      ? 'border-[#2ea391] bg-teal-50/10'
+                      ? 'border-[#147D73] bg-teal-50/10'
                       : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
                     }`}
                 >
@@ -435,7 +435,7 @@ const RegisterPage = () => {
                         alt="KTP Preview"
                         className="max-h-48 rounded-xl object-contain shadow-md mb-4"
                       />
-                      <span className="text-xs font-bold text-[#2ea391] bg-teal-50 px-3 py-1 rounded-full hover:bg-teal-100 transition-colors">
+                      <span className="text-xs font-bold text-[#147D73] bg-teal-50 px-3 py-1 rounded-full hover:bg-teal-100 transition-colors">
                         Ganti Foto KTP
                       </span>
                     </div>
@@ -454,7 +454,7 @@ const RegisterPage = () => {
               <button
                 type="submit"
                 disabled={loading || !idPreview || nik.length < 16}
-                className="w-full bg-[#2ea391] text-white py-4 rounded-xl font-bold flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#258778] active:scale-[0.98] transition-all shadow-md shadow-[#2ea391]/10 mt-8"
+                className="w-full bg-[#147D73] text-white py-4 rounded-xl font-bold flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#0F655C] active:scale-[0.98] transition-all shadow-md shadow-[#147D73]/10 mt-8"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -492,7 +492,7 @@ const RegisterPage = () => {
                     value={data}
                     onChange={(e) => handleOtpChange(e.target, index)}
                     onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                    className="w-12 h-14 bg-gray-100 rounded-xl text-center text-xl font-bold border border-transparent focus:bg-white focus:border-[#2ea391] focus:ring-2 focus:ring-[#2ea391]/20 outline-none transition-all"
+                    className="w-12 h-14 bg-gray-100 rounded-xl text-center text-xl font-bold border border-transparent focus:bg-white focus:border-[#147D73] focus:ring-2 focus:ring-[#147D73]/20 outline-none transition-all"
                   />
                 ))}
               </div>
@@ -503,7 +503,7 @@ const RegisterPage = () => {
                 <button
                   type="submit"
                   disabled={loading || otpValues.includes('')}
-                  className="w-full bg-[#2ea391] text-white py-4 rounded-xl font-bold flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#258778] active:scale-[0.98] transition-all shadow-md shadow-[#2ea391]/10"
+                  className="w-full bg-[#147D73] text-white py-4 rounded-xl font-bold flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#0F655C] active:scale-[0.98] transition-all shadow-md shadow-[#147D73]/10"
                 >
                   {loading ? 'Memverifikasi...' : 'Verifikasi & Aktifkan Akun →'}
                 </button>
@@ -511,12 +511,12 @@ const RegisterPage = () => {
                 <div className="text-sm text-gray-500">
                   Tidak menerima kode?{' '}
                   {resendTimer > 0 ? (
-                    <span className="text-[#2ea391] font-bold">Kirim ulang dalam {resendTimer}s</span>
+                    <span className="text-[#147D73] font-bold">Kirim ulang dalam {resendTimer}s</span>
                   ) : (
                     <button
                       type="button"
                       onClick={handleResendOtp}
-                      className="text-[#2ea391] font-bold hover:underline bg-transparent border-none p-0 cursor-pointer"
+                      className="text-[#147D73] font-bold hover:underline bg-transparent border-none p-0 cursor-pointer"
                     >
                       Kirim Ulang Kode
                     </button>
@@ -533,7 +533,7 @@ const RegisterPage = () => {
             <div className="text-6xl mb-6">🎉</div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Registration Complete!</h2>
             <p className="text-gray-500 mb-10">Welcome to Care Fund. Your account and email has been verified and registered.</p>
-            <Link to="/login" className="bg-[#2ea391] text-white px-10 py-4 rounded-xl font-bold hover:bg-[#258778] transition-all shadow-md shadow-[#2ea391]/20">
+            <Link to="/login" className="bg-[#147D73] text-white px-10 py-4 rounded-xl font-bold hover:bg-[#0F655C] transition-all shadow-md shadow-[#147D73]/20">
               Go to Login
             </Link>
           </div>

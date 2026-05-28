@@ -229,9 +229,9 @@ const CreateCampaignPage = () => {
     <div className="bg-white px-8 py-4 flex justify-between items-center border-b border-gray-100 sticky top-0 z-50">
       <div className="flex items-center gap-2">
         <img src="/pavicon.png" alt="Care Fund Logo" className="h-8 w-8 object-contain" />
-        <span className="text-lg font-extrabold tracking-tight text-[#0F655C]">
-          Care Fund
-        </span>
+          <span className="text-lg font-extrabold tracking-tight text-[#147D73]">
+            Care Fund
+          </span>
       </div>
       <button
         onClick={() => navigate('/')}

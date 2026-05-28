@@ -120,7 +120,7 @@ const AboutUsPage = () => {
               {/* Vision */}
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center shrink-0">
-                  <Target className="w-6 h-6 text-[#149187]" />
+                  <Target className="w-6 h-6 text-[#147D73]" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-1.5">Visi Platform</h4>
@@ -133,7 +133,7 @@ const AboutUsPage = () => {
               {/* Mission */}
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center shrink-0">
-                  <Compass className="w-6 h-6 text-[#149187]" />
+                  <Compass className="w-6 h-6 text-[#147D73]" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-1.5">Misi Platform</h4>
@@ -149,7 +149,7 @@ const AboutUsPage = () => {
 
           {/* Interactive stats / story intro */}
           <div className="space-y-6">
-            <h3 className="text-sm font-black text-[#149187] uppercase tracking-widest">SIAPA KAMI</h3>
+            <h3 className="text-sm font-black text-[#147D73] uppercase tracking-widest">SIAPA KAMI</h3>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
               Kami percaya donasi bukan sekadar nominal uang, melainkan tentang membangun harapan baru.
             </h2>
@@ -161,17 +161,17 @@ const AboutUsPage = () => {
             </p>
             <div className="flex items-center gap-6 pt-4">
               <div>
-                <h4 className="text-3xl font-black text-[#149187]">10K+</h4>
+                <h4 className="text-3xl font-black text-[#147D73]">10K+</h4>
                 <p className="text-[10px] text-gray-400 font-bold uppercase">Donatur Aktif</p>
               </div>
               <div className="w-px h-8 bg-gray-200"></div>
               <div>
-                <h4 className="text-3xl font-black text-[#149187]">Rp 2.4 M</h4>
+                <h4 className="text-3xl font-black text-[#147D73]">Rp 2.4 M</h4>
                 <p className="text-[10px] text-gray-400 font-bold uppercase">Dana Tersalurkan</p>
               </div>
               <div className="w-px h-8 bg-gray-200"></div>
               <div>
-                <h4 className="text-3xl font-black text-[#149187]">150+</h4>
+                <h4 className="text-3xl font-black text-[#147D73]">150+</h4>
                 <p className="text-[10px] text-gray-400 font-bold uppercase">Kampanye Sukses</p>
               </div>
             </div>
@@ -183,7 +183,7 @@ const AboutUsPage = () => {
         <section className="bg-white py-20 lg:py-28 px-6 border-y border-gray-100">
           <div className="max-w-6xl mx-auto">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <h3 className="text-sm font-black text-[#149187] uppercase tracking-widest mb-3">NILAI UTAMA</h3>
+              <h3 className="text-sm font-black text-[#147D73] uppercase tracking-widest mb-3">NILAI UTAMA</h3>
               <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Prinsip Kerja Care Fund</h2>
               <p className="text-sm text-slate-400 mt-2">Nilai-nilai luhur yang menjadi landasan dan pegangan kami dalam melayani kebaikan di Indonesia.</p>
             </div>
@@ -205,7 +205,7 @@ const AboutUsPage = () => {
         {/* 4. History/Timeline Section */}
         <section className="max-w-6xl mx-auto px-6 py-20 lg:py-28">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h3 className="text-sm font-black text-[#149187] uppercase tracking-widest mb-3">LINI MASA</h3>
+            <h3 className="text-sm font-black text-[#147D73] uppercase tracking-widest mb-3">LINI MASA</h3>
             <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Perjalanan Care Fund</h2>
             <p className="text-sm text-slate-400 mt-2">Bagaimana kami tumbuh dan berkembang demi melayani kebaikan dengan lebih baik dari tahun ke tahun.</p>
           </div>
@@ -227,7 +227,7 @@ const AboutUsPage = () => {
         <section className="bg-white py-20 lg:py-28 px-6 border-t border-gray-100">
           <div className="max-w-6xl mx-auto">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <h3 className="text-sm font-black text-[#149187] uppercase tracking-widest mb-3">TIM KAMI</h3>
+              <h3 className="text-sm font-black text-[#147D73] uppercase tracking-widest mb-3">TIM KAMI</h3>
               <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Sosok di Balik Care Fund</h2>
               <p className="text-sm text-slate-400 mt-2">Orang-orang yang bekerja dengan dedikasi penuh di balik layar untuk memastikan setiap kebaikan tersalurkan dengan tepat.</p>
             </div>
@@ -243,7 +243,7 @@ const AboutUsPage = () => {
                     />
                   </div>
                   <h4 className="text-lg font-bold text-gray-800">{member.name}</h4>
-                  <p className="text-xs font-bold text-[#149187] uppercase tracking-wide mb-3">{member.role}</p>
+                  <p className="text-xs font-bold text-[#147D73] uppercase tracking-wide mb-3">{member.role}</p>
                   <p className="text-xs text-gray-400 max-w-xs mx-auto leading-relaxed">{member.bio}</p>
                 </div>
               ))}
@@ -253,7 +253,7 @@ const AboutUsPage = () => {
 
         {/* 6. Call to Action (CTA) Section */}
         <section className="max-w-6xl mx-auto px-6 py-16">
-          <div className="bg-gradient-to-r from-[#149187] to-[#2EAF9B] rounded-[48px] p-8 md:p-16 text-white text-center shadow-xl relative overflow-hidden group">
+          <div className="bg-gradient-to-r from-[#147D73] to-[#2EAF9B] rounded-[48px] p-8 md:p-16 text-white text-center shadow-xl relative overflow-hidden group">
             {/* Ambient visual background glow */}
             <div className="absolute left-[-20%] top-[-20%] w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none group-hover:bg-white/10 transition-all duration-700"></div>
             
@@ -270,7 +270,7 @@ const AboutUsPage = () => {
               
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <Link to="/donasi">
-                  <button className="w-full sm:w-auto px-8 py-3.5 bg-white text-[#149187] hover:bg-teal-50 text-xs font-extrabold rounded-2xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
+                  <button className="w-full sm:w-auto px-8 py-3.5 bg-white text-[#147D73] hover:bg-teal-50 text-xs font-extrabold rounded-2xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
                     Mulai Berdonasi Sekarang
                     <ArrowRight className="w-4 h-4" />
                   </button>

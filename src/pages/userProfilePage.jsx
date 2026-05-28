@@ -120,7 +120,7 @@ const UserProfilePage = () => {
                     title: 'Berhasil!',
                     text: 'Foto profil Anda berhasil diperbarui.',
                     icon: 'success',
-                    confirmButtonColor: '#2ea391'
+                    confirmButtonColor: '#147D73'
                 });
             }
         } catch (error) {
@@ -128,7 +128,7 @@ const UserProfilePage = () => {
                 title: 'Gagal!',
                 text: 'Terjadi kesalahan saat mengunggah foto. Pastikan ukuran file tidak terlalu besar.',
                 icon: 'error',
-                confirmButtonColor: '#2ea391'
+                confirmButtonColor: '#147D73'
             });
             console.error('Error uploading avatar:', error);
         } finally {
@@ -148,7 +148,7 @@ const UserProfilePage = () => {
         <MainLayout>
             <div className="max-w-7xl mx-auto px-4 py-8 md:px-8">
                 <div className="mb-8">
-                    <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-[#2ea391] transition-colors font-medium mb-4 text-left">
+                    <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-[#147D73] transition-colors font-medium mb-4 text-left">
                         <ArrowLeft size={18} />
                         <span>Kembali ke Beranda</span>
                     </Link>
@@ -159,13 +159,13 @@ const UserProfilePage = () => {
                     {/* SIDEBAR */}
                     <div className="lg:col-span-4 space-y-6">
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden text-left">
-                            <div className="h-24 bg-linear-to-r from-[#60C9B3] to-[#2ea391]"></div>
+                            <div className="h-24 bg-linear-to-r from-[#147D73] to-[#147D73]"></div>
                             <div className="px-6 pb-6">
                                 <div className="relative -mt-12 mb-4 inline-block group cursor-pointer" onClick={() => !isUploading && document.getElementById('avatarUpload').click()}>
                                     <div className="h-24 w-24 rounded-2xl border-4 border-white overflow-hidden shadow-md bg-white relative">
                                         {isUploading && (
                                             <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10">
-                                                <span className="block w-6 h-6 border-4 border-[#2ea391] border-t-transparent rounded-full animate-spin"></span>
+                                                <span className="block w-6 h-6 border-4 border-[#147D73] border-t-transparent rounded-full animate-spin"></span>
                                             </div>
                                         )}
                                         <img src={user?.avatar_url ? `${api.defaults.baseURL.replace('/api', '')}${user.avatar_url}` : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.full_name || 'Felix'}`} alt="Profile" className="h-full w-full object-cover group-hover:opacity-50 transition-opacity" />
@@ -175,7 +175,7 @@ const UserProfilePage = () => {
                                     </div>
                                     <input type="file" id="avatarUpload" accept="image/*" className="hidden" onChange={handleAvatarChange} />
                                     {user?.is_verified ? (
-                                        <div className="absolute bottom-0 right-0 bg-[#2ea391] p-1.5 rounded-full border-2 border-white shadow-sm">
+                                        <div className="absolute bottom-0 right-0 bg-[#147D73] p-1.5 rounded-full border-2 border-white shadow-sm">
                                             <CheckCircle2 size={14} className="text-white" />
                                         </div>
                                     ) : (
@@ -185,7 +185,7 @@ const UserProfilePage = () => {
                                     )}
                                 </div>
                                 <h2 className="text-xl font-bold text-slate-900">{user?.full_name || 'Ahmad Santoso'}</h2>
-                                <p className={`text-sm font-medium mb-4 ${user?.is_verified ? 'text-[#2ea391]' : 'text-amber-500'}`}>
+                                <p className={`text-sm font-medium mb-4 ${user?.is_verified ? 'text-[#147D73]' : 'text-amber-500'}`}>
                                     {user?.is_verified ? 'Donatur Terverifikasi' : 'Menunggu Verifikasi KYC'}
                                 </p>
                                 <div className="space-y-3 pt-4 border-t border-slate-50">
@@ -198,7 +198,7 @@ const UserProfilePage = () => {
 
                         {/* NEW CAMPAIGN BUTTON */}
                         <Link to="/buat-kampanye" className="block w-full">
-                            <div className="bg-linear-to-r from-[#60C9B3] to-[#2ea391] rounded-3xl p-5 text-white shadow-md shadow-teal-900/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-between group">
+                            <div className="bg-linear-to-r from-[#147D73] to-[#147D73] rounded-3xl p-5 text-white shadow-md shadow-teal-900/10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center justify-between group">
                                 <div className="flex items-center gap-4">
                                     <div className="bg-white/20 p-3 rounded-2xl group-hover:scale-110 transition-transform">
                                         <PlusCircle size={24} className="text-white" />
@@ -215,15 +215,15 @@ const UserProfilePage = () => {
                         {/* NAV MENU */}
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-3">
                             <nav className="space-y-1">
-                                <button onClick={() => setActiveTab('riwayat')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'riwayat' ? 'bg-slate-50 text-[#2ea391] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
+                                <button onClick={() => setActiveTab('riwayat')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'riwayat' ? 'bg-slate-50 text-[#147D73] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
                                     <div className="flex items-center gap-3"><History size={20} /><span>Riwayat Donasi</span></div>
                                     <ChevronRight size={16} />
                                 </button>
-                                <button onClick={() => setActiveTab('sertifikat')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'sertifikat' ? 'bg-slate-50 text-[#2ea391] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
+                                <button onClick={() => setActiveTab('sertifikat')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'sertifikat' ? 'bg-slate-50 text-[#147D73] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
                                     <div className="flex items-center gap-3"><Award size={20} /><span>Sertifikat Saya</span></div>
                                     <ChevronRight size={16} />
                                 </button>
-                                <button onClick={() => setActiveTab('dampak')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'dampak' ? 'bg-slate-50 text-[#2ea391] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
+                                <button onClick={() => setActiveTab('dampak')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'dampak' ? 'bg-slate-50 text-[#147D73] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
                                     <div className="flex items-center gap-3"><HandHeart size={20} /><span>Dampak Sosial</span></div>
                                     <ChevronRight size={16} />
                                 </button>
@@ -258,7 +258,7 @@ const UserProfilePage = () => {
                             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden animate-in fade-in duration-500 text-left">
                                 <div className="p-6 border-b border-slate-50 flex justify-between items-center">
                                     <h2 className="text-xl font-bold text-slate-900">Riwayat Donasi</h2>
-                                    <button className="text-sm font-bold text-[#2ea391] hover:underline">Lihat Semua</button>
+                                    <button className="text-sm font-bold text-[#147D73] hover:underline">Lihat Semua</button>
                                 </div>
                                 <div className="divide-y divide-slate-50">
                                     {isLoading ? (
@@ -324,14 +324,14 @@ const UserProfilePage = () => {
                                                         <h3 className="font-bold text-slate-800 text-lg leading-snug mb-2 line-clamp-2">
                                                             {cert.program?.title || cert.program?.program_name || "Bantuan Kemanusiaan"}
                                                         </h3>
-                                                        <p className="text-[#28a792] font-black text-xl">
+                                                        <p className="text-[#147D73] font-black text-xl">
                                                             {formatRupiahFull(cert.amount)}
                                                         </p>
                                                     </div>
 
                                                     {/* Tombol Action */}
                                                     <div className="flex items-center gap-2 mt-auto">
-                                                        <button className="flex-grow flex items-center justify-center gap-2 bg-[#28a792] text-white py-3 px-4 rounded-xl font-bold text-[13px] hover:bg-[#218d7c] transition-all shadow-md shadow-teal-900/5 active:scale-95">
+                                                        <button className="flex-grow flex items-center justify-center gap-2 bg-[#147D73] text-white py-3 px-4 rounded-xl font-bold text-[13px] hover:bg-[#0F655C] transition-all shadow-md shadow-teal-900/5 active:scale-95">
                                                             <Download size={16} strokeWidth={2.5} />
                                                             Download Sertifikat
                                                         </button>
@@ -348,7 +348,7 @@ const UserProfilePage = () => {
                                 </div>
 
                                 {/* IMPACT MILESTONE */}
-                                <div className="bg-[#B2F5EA] rounded-[3rem] p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between border border-teal-50 shadow-sm mt-12">
+                                <div className="bg-[#E8F3F1] rounded-[3rem] p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between border border-teal-50 shadow-sm mt-12">
                                     <div className="flex-1 relative z-10 text-center md:text-left md:pr-10">
                                         <span className="bg-[#1D4E44] text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 inline-block">
                                             Impact Milestone
@@ -381,7 +381,7 @@ const UserProfilePage = () => {
                         {/* TAB DAMPAK */}
                         {activeTab === 'dampak' && (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8 text-left">
-                                <div className="bg-[#28a792] rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-lg">
+                                <div className="bg-[#147D73] rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-lg">
                                     <div className="flex flex-col lg:flex-row gap-12 items-center relative z-10">
                                         <div className="flex-1 space-y-4">
                                             <span className="bg-white/20 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
@@ -411,13 +411,13 @@ const UserProfilePage = () => {
                                                     <p className="text-[10px] uppercase font-bold opacity-60">Program Didukung</p>
                                                 </div>
                                                 <div className="flex -space-x-2">
-                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#28a792] flex items-center justify-center">
+                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#147D73] flex items-center justify-center">
                                                         <GraduationCap size={18} className="text-white" />
                                                     </div>
-                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#28a792] flex items-center justify-center">
+                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#147D73] flex items-center justify-center">
                                                         <Hospital size={18} className="text-white" />
                                                     </div>
-                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#28a792] flex items-center justify-center">
+                                                    <div className="w-10 h-10 rounded-full bg-[#1D4E44] border-2 border-[#147D73] flex items-center justify-center">
                                                         <Leaf size={18} className="text-white" />
                                                     </div>
                                                 </div>
@@ -432,8 +432,8 @@ const UserProfilePage = () => {
                                         <div className="absolute top-0 right-8 text-[120px] font-black text-slate-50 leading-none select-none">99</div>
                                         <div className="relative z-10 space-y-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-8 h-[2px] bg-[#28a792]"></div>
-                                                <span className="text-[10px] font-bold text-[#28a792] uppercase">A Message of Gratitude</span>
+                                                <div className="w-8 h-[2px] bg-[#147D73]"></div>
+                                                <span className="text-[10px] font-bold text-[#147D73] uppercase">A Message of Gratitude</span>
                                             </div>
                                             <h3 className="text-3xl font-bold">Terima Kasih, {user?.full_name ? user.full_name.split(' ')[0] : 'Orang Baik'}!</h3>
                                             <p className="text-slate-500 italic text-lg leading-relaxed">
@@ -444,11 +444,11 @@ const UserProfilePage = () => {
                                     </div>
 
                                     <div className="bg-slate-50 rounded-[2.5rem] p-8 flex flex-col items-center text-center justify-center space-y-4">
-                                        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#28a792] shadow-sm">
+                                        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#147D73] shadow-sm">
                                             <Heart size={28} fill="currentColor" />
                                         </div>
                                         <h3 className="font-bold text-lg">Siap Melanjutkan Perjalanan Ini?</h3>
-                                        <button className="w-full bg-[#28a792] text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-[#218d7c] transition-all">
+                                        <button className="w-full bg-[#147D73] text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-[#0F655C] transition-all">
                                             Donasi Lagi
                                         </button>
                                     </div>

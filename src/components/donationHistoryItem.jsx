@@ -34,7 +34,7 @@ const DonationHistoryItem = ({ image, category, categoryColor, bgColor, date, ti
                   Bukti
                 </button>
               )}
-              <button className="px-4 py-2 text-xs font-bold text-white bg-[#2ea391] rounded-xl hover:shadow-lg hover:shadow-[#2ea391]/20 transition-all">
+              <button className="px-4 py-2 text-xs font-bold text-white bg-[#147D73] rounded-xl hover:shadow-lg hover:shadow-[#147D73]/20 transition-all">
                 Detail
               </button>
             </div>

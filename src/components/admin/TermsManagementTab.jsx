@@ -131,7 +131,7 @@ const TermsManagementTab = () => {
         title: 'Gagal!',
         text: 'Semua field wajib diisi!',
         icon: 'error',
-        confirmButtonColor: '#149187'
+        confirmButtonColor: '#147D73'
       });
       return;
     }
@@ -141,7 +141,7 @@ const TermsManagementTab = () => {
         title: 'Gagal!',
         text: 'Versi ini sudah ada!',
         icon: 'error',
-        confirmButtonColor: '#149187'
+        confirmButtonColor: '#147D73'
       });
       return;
     }
@@ -199,7 +199,7 @@ const TermsManagementTab = () => {
       title: 'Berhasil!',
       text: `T&C Versi ${newTc.version} berhasil diterbitkan!`,
       icon: 'success',
-      confirmButtonColor: '#149187'
+      confirmButtonColor: '#147D73'
     });
   };
 
@@ -211,7 +211,7 @@ const TermsManagementTab = () => {
         title: 'Gagal!',
         text: 'Anda tidak bisa menghapus Syarat & Ketentuan yang sedang aktif!',
         icon: 'error',
-        confirmButtonColor: '#149187'
+        confirmButtonColor: '#147D73'
       });
       return;
     }
@@ -252,7 +252,7 @@ const TermsManagementTab = () => {
         title: 'Dihapus!',
         text: `T&C versi ${vToDelete?.version} berhasil dihapus.`,
         icon: 'success',
-        confirmButtonColor: '#149187'
+        confirmButtonColor: '#147D73'
       });
     }
   };
@@ -286,14 +286,14 @@ const TermsManagementTab = () => {
         title: 'Demo User Direset!',
         text: 'Akun Demo User didegradasi ke v1.0.0. Silakan masuk ke Dashboard untuk melihat pemblokiran & halaman persetujuan!',
         icon: 'info',
-        confirmButtonColor: '#149187'
+        confirmButtonColor: '#147D73'
       });
     } else {
       Swal.fire({
         title: 'Data Demo Direset!',
         text: 'Data demo pengguna berhasil direset ke v1.0.0. Silakan login sebagai user@carefund.com untuk melihat halaman persetujuan.',
         icon: 'success',
-        confirmButtonColor: '#149187'
+        confirmButtonColor: '#147D73'
       });
     }
   };
@@ -322,7 +322,7 @@ const TermsManagementTab = () => {
               setShowCreateForm(!showCreateForm);
               setSelectedVersion(null);
             }}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[#149187] text-white text-xs font-bold rounded-xl hover:bg-[#0f7c73] transition-all shadow-md shadow-teal-900/10 active:scale-95"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[#147D73] text-white text-xs font-bold rounded-xl hover:bg-[#0F655C] transition-all shadow-md shadow-teal-900/10 active:scale-95"
           >
             {showCreateForm ? (
               <>
@@ -364,7 +364,7 @@ const TermsManagementTab = () => {
                     type="text"
                     required
                     placeholder="Contoh: v2.1.0"
-                    className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-[#149187]/20 focus:bg-white transition-all text-sm font-bold text-gray-700"
+                    className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all text-sm font-bold text-gray-700"
                     value={newVersion}
                     onChange={(e) => setNewVersion(e.target.value)}
                   />
@@ -379,7 +379,7 @@ const TermsManagementTab = () => {
                     type="text"
                     required
                     placeholder="Contoh: Syarat & Ketentuan Pembaruan Layanan Keuangan"
-                    className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-[#149187]/20 focus:bg-white transition-all text-sm font-semibold text-gray-700"
+                    className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all text-sm font-semibold text-gray-700"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                   />
@@ -395,7 +395,7 @@ const TermsManagementTab = () => {
                   <button
                     type="button"
                     onClick={handleAddHighlight}
-                    className="text-xs font-bold text-[#149187] hover:underline flex items-center gap-1"
+                    className="text-xs font-bold text-[#147D73] hover:underline flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3" /> Tambah Poin
                   </button>
@@ -409,7 +409,7 @@ const TermsManagementTab = () => {
                       <input
                         type="text"
                         placeholder="Contoh: Pengurangan potongan komisi dari 5% menjadi 3.5%"
-                        className="flex-grow bg-gray-50 border border-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#149187]/20 focus:bg-white transition-all text-xs"
+                        className="flex-grow bg-gray-50 border border-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all text-xs"
                         value={hl}
                         onChange={(e) => handleHighlightChange(index, e.target.value)}
                       />
@@ -440,7 +440,7 @@ const TermsManagementTab = () => {
                       required
                       rows={12}
                       placeholder="Gunakan Markdown untuk format yang rapi...&#10;&#10;### 1. Judul Bagian&#10;Isi ketentuan di sini...&#10;&#10;- Poin penting&#10;- Poin penting lainnya"
-                      className="w-full bg-gray-50 border border-gray-100 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-[#149187]/20 focus:bg-white transition-all text-xs font-mono text-gray-700 leading-relaxed resize-none h-[350px]"
+                      className="w-full bg-gray-50 border border-gray-100 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all text-xs font-mono text-gray-700 leading-relaxed resize-none h-[350px]"
                       value={newContent}
                       onChange={(e) => setNewContent(e.target.value)}
                     ></textarea>
@@ -478,7 +478,7 @@ const TermsManagementTab = () => {
                   <input
                     type="checkbox"
                     id="set-active"
-                    className="w-5 h-5 rounded border-gray-300 text-[#149187] focus:ring-[#149187]"
+                    className="w-5 h-5 rounded border-gray-300 text-[#147D73] focus:ring-[#147D73]"
                     checked={setActiveImmediately}
                     onChange={(e) => setSetActiveImmediately(e.target.checked)}
                   />
@@ -497,7 +497,7 @@ const TermsManagementTab = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-8 py-3 bg-[#149187] hover:bg-[#0f7c73] text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-teal-900/10 active:scale-[0.98]"
+                    className="px-8 py-3 bg-[#147D73] hover:bg-[#0F655C] text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-teal-900/10 active:scale-[0.98]"
                   >
                     Terbitkan T&amp;C Sekarang 🚀
                   </button>
@@ -533,7 +533,7 @@ const TermsManagementTab = () => {
                   <span>•</span>
                   <span>Penulis: {selectedVersion.author}</span>
                   <span>•</span>
-                  <span className="font-bold text-[#149187]">Versi: {selectedVersion.version}</span>
+                  <span className="font-bold text-[#147D73]">Versi: {selectedVersion.version}</span>
                 </div>
               </div>
 
@@ -547,7 +547,7 @@ const TermsManagementTab = () => {
                       showCancelButton: true,
                       confirmButtonText: 'Ya, Aktifkan',
                       cancelButtonText: 'Batal',
-                      confirmButtonColor: '#149187',
+                      confirmButtonColor: '#147D73',
                       cancelButtonColor: '#aaa'
                     });
 
@@ -562,7 +562,7 @@ const TermsManagementTab = () => {
                         title: 'Berhasil!',
                         text: `Versi ${selectedVersion.version} sekarang aktif secara global.`,
                         icon: 'success',
-                        confirmButtonColor: '#149187'
+                        confirmButtonColor: '#147D73'
                       });
                     }
                   }}
@@ -660,7 +660,7 @@ const TermsManagementTab = () => {
                     <ul className="space-y-1.5">
                       {activeVersion.highlights.slice(0, 3).map((hl, i) => (
                         <li key={i} className="flex items-center gap-2 text-xs text-slate-300">
-                          <div className="w-1.5 h-1.5 bg-[#60C9B3] rounded-full"></div>
+                          <div className="w-1.5 h-1.5 bg-[#147D73] rounded-full"></div>
                           <span>{hl}</span>
                         </li>
                       ))}
@@ -677,7 +677,7 @@ const TermsManagementTab = () => {
                   </div>
                   <button 
                     onClick={() => setSelectedVersion(activeVersion)}
-                    className="flex items-center gap-1.5 text-xs font-bold text-[#60C9B3] hover:underline group/btn"
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#147D73] hover:underline group/btn"
                   >
                     Baca Dokumen Penuh
                     <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
@@ -743,7 +743,7 @@ const TermsManagementTab = () => {
                   <tbody>
                     {versions.map((v) => (
                       <tr key={v.id} className="hover:bg-gray-50/30 transition-colors border-b border-gray-50/50">
-                        <td className="px-8 py-5 text-sm font-extrabold text-[#149187]">{v.version}</td>
+                        <td className="px-8 py-5 text-sm font-extrabold text-[#147D73]">{v.version}</td>
                         <td className="px-8 py-5">
                           <span className="text-xs font-semibold text-gray-800 block line-clamp-1 max-w-[220px]">{v.title}</span>
                           <span className="text-[10px] text-gray-400">{v.author}</span>
@@ -795,13 +795,13 @@ const TermsManagementTab = () => {
               <div className="divide-y divide-gray-50 overflow-y-auto flex-grow max-h-[350px]">
                 {acceptances.map((acc) => (
                   <div key={acc.id} className="p-6 hover:bg-gray-50/50 transition-colors flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-full bg-teal-50 text-[#149187] flex items-center justify-center text-xs font-black shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-teal-50 text-[#147D73] flex items-center justify-center text-xs font-black shrink-0">
                       {acc.userName.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div className="flex-grow min-w-0">
                       <div className="flex justify-between items-start gap-1">
                         <p className="text-xs font-bold text-gray-800 truncate">{acc.userName}</p>
-                        <span className="text-[9px] font-extrabold text-[#149187] bg-teal-50 px-2 py-0.5 rounded-full uppercase">
+                        <span className="text-[9px] font-extrabold text-[#147D73] bg-teal-50 px-2 py-0.5 rounded-full uppercase">
                           {acc.version}
                         </span>
                       </div>

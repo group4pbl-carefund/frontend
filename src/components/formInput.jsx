@@ -8,7 +8,7 @@ const FormInput = ({ label, type = 'text', placeholder, onChange, required = tru
       </label>
       <input 
         type={type} 
-        className="w-full bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#2ea391] transition-all border border-transparent focus:border-[#2ea391]" 
+        className="w-full bg-gray-100 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#147D73] transition-all border border-transparent focus:border-[#147D73]" 
         placeholder={placeholder}
         onChange={onChange}
         required={required}

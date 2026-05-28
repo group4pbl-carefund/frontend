@@ -26,7 +26,7 @@ const Navbar = () => {
             alt="Care Fund Logo"
             className="h-10 w-10 object-contain"
           />
-          <span className="text-xl font-extrabold tracking-tight text-[#428879]">
+          <span className="text-xl font-extrabold tracking-tight text-[#147D73]">
             Care Fund
           </span>
         </Link>
@@ -34,7 +34,7 @@ const Navbar = () => {
 
       {/* Middle Links */}
       <div className="hidden md:flex items-center space-x-8">
-        <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+        <Link to="/" className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors">
           Beranda
         </Link>
 
@@ -42,13 +42,13 @@ const Navbar = () => {
           <>
             {userRole === 'admin' ? (
               <>
-                <Link to="/admin" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+                <Link to="/admin" className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors">
                   Admin Dashboard
                 </Link>
               </>
             ) : (
               <>
-                <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+                <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors">
                   Dashboard
                 </Link>
               </>
@@ -56,14 +56,14 @@ const Navbar = () => {
 
             <Link
               to={userRole === 'admin' ? '/admin/edukasi' : '/edukasi'}
-              className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors"
+              className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors"
             >
               Edukasi
             </Link>
           </>
         )}
 
-        <Link to="/about-us" className="text-lg font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+        <Link to="/about-us" className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors">
           Tentang Kami
         </Link>
       </div>
@@ -76,7 +76,7 @@ const Navbar = () => {
               to="/user-profile"
               className="group relative flex items-center justify-center"
             >
-              <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-[#60C9B3] transition-transform group-hover:scale-110 shadow-md">
+              <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-[#147D73] transition-transform group-hover:scale-110 shadow-md">
                 <img
                   src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
                   alt="Profile"
@@ -93,12 +93,12 @@ const Navbar = () => {
           </div>
         ) : (
           <>
-            <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-[#60C9B3] transition-colors">
+            <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-[#147D73] transition-colors">
               Log in
             </Link>
 
             <Link to="/register">
-              <button className="rounded-full px-6 py-2.5 text-sm font-bold text-white bg-[#60C9B3] hover:bg-[#4ea894] transition-all shadow-md shadow-[#60C9B3]/20 active:scale-95">
+              <button className="rounded-full px-6 py-2.5 text-sm font-bold text-white bg-[#147D73] hover:bg-[#0F655C] transition-all shadow-md shadow-[#147D73]/20 active:scale-95">
                 Daftar
               </button>
             </Link>

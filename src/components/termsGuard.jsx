@@ -52,7 +52,7 @@ const TermsGuard = () => {
     return (
       <div className="min-h-screen bg-[#E0F2F1] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-[#149187] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-4 border-[#147D73] border-t-transparent rounded-full animate-spin"></div>
           <p className="text-sm font-semibold text-teal-800">Memeriksa Sesi...</p>
         </div>
       </div>

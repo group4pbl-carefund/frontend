@@ -114,7 +114,7 @@ const TransactionLogTab = () => {
           <h2 className="text-2xl font-bold text-gray-800">Log Transaksi</h2>
           <p className="text-gray-500">Memantau dan mengaudit semua dana yang masuk dan keluar.</p>
         </div>
-        <button className="flex items-center gap-2 bg-[#149187] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#0f7169] transition-colors shadow-sm">
+        <button className="flex items-center gap-2 bg-[#147D73] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#0F655C] transition-colors shadow-sm">
           <Download className="w-4 h-4" />
           Export Report
         </button>
@@ -313,7 +313,7 @@ const TransactionLogTab = () => {
           <p className="text-xs text-gray-400">Menampilkan {filteredTrx.length} dari {logsList.length} transaksi</p>
           <div className="flex items-center gap-1">
             <button className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg transition-all"><ChevronLeft className="w-5 h-5" /></button>
-            <button className="w-8 h-8 rounded-lg text-xs font-bold bg-[#149187] text-white">1</button>
+            <button className="w-8 h-8 rounded-lg text-xs font-bold bg-[#147D73] text-white">1</button>
             <button className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg transition-all"><ChevronRight className="w-5 h-5" /></button>
           </div>
         </div>

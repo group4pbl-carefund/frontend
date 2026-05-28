@@ -25,7 +25,7 @@ const AdminDashboardPage = () => {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-[#F1F8F7] py-12">
+      <div className="min-h-screen bg-[#F4F7F6] py-12">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
 
           {/* Header Area */}
@@ -35,7 +35,7 @@ const AdminDashboardPage = () => {
                 onClick={() => window.history.back()}
                 className="mt-2 p-3 bg-white rounded-2xl shadow-sm hover:bg-gray-50 transition-all group"
               >
-                <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-[#149187]" />
+                <ArrowLeft className="w-6 h-6 text-gray-400 group-hover:text-[#147D73]" />
               </button>
               <div>
                 <h1 className="text-4xl font-bold text-gray-900 tracking-tight mb-2 capitalize">
@@ -63,7 +63,7 @@ const AdminDashboardPage = () => {
                   key={tab.id}
                   to={tab.path}
                   className={`px-8 py-3 rounded-[16px] text-sm font-bold transition-all duration-300 ${activeTab === tab.id
-                    ? 'bg-white text-[#149187] shadow-md'
+                    ? 'bg-white text-[#147D73] shadow-md'
                     : 'text-gray-400 hover:text-gray-600'
                     }`}
                 >

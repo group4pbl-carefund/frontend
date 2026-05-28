@@ -18,7 +18,7 @@ const HeroSection = () => {
           Platform donasi digital terpercaya dengan sistem transparansi penuh dan diawasi Bank Indonesia serta OJK
         </p>
         <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-4 sm:space-y-0">
-          <button className="rounded-full bg-[#60C9B3] px-8 py-3 font-bold text-white transition-colors hover:bg-[#4ea894]">
+          <button className="rounded-full bg-[#147D73] px-8 py-3 font-bold text-white transition-colors hover:bg-[#0F655C]">
             MULAI DONASI
           </button>
           <button className="rounded-full border-2 border-white px-8 py-3 font-bold text-white transition-colors hover:bg-white hover:text-slate-900">

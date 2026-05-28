@@ -15,7 +15,7 @@ const ArticleCard = ({ id, category, image, readTime, title }) => {
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {/* Badge Category */}
-        <div className="absolute top-4 left-4 bg-[#0F7A73] text-white text-xs font-semibold px-3 py-1.5 rounded-full">
+        <div className="absolute top-4 left-4 bg-[#147D73] text-white text-xs font-semibold px-3 py-1.5 rounded-full">
           {category}
         </div>
       </div>

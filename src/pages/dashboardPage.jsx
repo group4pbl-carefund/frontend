@@ -91,7 +91,7 @@ const DashboardPage = () => {
       <MainLayout>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-4 border-[#149187] border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-4 border-[#147D73] border-t-transparent rounded-full animate-spin"></div>
             <p className="text-sm font-semibold text-teal-800">Memuat Data Dashboard...</p>
           </div>
         </div>

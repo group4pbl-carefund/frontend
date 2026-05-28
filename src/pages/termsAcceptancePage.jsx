@@ -115,7 +115,7 @@ const TermsAcceptancePage = () => {
     return (
       <div className="min-h-screen bg-[#E0F2F1] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="w-8 h-8 text-[#149187] animate-spin" />
+          <RefreshCw className="w-8 h-8 text-[#147D73] animate-spin" />
           <p className="text-sm font-semibold text-teal-800">Memuat Dokumen Persetujuan...</p>
         </div>
       </div>
@@ -129,7 +129,7 @@ const TermsAcceptancePage = () => {
           <AlertCircle className="w-12 h-12 text-red-500 mb-2" />
           <h2 className="text-xl font-bold text-slate-800">Gagal Memuat Dokumen</h2>
           <p className="text-sm font-semibold text-red-800">Tidak dapat memuat data Syarat & Ketentuan. Harap periksa koneksi atau hubungi admin.</p>
-          <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-[#149187] text-white rounded-xl text-xs font-bold hover:bg-[#0f7c73]">Coba Lagi</button>
+          <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-[#147D73] text-white rounded-xl text-xs font-bold hover:bg-[#0F655C]">Coba Lagi</button>
           <button onClick={handleLogout} className="mt-2 text-xs font-bold text-slate-500 hover:text-slate-700 underline">Logout Sementara</button>
         </div>
       </div>
@@ -153,7 +153,7 @@ const TermsAcceptancePage = () => {
           <p className="text-slate-500 font-medium max-w-md mb-8">
             Terima kasih telah menyetujui Syarat &amp; Ketentuan versi {activeTc.version}. Kami berkomitmen menjaga integritas dan transparansi setiap aksi kebaikan Anda.
           </p>
-          <div className="flex items-center gap-2 text-xs font-bold text-[#149187] bg-teal-50 px-4 py-2 rounded-full">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#147D73] bg-teal-50 px-4 py-2 rounded-full">
             <Sparkles className="w-4 h-4 text-amber-500" />
             <span>Mengarahkan Anda kembali...</span>
           </div>
@@ -169,7 +169,7 @@ const TermsAcceptancePage = () => {
             
             <div>
               <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 border border-white/5 rotate-3">
-                <ShieldCheck className="w-6 h-6 text-[#60C9B3]" />
+                <ShieldCheck className="w-6 h-6 text-[#147D73]" />
               </div>
               
               <h2 className="text-2xl lg:text-3xl font-black tracking-tight leading-tight mb-4">
@@ -184,7 +184,7 @@ const TermsAcceptancePage = () => {
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">POIN UTAMA PERUBAHAN:</p>
                 {activeTc.highlights.map((hl, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-teal-500/10 flex items-center justify-center text-[10px] font-black text-[#60C9B3] shrink-0 mt-0.5 border border-[#60C9B3]/20">
+                    <div className="w-5 h-5 rounded-full bg-teal-500/10 flex items-center justify-center text-[10px] font-black text-[#147D73] shrink-0 mt-0.5 border border-[#147D73]/20">
                       {i + 1}
                     </div>
                     <p className="text-xs text-slate-300 font-medium leading-relaxed">{hl}</p>
@@ -212,7 +212,7 @@ const TermsAcceptancePage = () => {
             {/* Header info */}
             <div className="mb-6 flex justify-between items-start gap-4">
               <div>
-                <span className="text-[9px] font-black text-[#149187] bg-teal-50 px-3 py-1 rounded-full uppercase tracking-wider">
+                <span className="text-[9px] font-black text-[#147D73] bg-teal-50 px-3 py-1 rounded-full uppercase tracking-wider">
                   VERSI {activeTc.version}
                 </span>
                 <h3 className="text-xl font-extrabold text-slate-800 mt-2 tracking-tight">
@@ -261,7 +261,7 @@ const TermsAcceptancePage = () => {
               >
                 <div className="shrink-0 mt-0.5 transition-colors">
                   {isChecked ? (
-                    <CheckSquare className="w-5 h-5 text-[#149187]" />
+                    <CheckSquare className="w-5 h-5 text-[#147D73]" />
                   ) : (
                     <Square className="w-5 h-5 text-gray-300 hover:text-gray-400" />
                   )}
@@ -289,7 +289,7 @@ const TermsAcceptancePage = () => {
                   onClick={handleAccept}
                   className={`flex-grow py-3.5 rounded-2xl font-extrabold text-xs text-white text-center shadow-lg transition-all active:scale-[0.98] ${
                     isChecked 
-                    ? 'bg-[#149187] hover:bg-[#0f7c73] shadow-teal-900/10 cursor-pointer' 
+                    ? 'bg-[#147D73] hover:bg-[#0F655C] shadow-teal-900/10 cursor-pointer' 
                     : 'bg-gray-200 text-gray-400 shadow-none cursor-not-allowed'
                   }`}
                 >

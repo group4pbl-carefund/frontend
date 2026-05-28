@@ -19,7 +19,7 @@ const CampaignCard = ({
       {/* Bagian Gambar & Badge Kategori */}
       <div className="relative h-48 w-full bg-gray-200">
          <img src={imageSrc} alt={category} className="h-full w-full object-cover" />
-         <div className="absolute top-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#60C9B3]">
+         <div className="absolute top-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#147D73]">
            {category}
          </div>
       </div>
@@ -37,12 +37,12 @@ const CampaignCard = ({
         <div className="mt-auto">
           <div className="mb-1 flex justify-between text-sm font-bold">
             <span className="text-slate-800">Terkumpul : {collectedAmount}</span>
-            <span className="text-[#60C9B3]">{progressPercentage}%</span>
+            <span className="text-[#147D73]">{progressPercentage}%</span>
           </div>
           <div className="mb-2 h-2 w-full rounded-full bg-gray-200">
             {/* Lebar progress bar menyesuaikan dengan prop progressPercentage */}
             <div 
-              className="h-full rounded-full bg-[#60C9B3]" 
+              className="h-full rounded-full bg-[#147D73]" 
               style={{ width: `${progressPercentage}%` }}
             ></div>
           </div>
