@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -32,7 +32,7 @@ api.interceptors.response.use(
       // Jika token tidak valid / kedaluwarsa, bersihkan sesi lokal
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      
+
       // Cegah pengalihan tak terbatas jika sudah berada di halaman login/register
       if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
         window.location.href = '/login?session_expired=true';

@@ -30,15 +30,15 @@ const ProgramsPage = () => {
     };
     fetchCampaigns();
   }, []);
-  
+
   // Filter hanya kampanye dengan status 'approved' pada program
   const activeCampaigns = allCampaigns.filter(c => c.program?.status === 'approved' || c.status === 'approved');
 
   const filteredCampaigns = activeCampaigns.filter(campaign => {
     const campaignCategory = campaign.program?.category || campaign.category || 'Umum';
-    const matchesCategory = activeCategory === 'Semua' || 
+    const matchesCategory = activeCategory === 'Semua' ||
       campaignCategory.toLowerCase() === activeCategory.toLowerCase();
-    
+
     const title = campaign.program?.program_name || campaign.title || '';
     const desc = campaign.program?.description || campaign.description || '';
 
@@ -55,8 +55,8 @@ const ProgramsPage = () => {
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
               <div>
-                <button 
-                  onClick={() => navigate('/')} 
+                <button
+                  onClick={() => navigate('/')}
                   className="flex items-center text-sm font-bold text-[#147D73] hover:opacity-70 transition-opacity mb-4"
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,10 +71,10 @@ const ProgramsPage = () => {
                   Temukan berbagai inisiatif kebaikan yang aktif dan jadilah bagian dari perubahan positif hari ini.
                 </p>
               </div>
-              
+
               <div className="w-full md:w-96">
-                <SearchBar 
-                  placeholder="Cari program donasi..." 
+                <SearchBar
+                  placeholder="Cari program donasi..."
                   onSearch={(val) => setSearchQuery(val)}
                 />
               </div>
@@ -86,11 +86,10 @@ const ProgramsPage = () => {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
-                    activeCategory === cat
+                  className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeCategory === cat
                       ? 'bg-[#147D73] text-white shadow-md shadow-[#147D73]/20'
                       : 'bg-white text-slate-500 border border-gray-200 hover:border-[#147D73] hover:text-[#147D73]'
-                  }`}
+                    }`}
                 >
                   {cat}
                 </button>
@@ -110,19 +109,19 @@ const ProgramsPage = () => {
               {filteredCampaigns.map((campaign) => {
                 const collected = campaign.current_amount || campaign.collected || 0;
                 const target = campaign.program?.target_amount || campaign.target || 1;
-                
-                const collectedAmountStr = collected >= 1000000000 
+
+                const collectedAmountStr = collected >= 1000000000
                   ? `Rp ${(collected / 1000000000).toFixed(1)} Miliar`
-                  : collected >= 1000000 
+                  : collected >= 1000000
                     ? `Rp ${(collected / 1000000).toFixed(1)} Juta`
                     : `Rp ${collected.toLocaleString('id-ID')}`;
-                
+
                 const targetAmountStr = `Rp ${target.toLocaleString('id-ID')}`;
                 const progressPercentage = Math.min(100, Math.round((collected / target) * 100));
 
                 return (
                   <div key={campaign.campaign_id || campaign.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <CampaignCard 
+                    <CampaignCard
                       id={campaign.campaign_id || campaign.id}
                       imageSrc={campaign.program?.image_url || campaign.imageSrc || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"}
                       category={campaign.program?.category || campaign.category || 'Umum'}
@@ -143,8 +142,8 @@ const ProgramsPage = () => {
               </div>
               <h3 className="text-xl font-bold text-slate-800">Program Tidak Ditemukan</h3>
               <p className="text-slate-500 mt-2">Coba gunakan kata kunci lain atau pilih kategori yang berbeda.</p>
-              <button 
-                onClick={() => {setActiveCategory('Semua'); setSearchQuery('');}}
+              <button
+                onClick={() => { setActiveCategory('Semua'); setSearchQuery(''); }}
                 className="mt-6 text-[#147D73] font-bold hover:underline"
               >
                 Reset Pencarian
