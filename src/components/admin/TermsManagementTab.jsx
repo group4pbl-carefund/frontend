@@ -18,6 +18,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import api from '../../utils/api';
+import { formatDate } from '../../utils/format';
 
 const TermsManagementTab = () => {
   const [versions, setVersions] = useState([]);
@@ -528,7 +529,7 @@ const TermsManagementTab = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-4 text-xs text-gray-400">
-                  <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Dibuat: {new Date(selectedVersion.publishedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                  <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Dibuat: {formatDate(selectedVersion.publishedAt, 'long')}</span>
                   <span>•</span>
                   <span>Penulis: {selectedVersion.author}</span>
                   <span>•</span>
@@ -650,7 +651,7 @@ const TermsManagementTab = () => {
                   {activeVersion ? activeVersion.title : 'Belum Ada Syarat & Ketentuan Aktif'}
                 </h3>
                 <p className="text-xs text-slate-400 font-medium max-w-lg mb-6 line-clamp-2">
-                  Diterbitkan oleh {activeVersion?.author} pada {activeVersion && new Date(activeVersion.publishedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })} WIB.
+                  Diterbitkan oleh {activeVersion?.author} pada {formatDate(activeVersion.publishedAt, 'withTime')} WIB.
                 </p>
 
                 {activeVersion && (
@@ -755,7 +756,7 @@ const TermsManagementTab = () => {
                           </span>
                         </td>
                         <td className="px-8 py-5 text-xs text-gray-500 font-medium">
-                          {new Date(v.publishedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          {formatDate(v.publishedAt, 'short')}
                         </td>
                         <td className="px-8 py-5">
                           <div className="flex items-center justify-center gap-3">
@@ -809,7 +810,7 @@ const TermsManagementTab = () => {
                       <div className="flex items-center gap-1 text-[9px] text-gray-400">
                         <Clock className="w-3 h-3 text-slate-300" />
                         <span>
-                          {new Date(acc.acceptedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}, {new Date(acc.acceptedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                          {formatDate(acc.acceptedAt, 'dayMonth')}, {new Date(acc.acceptedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     </div>

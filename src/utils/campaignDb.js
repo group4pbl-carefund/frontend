@@ -1,3 +1,5 @@
+import { formatDate } from './format';
+
 let campaigns = [
   {
     id: 1,
@@ -123,7 +125,7 @@ export const addCampaignUpdate = (id, updateText) => {
     if (c.id === numericId) {
       const newUpdate = {
         id: Date.now(),
-        date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        date: formatDate(new Date(), 'short'),
         text: updateText
       };
       return {

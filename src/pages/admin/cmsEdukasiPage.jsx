@@ -4,6 +4,7 @@ import MainLayout from '../../layouts/mainLayout';
 import Swal from 'sweetalert2';
 import { getArticles, deleteArticle, getStats } from '../../utils/articleDb';
 import api from '../../utils/api';
+import { formatDate } from '../../utils/format';
 
 const CmsEdukasiPage = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const CmsEdukasiPage = () => {
             catColor: catCol,
             authorName: item.author?.full_name || 'Editorial Team',
             authorAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.author?.full_name || 'Admin')}&background=147D73&color=fff`,
-            date: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+            date: formatDate(dateObj, 'short'),
             views: (item.views_count || 0).toString(),
             status: statVal,
             statusColor: statCol,

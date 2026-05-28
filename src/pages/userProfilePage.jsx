@@ -11,6 +11,7 @@ import Swal from "sweetalert2";
 import StatCard from "../components/statCard";
 import DonationHistoryItem from "../components/donationHistoryItem";
 import api from "../utils/api";
+import { formatRupiahFull, formatDate } from "../utils/format";
 
 const UserProfilePage = () => {
     const navigate = useNavigate();
@@ -167,7 +168,7 @@ const UserProfilePage = () => {
                                                 <span className="block w-6 h-6 border-4 border-[#2ea391] border-t-transparent rounded-full animate-spin"></span>
                                             </div>
                                         )}
-                                        <img src={user?.avatar_url ? `http://127.0.0.1:8000${user.avatar_url}` : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.full_name || 'Felix'}`} alt="Profile" className="h-full w-full object-cover group-hover:opacity-50 transition-opacity" />
+                                        <img src={user?.avatar_url ? `${api.defaults.baseURL.replace('/api', '')}${user.avatar_url}` : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.full_name || 'Felix'}`} alt="Profile" className="h-full w-full object-cover group-hover:opacity-50 transition-opacity" />
                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
                                             <Camera className="text-white w-6 h-6" />
                                         </div>
@@ -247,7 +248,7 @@ const UserProfilePage = () => {
                     <div className="lg:col-span-8 space-y-8">
                         {/* STATS */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <StatCard icon={<CreditCard size={20} />} label="Total Donasi" value={`Rp ${stats.totalDonasi.toLocaleString('id-ID')}`} colorClass="bg-emerald-50 text-emerald-600" />
+                            <StatCard icon={<CreditCard size={20} />} label="Total Donasi" value={formatRupiahFull(stats.totalDonasi)} colorClass="bg-emerald-50 text-emerald-600" />
                             <StatCard icon={<Calendar size={20} />} label="Bergabung" value={stats.bergabung} colorClass="bg-teal-50 text-teal-600" />
                             <StatCard icon={<HandHeart size={20} />} label="Dampak" value={`${stats.dampakOrang} Orang`} colorClass="bg-orange-50 text-orange-600" />
                         </div>
@@ -273,9 +274,9 @@ const UserProfilePage = () => {
                                                     category={d.program?.category || "Program"}
                                                     categoryColor={isSuccess ? "text-emerald-600" : "text-amber-600"}
                                                     bgColor={isSuccess ? "bg-emerald-50" : "bg-amber-50"}
-                                                    date={new Date(d.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    date={formatDate(d.created_at, 'short')}
                                                     title={d.program?.title || d.program?.program_name || "Donasi Kemanusiaan"}
-                                                    amount={`Rp ${parseFloat(d.amount).toLocaleString('id-ID')}`}
+                                                    amount={formatRupiahFull(d.amount)}
                                                     showBukti={isSuccess}
                                                 />
                                             );
@@ -324,7 +325,7 @@ const UserProfilePage = () => {
                                                             {cert.program?.title || cert.program?.program_name || "Bantuan Kemanusiaan"}
                                                         </h3>
                                                         <p className="text-[#28a792] font-black text-xl">
-                                                            Rp {parseFloat(cert.amount).toLocaleString('id-ID')}
+                                                            {formatRupiahFull(cert.amount)}
                                                         </p>
                                                     </div>
 
@@ -397,7 +398,7 @@ const UserProfilePage = () => {
                                         {/* Sisi Kanan */}
                                         <div className="flex-1 w-full grid grid-cols-2 gap-4">
                                             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[2rem] p-6 h-32 flex flex-col justify-center">
-                                                <h4 className="text-xl font-black">{stats.totalDonasi.toLocaleString('id-ID')}</h4>
+                                                <h4 className="text-xl font-black">{formatRupiahFull(stats.totalDonasi)}</h4>
                                                 <p className="text-[10px] uppercase font-bold opacity-60">Total Rupiah Donasi</p>
                                             </div>
                                             <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[2rem] p-6 h-32 flex flex-col justify-center">

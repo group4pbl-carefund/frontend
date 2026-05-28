@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { ArrowLeft, UserCircle2, MapPin, CalendarDays, Target, Users, ShieldCheck, HeartHandshake, CreditCard, Smartphone, QrCode } from 'lucide-react';
+import { formatRupiahFull, formatDate } from '../utils/format';
 import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 
@@ -65,7 +66,7 @@ const DonationDetailPage = () => {
     let endDateStr = 'Tidak Terbatas';
     if (displayCampaign.program?.end_date) {
         const endDate = new Date(displayCampaign.program.end_date);
-        endDateStr = endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
+        endDateStr = formatDate(displayCampaign.program.end_date, 'dayMonth');
         displayDaysLeft = Math.max(0, Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24)));
     }
 
@@ -163,7 +164,7 @@ const DonationDetailPage = () => {
                                         <div className="bg-[#EAF3F2] p-4 rounded-2xl">
                                             <Target className="w-5 h-5 text-[#147D73] mb-3" />
                                             <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Target Dana</p>
-                                            <p className="font-bold text-slate-900 text-sm mt-1">Rp {targetAmount.toLocaleString('id-ID')}</p>
+                                            <p className="font-bold text-slate-900 text-sm mt-1">{formatRupiahFull(targetAmount)}</p>
                                         </div>
                                         <div className="bg-[#EAF3F2] p-4 rounded-2xl">
                                             <Users className="w-5 h-5 text-[#147D73] mb-3" />
@@ -213,7 +214,7 @@ const DonationDetailPage = () => {
                                                     </div>
                                                 </div>
                                                 <div className="text-right flex-shrink-0">
-                                                    <p className="font-bold text-[#147D73] text-sm">Rp {Number(donor.amount).toLocaleString('id-ID')}</p>
+                                                    <p className="font-bold text-[#147D73] text-sm">{formatRupiahFull(donor.amount)}</p>
                                                 </div>
                                             </div>
                                         ))
@@ -232,13 +233,13 @@ const DonationDetailPage = () => {
                             {/* Progress Section */}
                             <div className="mb-6">
                                 <div className="flex justify-between items-end mb-2">
-                                    <p className="text-3xl font-black text-[#147D73]">Rp {currentAmount.toLocaleString('id-ID')}</p>
+                                    <p className="text-3xl font-black text-[#147D73]">{formatRupiahFull(currentAmount)}</p>
                                     <div className="text-right">
                                         <p className="text-xl font-black text-slate-900 leading-none">{percentage}%</p>
                                         <p className="text-[10px] text-slate-500 font-bold">Tercapai</p>
                                     </div>
                                 </div>
-                                <p className="text-xs text-slate-500 mb-3 font-medium">Terkumpul dari Rp {targetAmount.toLocaleString('id-ID')}</p>
+                                <p className="text-xs text-slate-500 mb-3 font-medium">Terkumpul dari {formatRupiahFull(targetAmount)}</p>
                                 
                                 <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                                     <div className="h-full bg-[#147D73] rounded-full transition-all duration-1000 ease-out" style={{ width: `${percentage}%` }}></div>

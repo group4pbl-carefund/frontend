@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/navbar';
 import { ArrowLeft, CheckCircle2, ShieldCheck, Download, Lock, Check } from 'lucide-react';
+import { formatRupiahFull, formatDate } from '../utils/format';
 
 const CheckoutPage = () => {
     const { id } = useParams();
@@ -146,7 +147,7 @@ const CheckoutPage = () => {
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Tanggal</p>
                                 <p className="font-bold text-slate-900 text-sm">
-                                    {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                    {formatDate(new Date(), 'long')}
                                 </p>
                             </div>
                             <div>
@@ -158,7 +159,7 @@ const CheckoutPage = () => {
                             </div>
                             <div>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Jumlah Donasi + Admin</p>
-                                <p className="font-black text-[#147D73] text-xl">Rp {(amount + 2500).toLocaleString('id-ID')}</p>
+                                <p className="font-black text-[#147D73] text-xl">{formatRupiahFull(amount + 2500)}</p>
                             </div>
                         </div>
 
@@ -240,7 +241,7 @@ const CheckoutPage = () => {
                                 )}
 
                                 <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">Total Amount (Inc. Admin Rp 2.500)</p>
-                                <p className="text-4xl md:text-5xl font-black text-slate-900 mb-3 tracking-tight">Rp {(amount + 2500).toLocaleString('id-ID')}</p>
+                                <p className="text-4xl md:text-5xl font-black text-slate-900 mb-3 tracking-tight">{formatRupiahFull(amount + 2500)}</p>
                                 <p className="text-sm font-bold text-[#147D73] mb-8">Order ID: {orderId}</p>
 
                                 <div className="inline-flex items-center gap-2 bg-[#FEF2F2] text-[#DC2626] px-5 py-2.5 rounded-full font-bold text-xs tracking-wider">

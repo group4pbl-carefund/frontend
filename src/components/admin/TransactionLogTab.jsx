@@ -17,6 +17,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import api from '../../utils/api';
+import { formatDate } from '../../utils/format';
 
 const TransactionLogTab = () => {
   const [logsList, setLogsList] = useState([]);
@@ -46,7 +47,7 @@ const TransactionLogTab = () => {
 
             return {
               id: item.transaction_id || `#TRX-${item.id}`,
-              date: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+              date: formatDate(dateObj, 'short'),
               time: dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
               user: user.full_name || 'Anonim',
               avatar: getInitials(user.full_name || 'Anonim'),

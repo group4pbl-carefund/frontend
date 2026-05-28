@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import api from '../utils/api';
+import { formatDate } from '../utils/format';
 
 const CreateCampaignPage = () => {
   const navigate = useNavigate();
@@ -71,7 +72,7 @@ const CreateCampaignPage = () => {
     const endDate = new Date(startDate);
     const duration = parseInt(formData.durationDays) || 0;
     endDate.setDate(startDate.getDate() + duration);
-    return endDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+    return formatDate(endDate, 'long');
   };
 
   const getComputedDuration = () => {

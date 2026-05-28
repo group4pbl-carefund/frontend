@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../../layouts/mainLayout';
 import api from '../../utils/api';
+import { formatRupiahFull, formatDate } from '../../utils/format';
 
 const ManageCampaignPage = () => {
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ const ManageCampaignPage = () => {
 
         const newUpdate = {
           id: Date.now(),
-          date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+          date: formatDate(new Date(), 'long'),
           text: text
         };
         
@@ -276,7 +277,7 @@ const ManageCampaignPage = () => {
         <div className="p-8 bg-blue-50 rounded-[2.5rem] border border-blue-100">
           <div className="bg-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-4"><Users size={24}/></div>
           <p className="text-xs font-black text-blue-400 uppercase tracking-widest">Total Donatur</p>
-          <h2 className="text-3xl font-black text-slate-900 mt-1">{(activeCampaign.donor_count || activeCampaign.donorsCount || 0).toLocaleString('id-ID')} <span className="text-sm font-medium">Orang</span></h2>
+          <h2 className="text-3xl font-black text-slate-900 mt-1">{Number(activeCampaign.donor_count || activeCampaign.donorsCount || 0).toLocaleString('id-ID')} <span className="text-sm font-medium">Orang</span></h2>
           <button className="mt-4 text-blue-600 text-xs font-bold flex items-center gap-1 hover:underline">Lihat Semua Donatur <ChevronRight size={14}/></button>
         </div>
 
@@ -299,7 +300,7 @@ const ManageCampaignPage = () => {
             <div className="bg-teal-500 h-full" style={{ width: `${progressPercentage}%` }}></div>
           </div>
           <p className="text-[10px] text-slate-400 mt-4 uppercase tracking-wide">
-            Terkumpul: Rp {collected.toLocaleString('id-ID')} / Target Rp {target.toLocaleString('id-ID')}
+            Terkumpul: {formatRupiahFull(collected)} / Target {formatRupiahFull(target)}
           </p>
         </div>
       </div>

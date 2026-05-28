@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import api from '../utils/api';
+import { formatDate } from '../utils/format';
 
 const ArtikelDetail = () => {
   const { id } = useParams();
@@ -113,7 +114,7 @@ const ArtikelDetail = () => {
               <div>
                 <p className="font-bold text-slate-900 text-sm">{article.author?.full_name || 'Admin CareFund'}</p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  {new Date(article.published_at || article.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})} <span className="mx-1.5">•</span> {article.read_time ? `${article.read_time} menit baca` : '5 menit baca'}
+                  {formatDate(article.published_at || article.created_at, 'long')} <span className="mx-1.5">•</span> {article.read_time ? `${article.read_time} menit baca` : '5 menit baca'}
                 </p>
               </div>
             </div>

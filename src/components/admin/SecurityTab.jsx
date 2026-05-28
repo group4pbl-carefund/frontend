@@ -11,6 +11,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import api from '../../utils/api';
+import { formatDate } from '../../utils/format';
 
 const SecurityTab = () => {
   const [logsList, setLogsList] = useState([]);
@@ -32,7 +33,7 @@ const SecurityTab = () => {
               category: item.event_type || 'System',
               description: item.description || 'Aktivitas keamanan tercatat',
               details: item.details || `IP: ${item.ip_address || 'Unknown'} (${item.user_agent || 'Unknown'})`,
-              date: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+              date: formatDate(dateObj, 'short'),
               time: dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
               user: item.user?.full_name || item.user?.email || 'System Log'
             };

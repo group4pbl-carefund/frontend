@@ -1,3 +1,5 @@
+import { formatDate } from './format';
+
 let articles = [
   {
     id: 1,
@@ -63,7 +65,7 @@ export const addArticle = (articleData) => {
   const newArticle = {
     id: newId,
     views: '0',
-    date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+    date: formatDate(new Date(), 'short'),
     authorAvatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(articleData.authorName || 'Admin')}&background=147D73&color=fff`,
     catColor: articleData.category === 'Security' 
       ? 'bg-teal-50 text-teal-600' 

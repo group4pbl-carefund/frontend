@@ -5,7 +5,8 @@ import CampaignCard from '../components/donationCard';
 import FeaturesSection from '../components/featuresSection';
 import HeroSection from '../components/heroSection';
 import StatsSection from '../components/statsSection';
-import api from '../utils/api'; 
+import api from '../utils/api';
+import { formatRupiah, formatRupiahFull } from '../utils/format';
 
 const LandingPage = () => {
   const [activeCampaigns, setActiveCampaigns] = useState([]);
@@ -54,17 +55,11 @@ const LandingPage = () => {
         ) : (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {activeCampaigns.map((campaign) => {
-              // 4. Data Mapping variabel dari Backend
               const collected = Number(campaign.current_amount || campaign.collected || 0);
               const target = Number(campaign.program?.target_amount || campaign.target || 1);
               
-              const collectedAmountStr = collected >= 1000000000 
-                ? `Rp ${(collected / 1000000000).toFixed(1)} Miliar`
-                : collected >= 1000000 
-                  ? `Rp ${(collected / 1000000).toFixed(1)} Juta`
-                  : `Rp ${collected.toLocaleString('id-ID')}`;
-              
-              const targetAmountStr = `Rp ${target.toLocaleString('id-ID')}`;
+              const collectedAmountStr = formatRupiah(collected);
+              const targetAmountStr = formatRupiahFull(target);
               const progressPercentage = Math.min(100, Math.round((collected / target) * 100));
 
               return (

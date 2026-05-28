@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '../../utils/api';
+import { formatDate } from '../../utils/format';
 
 const UserManagementTab = () => {
   const [usersList, setUsersList] = useState([]);
@@ -42,7 +43,7 @@ const UserManagementTab = () => {
               avatar: getInitials(item.full_name || 'No Name'),
               kyc: item.is_verified ? 'Verified' : 'Unverified',
               raw_is_verified: item.is_verified,
-              date: dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+              date: formatDate(dateObj, 'short')
             };
           });
           setUsersList(mappedUsers);
@@ -138,7 +139,7 @@ const UserManagementTab = () => {
               avatar: getInitials(item.full_name || 'No Name'),
               kyc: item.is_verified ? 'Verified' : 'Unverified',
               raw_is_verified: item.is_verified,
-              date: new Date(item.created_at || Date.now()).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+               date: formatDate(new Date(item.created_at || Date.now()), 'short')
             };
           });
           setUsersList(mappedUsers);

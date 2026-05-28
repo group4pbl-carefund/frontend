@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Package } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '../../utils/api';
+import { formatRupiahFull, formatDate } from '../../utils/format';
 
 const CampaignApprovalTab = () => {
   const [pendingCampaigns, setPendingCampaigns] = useState([]);
@@ -32,7 +33,7 @@ const CampaignApprovalTab = () => {
           organizer: item.user?.full_name || item.account_owner || 'Relawan Peduli',
           statusText: "Tahap Verifikasi",
           statusColor: "text-[#147D73]",
-          targetAmount: `Rp ${Number(item.target_amount || 0).toLocaleString('id-ID')}`,
+          targetAmount: formatRupiahFull(item.target_amount || 0),
           deadline: item.end_date || 'Tidak ditentukan',
           image: item.image_url || "https://images.unsplash.com/photo-1538108149393-cebb47acdd4e?auto=format&fit=crop&w=800&q=80",
           story: item.description || "Tidak ada deskripsi",
@@ -41,7 +42,7 @@ const CampaignApprovalTab = () => {
           beneficiaryType: formatBeneficiaryType(item.beneficiary_type),
           documents: Array.isArray(item.documents) ? item.documents : [],
           submittedBy: item.user?.full_name || item.user_name || 'user',
-          submittedAt: item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : 'Baru saja'
+          submittedAt: item.created_at ? formatDate(item.created_at) : 'Baru saja'
         }));
         setPendingCampaigns(mapped);
       }
@@ -258,7 +259,7 @@ const CampaignApprovalTab = () => {
                             </div>
                           </div>
                           <span className="font-bold text-slate-900 text-sm">
-                            {`Rp ${Number(item.amount || 0).toLocaleString('id-ID')}`}
+                            {formatRupiahFull(item.amount)}
                           </span>
                         </div>
                       )) : (

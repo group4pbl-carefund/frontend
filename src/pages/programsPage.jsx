@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import CampaignCard from '../components/donationCard';
 import SearchBar from '../components/searchBar';
 import api from '../utils/api';
+import { formatRupiah, formatRupiahFull } from '../utils/format';
 const categories = ['Semua', 'Pendidikan', 'Kesehatan', 'Bencana Alam', 'Sosial', 'Lingkungan'];
 
 const ProgramsPage = () => {
@@ -109,14 +110,9 @@ const ProgramsPage = () => {
               {filteredCampaigns.map((campaign) => {
                 const collected = campaign.current_amount || campaign.collected || 0;
                 const target = campaign.program?.target_amount || campaign.target || 1;
-
-                const collectedAmountStr = collected >= 1000000000
-                  ? `Rp ${(collected / 1000000000).toFixed(1)} Miliar`
-                  : collected >= 1000000
-                    ? `Rp ${(collected / 1000000).toFixed(1)} Juta`
-                    : `Rp ${collected.toLocaleString('id-ID')}`;
-
-                const targetAmountStr = `Rp ${target.toLocaleString('id-ID')}`;
+                
+                const collectedAmountStr = formatRupiah(collected);
+                const targetAmountStr = formatRupiahFull(target);
                 const progressPercentage = Math.min(100, Math.round((collected / target) * 100));
 
                 return (
