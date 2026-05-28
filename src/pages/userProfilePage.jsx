@@ -107,7 +107,7 @@ const UserProfilePage = () => {
         formData.append('_method', 'PATCH');
 
         try {
-            const response = await api.post(`/users/${user.id}`, formData, {
+            const response = await api.post('/profile/avatar', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 }
