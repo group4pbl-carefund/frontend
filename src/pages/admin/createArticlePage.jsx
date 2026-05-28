@@ -19,6 +19,8 @@ const CreateArticlePage = () => {
     featured: false,
     metaDescription: ''
   });
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState('');
 
   const handleSave = async (isDraft = false) => {
     const editorContent = editorRef.current ? editorRef.current.getContent() : '';
@@ -50,15 +52,19 @@ const CreateArticlePage = () => {
     const apiStatus = isDraft ? 'draft' : (formData.status === 'PUBLISHED' ? 'published' : 'draft');
 
     setIsSubmitting(true);
-    // 1. Try backend API call
     try {
-      await api.post('/education-articles', {
-        title: formData.title.trim(),
-        content: editorContent,
-        category: formData.category,
-        author_id: authorId,
-        status: apiStatus,
-        published_at: apiStatus === 'published' ? new Date().toISOString().split('T')[0] : null
+      const payload = new FormData();
+      payload.append('title', formData.title.trim());
+      payload.append('content', editorContent);
+      payload.append('category', formData.category);
+      payload.append('author_id', authorId);
+      payload.append('status', apiStatus);
+      payload.append('published_at', apiStatus === 'published' ? new Date().toISOString().split('T')[0] : '');
+      if (thumbnailFile) {
+        payload.append('thumbnail', thumbnailFile);
+      }
+      await api.post('/education-articles', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
 
@@ -198,6 +204,17 @@ const CreateArticlePage = () => {
                     skin: 'oxide',
                     border: 'none',
                     statusbar: false,
+                    images_upload_handler: (blobInfo) => new Promise((resolve, reject) => {
+                      const formData = new FormData();
+                      formData.append('file', blobInfo.blob(), blobInfo.filename());
+                      api.post('/upload-editor-image', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                      }).then((res) => {
+                        resolve(res.data.location);
+                      }).catch((err) => {
+                        reject('Upload gagal: ' + (err.response?.data?.message || err.message));
+                      });
+                    }),
                   }}
                 />
               </div>
@@ -210,11 +227,27 @@ const CreateArticlePage = () => {
               {/* Featured Image */}
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Featured Image</label>
-                <div className="border-2 border-dashed border-gray-200 bg-slate-50 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors group">
-                  <svg className="w-8 h-8 text-[#147D73] mb-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                  <p className="font-bold text-slate-700 mb-1">Click to upload image</p>
-                  <p className="text-xs text-slate-400">PNG, JPG up to 10MB</p>
-                </div>
+                <label className="border-2 border-dashed border-gray-200 bg-slate-50 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors group">
+                  {thumbnailPreview ? (
+                    <div className="w-full flex flex-col items-center">
+                      <img src={thumbnailPreview} alt="Preview" className="max-h-48 rounded-xl object-contain shadow-md mb-4" />
+                      <span className="text-xs font-bold text-[#147D73] px-3 py-1 rounded-full hover:bg-teal-100 transition-colors">Ganti Gambar</span>
+                    </div>
+                  ) : (
+                    <>
+                      <svg className="w-8 h-8 text-[#147D73] mb-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                      <p className="font-bold text-slate-700 mb-1">Click to upload image</p>
+                      <p className="text-xs text-slate-400">PNG, JPG up to 10MB</p>
+                    </>
+                  )}
+                  <input type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setThumbnailFile(file);
+                      setThumbnailPreview(URL.createObjectURL(file));
+                    }
+                  }} />
+                </label>
               </div>
 
               {/* Status & Options */}

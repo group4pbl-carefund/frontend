@@ -28,6 +28,8 @@ const CreateCampaignPage = () => {
     accountOwner: editData?.account_owner || ''
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(editData?.image_url || '');
   const [rabItems, setRabItems] = useState(
     editData?.rab_items?.length > 0
       ? editData.rab_items.map((item, idx) => ({ 
@@ -145,11 +147,12 @@ const CreateCampaignPage = () => {
       }
     }
 
-    const payload = {
+    const hasFile = imageFile !== null;
+    const payload = hasFile ? new FormData() : {
       program_name: formData.title.trim(),
       category: formData.category,
       end_date: endDate.toISOString().split('T')[0],
-      start_date: startDate.toISOString().split('T')[0], // Hari ini sebagai start_date
+      start_date: startDate.toISOString().split('T')[0],
       target_amount: parseFloat(formData.target.replace(/\./g, '')),
       description: formData.description.trim(),
       recipient_name: formData.recipientName.trim(),
@@ -165,9 +168,33 @@ const CreateCampaignPage = () => {
       }))
     };
 
+    if (hasFile) {
+      payload.append('_method', editData?.program_id ? 'PATCH' : 'POST');
+      payload.append('program_name', formData.title.trim());
+      payload.append('category', formData.category);
+      payload.append('end_date', endDate.toISOString().split('T')[0]);
+      payload.append('start_date', startDate.toISOString().split('T')[0]);
+      payload.append('target_amount', parseFloat(formData.target.replace(/\./g, '')));
+      payload.append('description', formData.description.trim());
+      payload.append('recipient_name', formData.recipientName.trim());
+      payload.append('beneficiary_type', beneficiaryType);
+      payload.append('bank_name', formData.bankName);
+      payload.append('account_number', formData.accountNumber.trim());
+      payload.append('account_owner', formData.accountOwner.trim());
+      payload.append('status', 'pending');
+      payload.append('created_by', userId);
+      payload.append('image', imageFile);
+      rabItems.forEach((item, i) => {
+        payload.append(`rab_items[${i}][description]`, item.description);
+        payload.append(`rab_items[${i}][amount]`, parseFloat(item.amount.toString().replace(/\./g, '')) || 0);
+      });
+    }
+
+    const config = hasFile ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+
     try {
       if (editData?.program_id) {
-        await api.patch(`/programs/${editData.program_id}`, payload);
+        await (hasFile ? api.post(`/programs/${editData.program_id}`, payload, config) : api.patch(`/programs/${editData.program_id}`, payload));
         await Swal.fire({
           title: 'Perubahan Tersimpan!',
           text: 'Revisi kampanye berhasil disimpan dan masuk ke dalam antrean persetujuan admin!',
@@ -176,7 +203,7 @@ const CreateCampaignPage = () => {
           confirmButtonColor: '#147D73'
         });
       } else {
-        await api.post('/programs', payload);
+        await api.post('/programs', payload, config);
         await Swal.fire({
           title: 'Pengajuan Berhasil!',
           text: 'Kampanye berhasil diajukan dan masuk ke dalam antrean persetujuan tim admin!',
@@ -393,14 +420,29 @@ const CreateCampaignPage = () => {
                   <h3 className="font-bold text-slate-900">Visual Kampanye</h3>
                   <p className="text-sm text-slate-500">Gambar yang kuat dapat menyampaikan pesan lebih baik dari ribuan kata.</p>
                 </div>
-                <div className="border-2 border-dashed border-gray-200 bg-slate-50 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors group">
-                  <div className="w-14 h-14 bg-[#E8F3F1] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <svg className="w-6 h-6 text-[#147D73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  </div>
-                  <p className="font-bold text-slate-900 mb-1">Unggah Foto Utama</p>
-                  <p className="text-xs text-slate-500 max-w-xs mx-auto mb-4">Seret dan lepas file Anda di sini, atau klik untuk memilih file. Rekomendasi rasio 16:9, format JPG/PNG, maksimal 5MB.</p>
-                  <button type="button" className="bg-gray-200 text-slate-700 font-bold py-2 px-6 rounded-lg text-sm hover:bg-gray-300">Pilih File (Bypass Demo)</button>
-                </div>
+                <label className="border-2 border-dashed border-gray-200 bg-slate-50 rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors group">
+                  {imagePreview ? (
+                    <div className="w-full flex flex-col items-center">
+                      <img src={imagePreview} alt="Preview" className="max-h-48 rounded-xl object-contain shadow-md mb-4" />
+                      <span className="text-xs font-bold text-[#147D73] px-3 py-1 rounded-full hover:bg-teal-100 transition-colors">Ganti Foto</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-14 h-14 bg-[#E8F3F1] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg className="w-6 h-6 text-[#147D73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      </div>
+                      <p className="font-bold text-slate-900 mb-1">Unggah Foto Utama</p>
+                      <p className="text-xs text-slate-500 max-w-xs mx-auto mb-4">Seret dan lepas file Anda di sini, atau klik untuk memilih file. Rekomendasi rasio 16:9, format JPG/PNG, maksimal 5MB.</p>
+                    </>
+                  )}
+                  <input type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setImageFile(file);
+                      setImagePreview(URL.createObjectURL(file));
+                    }
+                  }} />
+                </label>
               </div>
 
               <div>

@@ -128,12 +128,16 @@ const RegisterPage = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // 2. Hit API UserIdentity (KYC)
-      await api.post('/user-identities', {
-        user_id: user.id,
-        identity_type: 'KTP',
-        identity_number: nik,
-        identity_image: `uploads/ktp_${user.id}.jpg` // Simulated image storage path
+      // 2. Hit API UserIdentity (KYC) with file upload
+      const identityFormData = new FormData();
+      identityFormData.append('user_id', user.id);
+      identityFormData.append('identity_type', 'KTP');
+      identityFormData.append('identity_number', nik);
+      if (idImage) {
+        identityFormData.append('identity_image', idImage);
+      }
+      await api.post('/user-identities', identityFormData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       await Swal.fire({
