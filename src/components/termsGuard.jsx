@@ -74,7 +74,7 @@ const TermsGuard = () => {
     return <Outlet />;
   }
 
-  const userAcceptedVersion = user ? user.acceptedTermsVersion : null;
+  const userAcceptedVersion = user ? (user.accepted_terms_version || user.acceptedTermsVersion) : null;
 
   // If the user hasn't accepted the active version, block them and redirect
   if (activeVersion && String(userAcceptedVersion) !== String(activeVersion)) {

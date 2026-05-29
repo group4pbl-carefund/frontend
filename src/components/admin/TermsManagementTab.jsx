@@ -651,7 +651,7 @@ const TermsManagementTab = () => {
                   {activeVersion ? activeVersion.title : 'Belum Ada Syarat & Ketentuan Aktif'}
                 </h3>
                 <p className="text-xs text-slate-400 font-medium max-w-lg mb-6 line-clamp-2">
-                  Diterbitkan oleh {activeVersion?.author} pada {formatDate(activeVersion.publishedAt, 'withTime')} WIB.
+                  Diterbitkan oleh {activeVersion?.author || '-'} pada {formatDate(activeVersion?.publishedAt, 'withTime')} WIB.
                 </p>
 
                 {activeVersion && (

@@ -18,8 +18,8 @@ const CreateCampaignPage = () => {
     category: editData?.category || 'Kesehatan',
     durationDays: '',
     deadlineDate: editData?.end_date || '',
-    target: editData?.target_amount 
-      ? Math.floor(Number(editData.target_amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") 
+    target: editData?.target_amount
+      ? Math.floor(Number(editData.target_amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
       : '',
     description: editData?.description || '',
     recipientName: editData?.recipient_name || '',
@@ -32,11 +32,11 @@ const CreateCampaignPage = () => {
   const [imagePreview, setImagePreview] = useState(editData?.image_url || '');
   const [rabItems, setRabItems] = useState(
     editData?.rab_items?.length > 0
-      ? editData.rab_items.map((item, idx) => ({ 
-          id: idx + 1, 
-          description: item.description, 
-          amount: Math.floor(Number(item.amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") 
-        }))
+      ? editData.rab_items.map((item, idx) => ({
+        id: idx + 1,
+        description: item.description,
+        amount: Math.floor(Number(item.amount)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+      }))
       : [{ id: 1, description: '', amount: '' }]
   );
 
@@ -229,9 +229,9 @@ const CreateCampaignPage = () => {
     <div className="bg-white px-8 py-4 flex justify-between items-center border-b border-gray-100 sticky top-0 z-50">
       <div className="flex items-center gap-2">
         <img src="/pavicon.png" alt="Care Fund Logo" className="h-8 w-8 object-contain" />
-          <span className="text-lg font-extrabold tracking-tight text-[#147D73]">
-            Care Fund
-          </span>
+        <span className="text-lg font-extrabold tracking-tight text-[#147D73]">
+          Care Fund
+        </span>
       </div>
       <button
         onClick={() => navigate('/')}
@@ -262,10 +262,10 @@ const CreateCampaignPage = () => {
           {steps.map((step, idx) => (
             <div key={idx} className="flex flex-col items-center bg-[#F8FAFA] px-2">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mb-2 transition-colors ${currentStep > step.num
-                  ? 'bg-[#147D73] text-white'
-                  : currentStep === step.num
-                    ? 'bg-[#147D73] text-white ring-4 ring-[#147D73]/20'
-                    : 'bg-gray-200 text-slate-400'
+                ? 'bg-[#147D73] text-white'
+                : currentStep === step.num
+                  ? 'bg-[#147D73] text-white ring-4 ring-[#147D73]/20'
+                  : 'bg-gray-200 text-slate-400'
                 }`}>
                 {currentStep > step.num ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
@@ -336,27 +336,28 @@ const CreateCampaignPage = () => {
                     <option value="Pendidikan">Pendidikan</option>
                     <option value="Bencana Alam">Bencana Alam</option>
                     <option value="Sosial">Sosial & Kemanusiaan</option>
+                    <option value="Lingkungan">Lingkungan</option>
                   </select>
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-2 min-h-[28px]">
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Durasi Kampanye</label>
                     <div className="flex bg-slate-200 rounded-lg p-0.5">
-                      <button 
+                      <button
                         type="button"
-                        onClick={() => setDurationMode('days')} 
+                        onClick={() => setDurationMode('days')}
                         className={`text-[10px] font-bold px-2 py-1 rounded-md transition-all ${durationMode === 'days' ? 'bg-white text-[#147D73] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                         Durasi Hari
                       </button>
-                      <button 
+                      <button
                         type="button"
-                        onClick={() => setDurationMode('date')} 
+                        onClick={() => setDurationMode('date')}
                         className={`text-[10px] font-bold px-2 py-1 rounded-md transition-all ${durationMode === 'date' ? 'bg-white text-[#147D73] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                         Pilih Tanggal
                       </button>
                     </div>
                   </div>
-                  
+
                   {durationMode === 'days' ? (
                     <div>
                       <input
@@ -541,22 +542,23 @@ const CreateCampaignPage = () => {
                   {[
                     { id: 'diri_sendiri', title: 'Diri Sendiri', desc: 'Kampanye untuk kebutuhan pribadi.' },
                     { id: 'keluarga', title: 'Keluarga', desc: 'Kampanye untuk anggota keluarga.' },
-                    { id: 'orang_lain', title: 'Orang Lain', desc: 'Membantu teman atau kerabat.' },
+                    { id: 'orang_lain', title: 'Orang Lain', desc: 'Membantu satu teman atau kerabat.' },
+                    { id: 'banyak_orang', title: 'Banyak Orang', desc: 'Bantuan untuk komunitas atau kelompok.' },
                     { id: 'yayasan', title: 'Yayasan/Lembaga', desc: 'Donasi untuk organisasi resmi.' },
                   ].map((option) => (
                     <div
                       key={option.id}
                       onClick={() => setBeneficiaryType(option.id)}
                       className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 ${beneficiaryType === option.id
-                          ? 'bg-[#E8F3F1] border-[#147D73] shadow-sm'
-                          : 'bg-slate-50 border-gray-200 hover:bg-slate-100'
+                        ? 'bg-[#E8F3F1] border-[#147D73] shadow-sm'
+                        : 'bg-slate-50 border-gray-200 hover:bg-slate-100'
                         }`}
                     >
                       <div className="flex items-start gap-3">
                         {/* Custom Radio Button Circle */}
                         <div className={`w-5 h-5 mt-0.5 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${beneficiaryType === option.id
-                            ? 'border-2 border-[#147D73]'
-                            : 'border-2 border-gray-300 bg-white'
+                          ? 'border-2 border-[#147D73]'
+                          : 'border-2 border-gray-300 bg-white'
                           }`}>
                           {beneficiaryType === option.id && (
                             <div className="w-2.5 h-2.5 bg-[#147D73] rounded-full"></div>

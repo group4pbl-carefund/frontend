@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '../utils/api';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Modal States
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -142,14 +145,24 @@ const LoginPage = () => {
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest">Password</label>
                 <button type="button" onClick={() => setShowForgotModal(true)} className="text-[10px] font-bold text-[#147D73] hover:underline uppercase">Forgot Password?</button>
               </div>
-              <input
-                type="password"
-                className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="w-full bg-gray-50 border border-gray-100 p-4 pr-12 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-[#147D73] transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
             <button 
               disabled={loading}
@@ -225,25 +238,45 @@ const LoginPage = () => {
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">New Password</label>
-                <input
-                  type="password"
-                  className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all"
-                  placeholder="••••••••"
-                  value={resetData.password}
-                  onChange={(e) => setResetData({...resetData, password: e.target.value})}
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showResetPassword ? 'text' : 'password'}
+                    className="w-full bg-gray-50 border border-gray-100 p-4 pr-12 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all"
+                    placeholder="••••••••"
+                    value={resetData.password}
+                    onChange={(e) => setResetData({...resetData, password: e.target.value})}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowResetPassword(prev => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-[#147D73] transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showResetPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Confirm Password</label>
-                <input
-                  type="password"
-                  className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all"
-                  placeholder="••••••••"
-                  value={resetData.password_confirmation}
-                  onChange={(e) => setResetData({...resetData, password_confirmation: e.target.value})}
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showResetConfirm ? 'text' : 'password'}
+                    className="w-full bg-gray-50 border border-gray-100 p-4 pr-12 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all"
+                    placeholder="••••••••"
+                    value={resetData.password_confirmation}
+                    onChange={(e) => setResetData({...resetData, password_confirmation: e.target.value})}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowResetConfirm(prev => !prev)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-[#147D73] transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showResetConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
               <button 
                 type="submit"

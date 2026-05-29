@@ -179,7 +179,10 @@ const DonationDetailPage = () => {
                                             <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Penerima Manfaat</p>
                                             <p className="font-bold text-slate-900 text-sm mt-1">
                                                 {displayCampaign.program?.beneficiary_type === 'diri_sendiri' ? 'Diri Sendiri' : 
-                                                 displayCampaign.program?.beneficiary_type === 'keluarga' ? 'Keluarga' : 'Banyak Orang'}
+                                                 displayCampaign.program?.beneficiary_type === 'keluarga' ? 'Keluarga' : 
+                                                 displayCampaign.program?.beneficiary_type === 'orang_lain' ? 'Orang Lain' :
+                                                 displayCampaign.program?.beneficiary_type === 'banyak_orang' ? 'Banyak Orang' :
+                                                 displayCampaign.program?.beneficiary_type === 'yayasan' ? 'Yayasan/Lembaga' : 'Banyak Orang'}
                                             </p>
                                         </div>
                                         <div className="bg-[#EAF3F2] p-4 rounded-2xl">

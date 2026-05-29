@@ -78,7 +78,7 @@ const TermsAcceptancePage = () => {
         }
 
         // 2. Update local state
-        user.acceptedTermsVersion = activeTc.version;
+        user.accepted_terms_version = activeTc.version;
         localStorage.setItem('user', JSON.stringify(user));
 
         const storedAcceptances = localStorage.getItem('carefund_tc_acceptances') || '[]';

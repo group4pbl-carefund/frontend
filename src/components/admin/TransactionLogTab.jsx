@@ -30,7 +30,8 @@ const TransactionLogTab = () => {
     const fetchTransactions = async () => {
       try {
         const response = await api.get('/payment-logs');
-        const data = response.data?.data || response.data;
+        const rawData = response.data?.data || response.data;
+        const data = Array.isArray(rawData) ? rawData : (rawData?.data || []);
         if (Array.isArray(data) && data.length > 0) {
           const mappedTrx = data.map(item => {
             const dateObj = new Date(item.created_at || Date.now());
@@ -51,9 +52,10 @@ const TransactionLogTab = () => {
               time: dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
               user: user.full_name || 'Anonim',
               avatar: getInitials(user.full_name || 'Anonim'),
-              program: program.title || 'General Fund',
+              program: program.program_name || program.title || 'General Fund',
               amount: formatRupiah(donation.total_amount || donation.amount || 0),
-              rawAmount: donation.total_amount || donation.amount || 0,
+              rawAmount: parseFloat(donation.total_amount || donation.amount || 0),
+              feeAmount: parseFloat(donation.fee_amount || 0),
               method: donation.payment_method || item.payment_type || 'Unknown',
               status: (donation.payment_status || 'SUCCESS').toUpperCase()
             };
@@ -76,23 +78,39 @@ const TransactionLogTab = () => {
   const totalTrx = logsList.length;
   
   const totalVolumeAmount = logsList
-    .filter(t => t.status === 'SUCCESS')
+    .filter(t => t.status === 'COMPLETED' || t.status === 'SUCCESS')
     .reduce((sum, t) => sum + (t.rawAmount || 0), 0);
     
+  const totalFeeRevenue = logsList
+    .filter(t => t.status === 'COMPLETED' || t.status === 'SUCCESS')
+    .reduce((sum, t) => sum + (t.feeAmount || 0), 0);
+
   const formatVol = (val) => {
+    if (isNaN(val)) return 'Rp 0';
     if (val >= 1e9) return `Rp ${(val / 1e9).toFixed(2)}B`;
     if (val >= 1e6) return `Rp ${(val / 1e6).toFixed(1)}M`;
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
   };
 
+  const formatFullRupiah = (val) => {
+    if (isNaN(val)) return 'Rp 0';
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+  };
+
   const pendingCount = logsList.filter(t => t.status === 'PENDING').length;
-  const successCount = logsList.filter(t => t.status === 'SUCCESS').length;
+  const successCount = logsList.filter(t => t.status === 'COMPLETED' || t.status === 'SUCCESS').length;
   const successRate = totalTrx > 0 ? ((successCount / totalTrx) * 100).toFixed(1) : '100';
 
+  const maintCost = 12500000;
+  const bepPercentage = maintCost > 0 ? Math.min(((totalFeeRevenue / maintCost) * 100), 100).toFixed(1) : 100;
+  const isBepReached = totalFeeRevenue >= maintCost;
+  const shortfall = Math.max(maintCost - totalFeeRevenue, 0);
+  const avgFee = successCount > 0 ? (totalFeeRevenue / successCount) : 0;
+
   const stats = [
-    { label: 'TOTAL TRANSAKSI', value: totalTrx.toLocaleString('id-ID'), change: '+12%', icon: TrendingUp, positive: true },
-    { label: 'TOTAL VOLUME', value: formatVol(totalVolumeAmount), change: '+8.4%', icon: TrendingUp, positive: true },
-    { label: 'PENDING VERIFICATIONS', value: pendingCount.toString(), action: 'ACTION REQ', icon: AlertCircle, positive: false },
+    { label: 'TOTAL TRANSAKSI', value: totalTrx.toLocaleString('id-ID'), change: '', icon: TrendingUp, positive: true },
+    { label: 'TOTAL VOLUME', value: formatVol(totalVolumeAmount), change: '', icon: TrendingUp, positive: true },
+    { label: 'PENDING VERIFICATIONS', value: pendingCount.toString(), action: pendingCount > 0 ? 'ACTION REQ' : '', icon: AlertCircle, positive: false },
     { label: 'SUCCESS RATE', value: `${successRate}%`, progress: parseFloat(successRate), icon: CheckCircle2, positive: true },
   ];
 
@@ -160,26 +178,28 @@ const TransactionLogTab = () => {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Maint. Cost</p>
-              <p className="text-sm font-bold text-rose-600 tracking-tight">Rp 12.500.000</p>
+              <p className="text-sm font-bold text-rose-600 tracking-tight">{formatFullRupiah(maintCost)}</p>
             </div>
             <div className="text-right">
               <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Fee Revenue</p>
-              <p className="text-sm font-bold text-teal-600 tracking-tight">Rp 10.850.000</p>
+              <p className="text-sm font-bold text-teal-600 tracking-tight">{formatFullRupiah(totalFeeRevenue)}</p>
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <p className="text-xs font-bold text-gray-700">Break Even Point (BEP)</p>
-              <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">BELUM TERCAPAI</span>
-              <span className="text-xs font-bold text-gray-800">86.8%</span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isBepReached ? 'text-emerald-600 bg-emerald-50' : 'text-orange-600 bg-orange-50'}`}>
+                {isBepReached ? 'TERCAPAI' : 'BELUM TERCAPAI'}
+              </span>
+              <span className="text-xs font-bold text-gray-800">{bepPercentage}%</span>
             </div>
             <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-teal-500" style={{ width: '86.8%' }}></div>
+              <div className={`h-full ${isBepReached ? 'bg-emerald-500' : 'bg-teal-500'} transition-all duration-1000`} style={{ width: `${bepPercentage}%` }}></div>
             </div>
           </div>
           <div className="mt-4 p-3 bg-teal-50/50 rounded-xl">
             <p className="text-[10px] text-teal-900 leading-relaxed font-medium">
-              <span className="font-bold">Analysis:</span> Platform needs Rp 1.650.000 more in service fees to cover operational costs this month.
+              <span className="font-bold">Analysis:</span> {isBepReached ? 'Platform has successfully covered operational costs this month!' : `Platform needs ${formatFullRupiah(shortfall)} more in service fees to cover operational costs this month.`}
             </p>
           </div>
         </div>
@@ -187,7 +207,7 @@ const TransactionLogTab = () => {
         <div className="lg:col-span-8 bg-[#f5faf9] p-6 rounded-3xl border border-teal-50 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
             <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Avg Fee per Trx</p>
-            <p className="text-lg font-bold text-gray-800 tracking-tight">Rp 8.750</p>
+            <p className="text-lg font-bold text-gray-800 tracking-tight">{formatFullRupiah(avgFee)}</p>
           </div>
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-50/50">
             <p className="text-[9px] font-bold text-gray-400 uppercase mb-1">Servers Health</p>
@@ -225,7 +245,7 @@ const TransactionLogTab = () => {
           className="bg-gray-50 px-4 py-2 border-none rounded-xl text-xs font-bold text-gray-600 focus:ring-2 focus:ring-teal-500/20 outline-none cursor-pointer"
         >
           <option value="All">Semua Status</option>
-          <option value="Success">SUCCESS</option>
+          <option value="Completed">COMPLETED</option>
           <option value="Pending">PENDING</option>
           <option value="Failed">FAILED</option>
         </select>
@@ -283,7 +303,7 @@ const TransactionLogTab = () => {
                       </div>
                     </td>
                     <td className="px-8 py-6">
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full tracking-tighter ${trx.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full tracking-tighter ${trx.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
                           trx.status === 'PENDING' ? 'bg-orange-50 text-orange-600 border border-orange-100' :
                             'bg-rose-50 text-rose-600 border border-rose-100'
                         }`}>

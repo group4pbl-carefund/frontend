@@ -6,7 +6,7 @@ import SecurityTab from '../../components/admin/SecurityTab';
 import TransactionLogTab from '../../components/admin/TransactionLogTab';
 import UserManagementTab from '../../components/admin/UserManagementTab';
 import TermsManagementTab from '../../components/admin/TermsManagementTab';
-import ApprovalTab from '../../components/admin/ApprovalTab';
+import ManageCampaignTab from '../../components/admin/ManageCampaignTab';
 
 const AdminDashboardPage = () => {
   const location = useLocation();
@@ -20,7 +20,7 @@ const AdminDashboardPage = () => {
     { id: 'transactions', label: 'Log Transaksi', path: '/admin/transactions' },
     { id: 'users', label: 'Manage User', path: '/admin/users' },
     { id: 'terms', label: 'Syarat & Ketentuan', path: '/admin/terms' },
-    { id: 'campaigns', label: 'Approval Kampanye', path: '/admin/campaigns' },
+    { id: 'campaigns', label: 'Manage Campaign', path: '/admin/campaigns' },
   ];
 
   return (
@@ -42,7 +42,7 @@ const AdminDashboardPage = () => {
                   {activeTab === 'security' ? 'Security' :
                     activeTab === 'transactions' ? 'Log Transaksi' :
                       activeTab === 'users' ? 'Manajemen User' :
-                        activeTab === 'campaigns' ? 'Approval Kampanye' :
+                        activeTab === 'campaigns' ? 'Manage Campaign' :
                           'Syarat & Ketentuan'}
                 </h1>
                 <p className="text-gray-500 max-w-2xl font-medium">
@@ -81,7 +81,7 @@ const AdminDashboardPage = () => {
               <Route path="transactions" element={<TransactionLogTab />} />
               <Route path="users" element={<UserManagementTab />} />
               <Route path="terms" element={<TermsManagementTab />} />
-              <Route path="campaigns" element={<ApprovalTab />} />
+              <Route path="campaigns" element={<ManageCampaignTab />} />
             </Routes>
           </div>
 

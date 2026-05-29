@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import StatCard from "../components/statCard";
 import DonationHistoryItem from "../components/donationHistoryItem";
+import DonationDetailModal from "../components/donationDetailModal";
 import api from "../utils/api";
 import { formatRupiahFull, formatDate } from "../utils/format";
 
@@ -17,6 +18,7 @@ const UserProfilePage = () => {
     const navigate = useNavigate();
     // State untuk mengatur tab yang aktif
     const [activeTab, setActiveTab] = useState('riwayat');
+    const [selectedDonation, setSelectedDonation] = useState(null);
 
     const [user, setUser] = useState(() => {
         try {
@@ -291,14 +293,8 @@ const UserProfilePage = () => {
                                             return (
                                                 <DonationHistoryItem
                                                     key={d.id || index}
-                                                    image={d.program?.image_url || ''}
-                                                    category={d.program?.category || ''}
-                                                    categoryColor={isSuccess ? "text-emerald-600" : "text-amber-600"}
-                                                    bgColor={isSuccess ? "bg-emerald-50" : "bg-amber-50"}
-                                                    date={formatDate(d.created_at, 'short')}
-                                                    title={d.program?.title || d.program?.program_name || ''}
-                                                    amount={formatRupiahFull(d.amount)}
-                                                    showBukti={isSuccess}
+                                                    donation={d}
+                                                    onDetailClick={() => setSelectedDonation(d)}
                                                 />
                                             );
                                         })
@@ -481,6 +477,12 @@ const UserProfilePage = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Modal Detail Transaksi */}
+            <DonationDetailModal 
+                donation={selectedDonation} 
+                onClose={() => setSelectedDonation(null)} 
+            />
         </MainLayout>
     );
 };

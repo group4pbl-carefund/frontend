@@ -19,10 +19,10 @@ const LandingPage = () => {
         
         const filtered = allCampaigns
           .filter(c => {
-            const status = (c.program?.status || c.status || '').toUpperCase();
-            return status === 'ACTIVE' || status === 'COMPLETED';
+            const status = (c.program?.status || c.status || '').toLowerCase();
+            return status === 'active' || status === 'completed' || status === 'approved';
           })
-          .slice(0, 3);
+          .slice(0, 6);
           
         setActiveCampaigns(filtered);
         setLoading(false);
