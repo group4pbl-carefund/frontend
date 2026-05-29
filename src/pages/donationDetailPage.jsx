@@ -14,9 +14,13 @@ const DonationDetailPage = () => {
     const [donors, setDonors] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const quickAmounts = [50000, 100000, 250000, 500000, 1000000];
+    const MIN_DONATION = 10000;
+
     const [activeTab, setActiveTab] = useState('deskripsi');
-    const [selectedAmount, setSelectedAmount] = useState('100000');
-    const [selectedMethod, setSelectedMethod] = useState('Transfer Bank');
+    const [selectedAmount, setSelectedAmount] = useState('');
+    const [amountError, setAmountError] = useState('');
+    const [selectedMethod, setSelectedMethod] = useState('Transfer QRIS');
     const [comment, setComment] = useState('');
     const [anonymous, setAnonymous] = useState(false);
 
@@ -74,9 +78,13 @@ const DonationDetailPage = () => {
     const targetAmount = Number(displayTarget) || 1;
     const percentage = Math.min(Math.round((currentAmount / targetAmount) * 100), 100);
     
-    const quickAmounts = [50000, 100000, 250000, 500000, 1000000];
-
     const handleCheckout = () => {
+        const amount = Number(selectedAmount);
+        if (!amount || amount < MIN_DONATION) {
+            setAmountError(`Minimal donasi Rp ${MIN_DONATION.toLocaleString('id-ID')}`);
+            return;
+        }
+        setAmountError('');
         navigate(`/donasi/${id}/checkout`, {
             state: {
                 amount: selectedAmount,
@@ -261,27 +269,22 @@ const DonationDetailPage = () => {
                                     <input 
                                         type="number"
                                         value={selectedAmount}
-                                        onChange={(e) => setSelectedAmount(e.target.value)}
+                                        onChange={(e) => { setSelectedAmount(e.target.value); setAmountError(''); }}
                                         className="w-full bg-[#F4F7F6] text-slate-900 font-black py-4 pl-12 pr-4 rounded-xl outline-none focus:ring-2 focus:ring-[#147D73]/20 transition-all text-lg"
+                                        placeholder="10000"
                                     />
                                 </div>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {quickAmounts.slice(0, 3).map(amt => (
-                                        <button 
-                                            key={amt}
-                                            onClick={() => setSelectedAmount(amt.toString())}
-                                            className="py-2.5 bg-white border border-slate-200 hover:border-[#147D73] rounded-xl text-[11px] font-bold text-slate-700 transition-colors"
+                                {amountError && (
+                                    <p className="text-red-500 text-xs font-bold">{amountError}</p>
+                                )}
+                                <div className="flex flex-wrap gap-2">
+                                    {quickAmounts.map((amount) => (
+                                        <button
+                                            key={amount}
+                                            onClick={() => { setSelectedAmount(amount.toString()); setAmountError(''); }}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${Number(selectedAmount) === amount ? 'bg-[#147D73] text-white border-[#147D73]' : 'bg-white text-slate-600 border-slate-200 hover:border-[#147D73]'}`}
                                         >
-                                            {amt.toLocaleString('id-ID')}
-                                        </button>
-                                    ))}
-                                    {quickAmounts.slice(3, 5).map(amt => (
-                                        <button 
-                                            key={amt}
-                                            onClick={() => setSelectedAmount(amt.toString())}
-                                            className="py-2.5 bg-white border border-slate-200 hover:border-[#147D73] rounded-xl text-[11px] font-bold text-slate-700 transition-colors"
-                                        >
-                                            {amt.toLocaleString('id-ID')}
+                                            Rp{amount.toLocaleString('id-ID')}
                                         </button>
                                     ))}
                                 </div>

@@ -123,7 +123,7 @@ const ArtikelDetail = () => {
           {/* --- GAMBAR HERO --- */}
           <div className="mb-12">
             <img 
-              src={article.thumbnail_url || 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=1200&q=80'} 
+              src={article.thumbnail_url || ''} 
               alt="Ilustrasi Artikel" 
               className="w-full aspect-21/9 object-cover rounded-xl shadow-sm"
             />

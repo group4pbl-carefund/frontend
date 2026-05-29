@@ -2,51 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import ArticleCard from '../components/articleCard';
-import CategoryCard from '../components/categoryCard';
+
 import SearchBar from '../components/searchBar';
 import api from '../utils/api';
-const categoryCards = [
-  {
-    id: 1,
-    title: 'Keamanan Donasi',
-    description: 'Cara melindungi data dan memastikan dana Anda sampai ke tujuan.',
-    icon: (
-      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
-    iconBg: 'bg-blue-50',
-    linkColor: 'text-blue-600',
-    linkText: 'Eksplorasi Modul',
-  },
-  {
-    id: 2,
-    title: 'Regulasi KYC',
-    description: 'Memahami standar identifikasi untuk transparansi dana bantuan.',
-    icon: (
-      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-    iconBg: 'bg-purple-50',
-    linkColor: 'text-purple-600',
-    linkText: 'Pelajari Aturan',
-  },
-  {
-    id: 3,
-    title: 'Payment Gateway',
-    description: 'Metode pembayaran yang didukung dan biaya pemrosesan.',
-    icon: (
-      <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-      </svg>
-    ),
-    iconBg: 'bg-emerald-50',
-    linkColor: 'text-emerald-600',
-    linkText: 'Lihat Panduan',
-  },
-];
-
 const EdukasiPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -107,19 +65,7 @@ const EdukasiPage = () => {
             <SearchBar onSearch={(val) => setSearchQuery(val)} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            {categoryCards.map((card) => (
-              <CategoryCard
-                key={card.id}
-                title={card.title}
-                description={card.description}
-                icon={card.icon}
-                iconBg={card.iconBg}
-                linkColor={card.linkColor}
-                linkText={card.linkText}
-              />
-            ))}
-          </div>
+
 
           <div>
             <div className="mb-8">
@@ -138,7 +84,7 @@ const EdukasiPage = () => {
                     key={article.article_id || article.id}
                     id={article.article_id || article.id}
                     category={article.category || 'Umum'}
-                    image={article.thumbnail_url || 'https://images.unsplash.com/photo-1563986768494-4dee2763ff0f?auto=format&fit=crop&w=600&q=80'}
+                    image={article.thumbnail_url || ''}
                     readTime={article.read_time ? `${article.read_time} menit baca` : "5 menit baca"}
                     title={article.title}
                   />

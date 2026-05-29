@@ -3,16 +3,20 @@ import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'));
-  const [userRole, setUserRole] = useState(() => {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user).role : null;
+  const [user] = useState(() => {
+    try {
+      const saved = localStorage.getItem('user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
+  const userRole = user?.role;
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsLoggedIn(false);
-    setUserRole(null);
     window.location.href = '/login';
   };
 
@@ -76,12 +80,16 @@ const Navbar = () => {
               to="/user-profile"
               className="group relative flex items-center justify-center"
             >
-              <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-[#147D73] transition-transform group-hover:scale-110 shadow-md">
-                <img
-                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
-                  alt="Profile"
-                  className="h-full w-full object-cover"
-                />
+              <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-[#147D73] transition-transform group-hover:scale-110 shadow-md flex items-center justify-center bg-[#147D73] text-white font-bold text-sm">
+                {user?.avatar_url ? (
+                  <img
+                    src={`${user.avatar_url.startsWith('http') ? '' : '/storage/'}${user.avatar_url}`}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span>{(user?.full_name || '?')[0]}</span>
+                )}
               </div>
             </Link>
             <button

@@ -18,10 +18,13 @@ const UserProfilePage = () => {
     // State untuk mengatur tab yang aktif
     const [activeTab, setActiveTab] = useState('riwayat');
 
-    // Ambil data user aktif dari localStorage
     const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem('user');
-        return savedUser ? JSON.parse(savedUser) : null;
+        try {
+            const savedUser = localStorage.getItem('user');
+            return savedUser ? JSON.parse(savedUser) : null;
+        } catch {
+            return null;
+        }
     });
 
     const [isUploading, setIsUploading] = useState(false);
@@ -168,7 +171,7 @@ const UserProfilePage = () => {
                                                 <span className="block w-6 h-6 border-4 border-[#147D73] border-t-transparent rounded-full animate-spin"></span>
                                             </div>
                                         )}
-                                        <img src={user?.avatar_url ? `${api.defaults.baseURL.replace('/api', '')}${user.avatar_url}` : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.full_name || 'Felix'}`} alt="Profile" className="h-full w-full object-cover group-hover:opacity-50 transition-opacity" />
+                                        <img src={user?.avatar_url ? `${api.defaults.baseURL.replace('/api', '')}${user.avatar_url}` : ''} alt="Profile" className="h-full w-full object-cover group-hover:opacity-50 transition-opacity" />
                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
                                             <Camera className="text-white w-6 h-6" />
                                         </div>
@@ -184,14 +187,14 @@ const UserProfilePage = () => {
                                         </div>
                                     )}
                                 </div>
-                                <h2 className="text-xl font-bold text-slate-900">{user?.full_name || 'Ahmad Santoso'}</h2>
+                                <h2 className="text-xl font-bold text-slate-900">{user?.full_name || ''}</h2>
                                 <p className={`text-sm font-medium mb-4 ${user?.is_verified ? 'text-[#147D73]' : 'text-amber-500'}`}>
                                     {user?.is_verified ? 'Donatur Terverifikasi' : 'Menunggu Verifikasi KYC'}
                                 </p>
                                 <div className="space-y-3 pt-4 border-t border-slate-50">
-                                    <div className="flex items-center gap-3 text-slate-600 text-sm"><Mail size={16} /> <span className="truncate">{user?.email || 'ahmad.santoso@gmail.com'}</span></div>
-                                    <div className="flex items-center gap-3 text-slate-600 text-sm"><Phone size={16} /> <span>{user?.phone || '0812-3456-7890'}</span></div>
-                                    <div className="flex items-center gap-3 text-slate-600 text-sm"><MapPin size={16} /> <span className="truncate">{user?.city ? `${user.city}, ${user.country || 'Indonesia'}` : 'Jakarta Selatan, Indonesia'}</span></div>
+                                    <div className="flex items-center gap-3 text-slate-600 text-sm"><Mail size={16} /> <span className="truncate">{user?.email || ''}</span></div>
+                                    <div className="flex items-center gap-3 text-slate-600 text-sm"><Phone size={16} /> <span>{user?.phone || ''}</span></div>
+                                    <div className="flex items-center gap-3 text-slate-600 text-sm"><MapPin size={16} /> <span className="truncate">{user?.city ? `${user.city}, ${user.country || 'Indonesia'}` : ''}</span></div>
                                 </div>
                             </div>
                         </div>
@@ -270,12 +273,12 @@ const UserProfilePage = () => {
                                             return (
                                                 <DonationHistoryItem
                                                     key={d.id || index}
-                                                    image={d.program?.image_url || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=200&q=80"}
-                                                    category={d.program?.category || "Program"}
+                                                    image={d.program?.image_url || ''}
+                                                    category={d.program?.category || ''}
                                                     categoryColor={isSuccess ? "text-emerald-600" : "text-amber-600"}
                                                     bgColor={isSuccess ? "bg-emerald-50" : "bg-amber-50"}
                                                     date={formatDate(d.created_at, 'short')}
-                                                    title={d.program?.title || d.program?.program_name || "Donasi Kemanusiaan"}
+                                                    title={d.program?.title || d.program?.program_name || ''}
                                                     amount={formatRupiahFull(d.amount)}
                                                     showBukti={isSuccess}
                                                 />
@@ -313,8 +316,8 @@ const UserProfilePage = () => {
                                                     {/* Gambar Sertifikat */}
                                                     <div className="aspect-[1.5/1] rounded-2xl overflow-hidden mb-6 bg-slate-100">
                                                         <img
-                                                            src={cert.program?.image_url || "https://images.unsplash.com/photo-1589330694653-ded6df03f754?q=80&w=400"}
-                                                            alt={cert.program?.title || "Sertifikat Donasi"}
+                                                            src={cert.program?.image_url || ''}
+                                                            alt={cert.program?.title || ''}
                                                             className="w-full h-full object-cover"
                                                         />
                                                     </div>
@@ -322,7 +325,7 @@ const UserProfilePage = () => {
                                                     {/* Info */}
                                                     <div className="mb-8">
                                                         <h3 className="font-bold text-slate-800 text-lg leading-snug mb-2 line-clamp-2">
-                                                            {cert.program?.title || cert.program?.program_name || "Bantuan Kemanusiaan"}
+                                                            {cert.program?.title || cert.program?.program_name || ''}
                                                         </h3>
                                                         <p className="text-[#147D73] font-black text-xl">
                                                             {formatRupiahFull(cert.amount)}
@@ -367,7 +370,7 @@ const UserProfilePage = () => {
                                     <div className="relative mt-12 md:mt-0">
                                         <div className="w-56 h-56 md:w-72 md:h-72 rounded-[3.5rem] overflow-hidden bg-[#0A1A17] p-2 relative shadow-2xl border-4 border-white/30 transform md:rotate-3 transition-transform hover:rotate-0 duration-500">
                                             <img
-                                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                                                src={user?.avatar_url ? `${api.defaults.baseURL.replace('/api', '')}${user.avatar_url}` : ''}
                                                 alt="User Portrait"
                                                 className="w-full h-full object-contain bg-[#1d4e44]"
                                             />
@@ -435,7 +438,7 @@ const UserProfilePage = () => {
                                                 <div className="w-8 h-[2px] bg-[#147D73]"></div>
                                                 <span className="text-[10px] font-bold text-[#147D73] uppercase">A Message of Gratitude</span>
                                             </div>
-                                            <h3 className="text-3xl font-bold">Terima Kasih, {user?.full_name ? user.full_name.split(' ')[0] : 'Orang Baik'}!</h3>
+                                            <h3 className="text-3xl font-bold">Terima Kasih, {user?.full_name ? user.full_name.split(' ')[0] : ''}!</h3>
                                             <p className="text-slate-500 italic text-lg leading-relaxed">
                                                 "Dukungan Anda telah memungkinkan lebih banyak orang mendapatkan bantuan tahun ini."
                                             </p>

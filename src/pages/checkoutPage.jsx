@@ -11,7 +11,7 @@ const CheckoutPage = () => {
     const location = useLocation();
 
     // Data dari Detail Page
-    const amount = Number(location.state?.amount || 100000);
+    const amount = Number(location.state?.amount || 0);
     const paymentMethod = location.state?.paymentMethod || 'Transfer QRIS';
     const comment = location.state?.comment || '';
     const anonymous = location.state?.anonymous || false;
@@ -23,7 +23,7 @@ const CheckoutPage = () => {
     const [error, setError] = useState(null);
     const [orderId, setOrderId] = useState('');
     const [donationId, setDonationId] = useState(null);
-    const [campaignTitle, setCampaignTitle] = useState('Bantuan Pendidikan Anak Pedalaman Kalimantan');
+    const [campaignTitle, setCampaignTitle] = useState('');
     const [timeLeft, setTimeLeft] = useState(898); // 14:58 in seconds
 
     const hasPosted = useRef(false);
@@ -69,16 +69,12 @@ const CheckoutPage = () => {
                 const createdDonationId = response.data?.data?.id || response.data?.id;
                 if (createdDonationId) setDonationId(createdDonationId);
 
-                // Buat mock order ID
-                const randomId = Math.floor(10000 + Math.random() * 90000);
-                setOrderId(`#RS-${randomId}-CF`);
+                setOrderId(`#CF-${response.data?.data?.id || response.data?.id || Date.now()}`);
                 setIsPending(true);
 
             } catch (err) {
-                console.warn("Koneksi API backend dialihkan ke mode simulasi aman.");
-                const randomId = Math.floor(10000 + Math.random() * 90000);
-                setOrderId(`#RS-${randomId}-CF`);
-                setIsPending(true);
+                console.error("Gagal membuat donasi:", err);
+                setError("Gagal memproses donasi. Silakan coba lagi.");
             } finally {
                 setLoading(false);
             }
@@ -109,6 +105,29 @@ const CheckoutPage = () => {
         return (
             <div className="min-h-screen bg-[#EEF5F4] flex justify-center items-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#147D73]"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-[#EEF5F4] text-slate-900 pb-20">
+                <Navbar />
+                <main className="max-w-[600px] mx-auto px-6 pt-24 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h1 className="text-3xl font-extrabold text-slate-900 mb-4">Gagal Memproses Donasi</h1>
+                    <p className="text-slate-600 mb-8">{error}</p>
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 px-8 rounded-xl transition-colors shadow-lg"
+                    >
+                        Kembali
+                    </button>
+                </main>
             </div>
         );
     }
@@ -231,7 +250,7 @@ const CheckoutPage = () => {
                                             <span className="text-xl font-black text-blue-800">VA</span>
                                         </div>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Nomor Virtual Account</p>
-                                        <p className="text-xl font-mono font-black text-slate-800 tracking-widest">883081234567890</p>
+                                        <p className="text-xl font-mono font-black text-slate-800 tracking-widest">{orderId}</p>
                                     </div>
                                 ) : (
                                     <div className="w-64 h-64 bg-white rounded-3xl mx-auto flex items-center justify-center p-4 border border-slate-100 mb-10 shadow-sm relative">

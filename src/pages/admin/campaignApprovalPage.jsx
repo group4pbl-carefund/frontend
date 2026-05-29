@@ -35,7 +35,7 @@ const CampaignApprovalPage = () => {
           statusColor: "text-[#147D73]",
           targetAmount: formatRupiahFull(item.target_amount || 0),
           deadline: item.end_date || 'Tidak ditentukan',
-          image: item.image_url || "https://images.unsplash.com/photo-1538108149393-cebb47acdd4e?auto=format&fit=crop&w=800&q=80",
+          image: item.image_url || '',
           story: item.description || "Tidak ada deskripsi",
           rab: Array.isArray(item.rab_items) ? item.rab_items : [],
           beneficiaryName: item.recipient_name || item.beneficiary_type || "Tidak ditentukan",

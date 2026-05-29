@@ -5,7 +5,7 @@ import CampaignCard from '../components/donationCard';
 import SearchBar from '../components/searchBar';
 import api from '../utils/api';
 import { formatRupiah, formatRupiahFull } from '../utils/format';
-const categories = ['Semua', 'Pendidikan', 'Kesehatan', 'Bencana Alam', 'Sosial', 'Lingkungan'];
+import { useMemo } from 'react';
 
 const ProgramsPage = () => {
   const navigate = useNavigate();
@@ -14,6 +14,13 @@ const ProgramsPage = () => {
 
   const [allCampaigns, setAllCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const categories = useMemo(() => {
+    const cats = allCampaigns
+      .map(c => c.program?.category || c.category)
+      .filter(Boolean);
+    return ['Semua', ...new Set(cats)];
+  }, [allCampaigns]);
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -119,7 +126,7 @@ const ProgramsPage = () => {
                   <div key={campaign.campaign_id || campaign.id} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <CampaignCard
                       id={campaign.campaign_id || campaign.id}
-                      imageSrc={campaign.program?.image_url || campaign.imageSrc || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"}
+                      imageSrc={campaign.program?.image_url || campaign.imageSrc || ''}
                       category={campaign.program?.category || campaign.category || 'Umum'}
                       title={campaign.program?.program_name || campaign.title}
                       description={campaign.program?.description || campaign.description}

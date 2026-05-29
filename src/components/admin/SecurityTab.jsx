@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ShieldCheck, 
   AlertTriangle, 
   Search, 
   Flag, 
-  Server, 
-  Lock, 
   Activity,
-  CheckCircle2,
   AlertCircle
 } from 'lucide-react';
 import api from '../../utils/api';
@@ -65,36 +61,6 @@ const SecurityTab = () => {
     { label: 'FLAGGED ITEMS', value: flaggedCount.toString(), icon: Flag, color: 'text-teal-600', bg: 'bg-teal-50' },
   ];
 
-  const systems = [
-    { 
-      title: 'Server Status', 
-      icon: Server,
-      items: [
-        { name: 'Main Gateway', status: 'ONLINE', statusColor: 'bg-emerald-500' },
-        { name: 'Backup Node', status: 'ONLINE', statusColor: 'bg-emerald-500' },
-        { name: 'Database Cluster', status: 'ONLINE', statusColor: 'bg-emerald-500' },
-      ]
-    },
-    { 
-      title: 'Encryption Status', 
-      icon: Lock,
-      items: [
-        { name: 'SSL/TLS 1.3', status: 'VALID', statusColor: 'bg-emerald-500' },
-        { name: 'Data-at-Rest', status: 'ACTIVE', statusColor: 'bg-emerald-500' },
-        { name: 'API Endpoints', status: 'SECURE', statusColor: 'bg-emerald-500' },
-      ]
-    },
-    { 
-      title: 'Security Systems', 
-      icon: ShieldCheck,
-      items: [
-        { name: 'Advanced Firewall', status: 'ACTIVE', statusColor: 'bg-emerald-500' },
-        { name: 'DDoS Mitigation', status: 'ACTIVE', statusColor: 'bg-emerald-500' },
-        { name: 'Intrusion Detection', status: 'ACTIVE', statusColor: 'bg-emerald-500' },
-      ]
-    },
-  ];
-
   // Filter logs berdasarkan activeTab
   const filteredLogs = logsList.filter(log => {
     if (activeTab === 'Semua') return true;
@@ -128,28 +94,7 @@ const SecurityTab = () => {
         ))}
       </div>
 
-      {/* Status Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {systems.map((sys, idx) => (
-          <div key={idx} className="bg-[#f0f9f9]/50 p-6 rounded-3xl border border-teal-50">
-            <div className="flex items-center gap-2 mb-6">
-              <sys.icon className="w-5 h-5 text-teal-600" />
-              <h3 className="font-bold text-gray-800">{sys.title}</h3>
-            </div>
-            <div className="space-y-3">
-              {sys.items.map((item, i) => (
-                <div key={i} className="bg-white p-4 rounded-xl flex justify-between items-center shadow-sm">
-                  <span className="text-sm font-medium text-gray-600">{item.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-teal-600 tracking-tighter">{item.status}</span>
-                    <div className={`w-2 h-2 rounded-full ${item.statusColor}`}></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+
 
       {/* Activity Log */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">

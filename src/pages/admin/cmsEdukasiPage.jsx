@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../../layouts/mainLayout';
 import Swal from 'sweetalert2';
-import { getArticles, deleteArticle, getStats } from '../../utils/articleDb';
 import api from '../../utils/api';
 import { formatDate } from '../../utils/format';
 

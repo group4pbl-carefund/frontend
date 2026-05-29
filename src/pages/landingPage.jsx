@@ -66,7 +66,7 @@ const LandingPage = () => {
                 <CampaignCard 
                   key={campaign.campaign_id || campaign.id}
                   id={campaign.campaign_id || campaign.id}
-                  imageSrc={campaign.program?.image_url || campaign.imageSrc || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80"}
+                  imageSrc={campaign.program?.image_url || campaign.imageSrc || ''}
                   category={campaign.program?.category || campaign.category || "Umum"}
                   title={campaign.program?.program_name || campaign.title}
                   description={campaign.program?.description || campaign.description}
@@ -80,7 +80,7 @@ const LandingPage = () => {
         )}
       </section>
       
-      <featuresSection />
+      <FeaturesSection />
     </MainLayout>
   );
 };
