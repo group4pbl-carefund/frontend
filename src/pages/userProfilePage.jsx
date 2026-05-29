@@ -44,8 +44,16 @@ const UserProfilePage = () => {
             if (!user) return;
 
             try {
+                // Fetch the latest user profile to ensure status changes (e.g. KYC) are reflected
+                const meRes = await api.get('/me');
+                const latestUser = meRes.data?.data || meRes.data;
+                if (latestUser) {
+                    setUser(latestUser);
+                    localStorage.setItem('user', JSON.stringify(latestUser));
+                }
+
                 // Set 'bergabung' dari data user
-                const joinDate = user.created_at ? new Date(user.created_at) : new Date();
+                const joinDate = latestUser?.created_at ? new Date(latestUser.created_at) : new Date();
                 const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
                 const bergabungFormatted = `${monthNames[joinDate.getMonth()]} ${joinDate.getFullYear()}`;
 
@@ -93,7 +101,7 @@ const UserProfilePage = () => {
         };
 
         fetchUserData();
-    }, [user]);
+    }, []);
 
 
 
@@ -106,16 +114,25 @@ const UserProfilePage = () => {
         setIsUploading(true);
         const formData = new FormData();
         formData.append('avatar', file);
-        // Because backend is expecting a PATCH method but we are sending multipart/form-data
-        formData.append('_method', 'PATCH');
 
         try {
-            const response = await api.post('/profile/avatar', formData, {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${api.defaults.baseURL}/profile/avatar`, {
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'multipart/form-data',
-                }
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                },
+                body: formData
             });
-            const updatedUser = response.data?.data || response.data;
+            
+            const responseData = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(responseData.message || 'Gagal mengunggah foto');
+            }
+            
+            const updatedUser = responseData.data || responseData;
             if (updatedUser) {
                 setUser(updatedUser);
                 localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -127,9 +144,10 @@ const UserProfilePage = () => {
                 });
             }
         } catch (error) {
+            const backendMessage = error.message || 'Terjadi kesalahan saat mengunggah foto. Pastikan ukuran file tidak terlalu besar.';
             Swal.fire({
                 title: 'Gagal!',
-                text: 'Terjadi kesalahan saat mengunggah foto. Pastikan ukuran file tidak terlalu besar.',
+                text: backendMessage,
                 icon: 'error',
                 confirmButtonColor: '#147D73'
             });

@@ -18,7 +18,10 @@ const LandingPage = () => {
         const allCampaigns = Array.isArray(res.data) ? res.data : (res.data.data || []);
         
         const filtered = allCampaigns
-          .filter(c => c.program?.status === 'approved' || c.status === 'approved')
+          .filter(c => {
+            const status = (c.program?.status || c.status || '').toUpperCase();
+            return status === 'ACTIVE' || status === 'COMPLETED';
+          })
           .slice(0, 3);
           
         setActiveCampaigns(filtered);

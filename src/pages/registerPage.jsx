@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { PartyPopper } from 'lucide-react';
 import api from '../utils/api';
 
 const RegisterPage = () => {
@@ -530,7 +531,9 @@ const RegisterPage = () => {
         {/* STEP 4: FINISH */}
         {currentStep === 4 && (
           <div className="text-center py-10">
-            <div className="text-6xl mb-6">🎉</div>
+            <div className="flex justify-center mb-6">
+              <PartyPopper className="w-20 h-20 text-[#147D73]" />
+            </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Registration Complete!</h2>
             <p className="text-gray-500 mb-10">Welcome to Care Fund. Your account and email has been verified and registered.</p>
             <Link to="/login" className="bg-[#147D73] text-white px-10 py-4 rounded-xl font-bold hover:bg-[#0F655C] transition-all shadow-md shadow-[#147D73]/20">

@@ -21,44 +21,78 @@ const UserManagementTab = () => {
   const [usersList, setUsersList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('Semua');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [editForm, setEditForm] = useState({});
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/users');
+      const data = response.data?.data || response.data;
+      if (Array.isArray(data)) {
+        const mappedUsers = data.map(item => {
+          const getInitials = (name) => {
+            return (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+          };
+          const dateObj = new Date(item.created_at || Date.now());
+          
+          return {
+            id: item.id,
+            name: item.full_name || 'No Name',
+            email: item.email || 'no-email@carefund.com',
+            avatar: getInitials(item.full_name || 'No Name'),
+            kyc: item.is_verified ? 'Verified' : 'Pending',
+            raw_is_verified: item.is_verified,
+            date: formatDate(dateObj, 'short'),
+            raw_user: item
+          };
+        });
+        setUsersList(mappedUsers);
+      }
+    } catch (err) {
+      console.error('Gagal memuat daftar pengguna dari API:', err);
+      setUsersList([]);
+    }
+    setLoading(false);
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
 
-
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await api.get('/users');
-        const data = response.data?.data || response.data;
-        if (Array.isArray(data) && data.length > 0) {
-          const mappedUsers = data.map(item => {
-            const getInitials = (name) => {
-              return (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            };
-            const dateObj = new Date(item.created_at || Date.now());
-            
-            return {
-              id: item.id,
-              name: item.full_name || 'No Name',
-              email: item.email || 'no-email@carefund.com',
-              avatar: getInitials(item.full_name || 'No Name'),
-              kyc: item.is_verified ? 'Verified' : 'Unverified',
-              raw_is_verified: item.is_verified,
-              date: formatDate(dateObj, 'short')
-            };
-          });
-          setUsersList(mappedUsers);
-          setLoading(false);
-          return;
-        }
-      } catch (err) {
-        console.error('Gagal memuat daftar pengguna dari API:', err);
-        setUsersList([]);
-      }
-      setLoading(false);
-    };
-
     fetchUsers();
   }, []);
+
+  const handleOpenModal = (user) => {
+    setSelectedUser(user);
+    setEditForm({
+      full_name: user.raw_user.full_name || '',
+      date_of_birth: user.raw_user.date_of_birth || '',
+      role: user.raw_user.role || 'user',
+      gender: user.raw_user.gender || '',
+      phone: user.raw_user.phone || '',
+      address: user.raw_user.address || ''
+    });
+  };
+
+  const handleCloseModal = () => {
+    setSelectedUser(null);
+  };
+
+  const handleSaveUser = async () => {
+    try {
+      await api.patch(`/users/${selectedUser.id}`, editForm);
+      Swal.fire({
+        title: 'Berhasil!',
+        text: 'Data pengguna berhasil diperbarui.',
+        icon: 'success',
+        confirmButtonColor: '#147D73'
+      });
+      handleCloseModal();
+      fetchUsers();
+    } catch (err) {
+      Swal.fire('Gagal!', 'Tidak dapat memperbarui data.', 'error');
+    }
+  };
 
   const toggleKyc = async (id) => {
     const u = usersList.find(user => user.id === id);
@@ -298,6 +332,12 @@ const UserManagementTab = () => {
                   <td className="px-10 py-6">
                     <div className="flex items-center justify-center gap-4">
                       <button 
+                        onClick={() => handleOpenModal(user)}
+                        className="flex items-center gap-1.5 text-blue-600 text-xs font-bold hover:underline"
+                      >
+                        Cek Detail
+                      </button>
+                      <button 
                         onClick={() => toggleKyc(user.id)}
                         className="flex items-center gap-1.5 text-[#147D73] text-xs font-bold hover:underline"
                       >
@@ -365,6 +405,79 @@ const UserManagementTab = () => {
           </div>
         </div>
       </div>
+
+      {selectedUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={handleCloseModal}></div>
+          <div className="relative bg-[#F8FAFA] w-full max-w-5xl max-h-[95vh] rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="bg-white px-8 py-5 flex justify-between items-center border-b border-gray-100 sticky top-0 z-10">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Users / Detail & Verification</span>
+                <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-3">
+                  Review Data User: <span className="text-[#147D73]">{selectedUser.name}</span>
+                </h2>
+              </div>
+              <button onClick={handleCloseModal} className="p-2 bg-gray-100 hover:bg-gray-200 text-slate-600 rounded-full transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <div className="p-6 md:p-8 overflow-y-auto flex-grow grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Form Data Diri */}
+              <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                <h3 className="font-bold text-slate-900 mb-4 border-b pb-2">Informasi & Edit Profil</h3>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Nama Lengkap</label>
+                  <input type="text" className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.full_name} onChange={e => setEditForm({...editForm, full_name: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Tanggal Lahir</label>
+                  <input type="date" className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.date_of_birth} onChange={e => setEditForm({...editForm, date_of_birth: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Jenis Kelamin</label>
+                  <select className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.gender} onChange={e => setEditForm({...editForm, gender: e.target.value})}>
+                    <option value="">Pilih...</option>
+                    <option value="male">Laki-laki</option>
+                    <option value="female">Perempuan</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">No HP</label>
+                  <input type="text" className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Alamat</label>
+                  <textarea className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" rows="2" value={editForm.address} onChange={e => setEditForm({...editForm, address: e.target.value})}></textarea>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 mb-1">Role Akun</label>
+                  <select className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.role} onChange={e => setEditForm({...editForm, role: e.target.value})}>
+                    <option value="user">User Biasa</option>
+                    <option value="admin">Administrator</option>
+                  </select>
+                </div>
+                <button onClick={handleSaveUser} className="w-full bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3 rounded-xl mt-4 transition-colors">Simpan Perubahan</button>
+              </div>
+
+              {/* Data KTP */}
+              <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
+                <h3 className="font-bold text-slate-900 mb-4 border-b pb-2">Dokumen Identitas (KTP)</h3>
+                <div className="flex-grow flex items-center justify-center bg-slate-50 rounded-2xl overflow-hidden border border-gray-200">
+                  {selectedUser.raw_user.identities && selectedUser.raw_user.identities.length > 0 ? (
+                    <img src={selectedUser.raw_user.identities[0].identity_image.startsWith('http') ? selectedUser.raw_user.identities[0].identity_image : `http://localhost:8000${selectedUser.raw_user.identities[0].identity_image}`} alt="KTP" className="max-w-full max-h-[60vh] object-contain" />
+                  ) : (
+                    <div className="text-center text-slate-400 p-8">
+                      <svg className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z" /></svg>
+                      <p>Pengguna belum mengunggah KTP</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="text-center py-4">
         <p className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">© 2024 Care Fund Admin Panel. Developed with love</p>

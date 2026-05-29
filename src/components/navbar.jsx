@@ -1,27 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../utils/api';
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'));
-  const [user] = useState(() => {
-    try {
-      const saved = localStorage.getItem('user');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
+  const [userData, setUserData] = useState(() => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
   });
-  const userRole = user?.role;
+  const userRole = userData?.role || null;
+  
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsLoggedIn(false);
+    setUserData(null);
     window.location.href = '/login';
   };
 
   return (
-    <nav className="flex items-center justify-between bg-white px-8 py-4 shadow-sm border-b border-gray-100">
+    <nav className={`sticky top-0 z-50 flex items-center justify-between bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 transition-all duration-300 ${isScrolled ? 'py-2 px-6' : 'py-4 px-8'}`}>
       {/* Logo Section */}
       <div className="flex items-center gap-2">
         <Link to="/" className="flex items-center gap-2">
@@ -80,16 +88,12 @@ const Navbar = () => {
               to="/user-profile"
               className="group relative flex items-center justify-center"
             >
-              <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-[#147D73] transition-transform group-hover:scale-110 shadow-md flex items-center justify-center bg-[#147D73] text-white font-bold text-sm">
-                {user?.avatar_url ? (
-                  <img
-                    src={`${user.avatar_url.startsWith('http') ? '' : '/storage/'}${user.avatar_url}`}
-                    alt="Profile"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span>{(user?.full_name || '?')[0]}</span>
-                )}
+              <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-[#147D73] transition-transform group-hover:scale-110 shadow-md bg-slate-50 flex items-center justify-center">
+                <img
+                  src={userData?.avatar_url ? (userData.avatar_url.startsWith('http') ? userData.avatar_url : `${api.defaults.baseURL.replace('/api', '')}${userData.avatar_url}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData?.full_name || 'Felix'}`}
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                />
               </div>
             </Link>
             <button
