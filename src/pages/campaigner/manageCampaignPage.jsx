@@ -99,24 +99,24 @@ const ManageCampaignPage = () => {
     if (text) {
       try {
         const payload = {
-          distribution_id: activeCampaign.program_id,
           title: 'Update Laporan',
-          content: text,
-          notes: text,
-          status: 'published',
-          updated_by: user.id
+          content: text
         };
-        await api.post('/distribution-updates', payload);
+        const response = await api.post(`/programs/${activeCampaign.program_id}/updates`, payload);
 
-        const newUpdate = {
+        const newUpdate = response.data?.data?.update || {
           id: Date.now(),
           date: formatDate(new Date(), 'long'),
-          text: text
+          content: text,
+          title: 'Update Laporan'
         };
         
         const updatedActive = {
           ...activeCampaign,
-          updates: activeCampaign.updates ? [newUpdate, ...activeCampaign.updates] : [newUpdate]
+          program: {
+            ...activeCampaign.program,
+            updates: activeCampaign.program?.updates ? [newUpdate, ...activeCampaign.program.updates] : [newUpdate]
+          }
         };
         
         setCampaigns(campaigns.map(c => c.campaign_id === activeCampaign.campaign_id ? updatedActive : c));
@@ -271,6 +271,8 @@ const ManageCampaignPage = () => {
           </div>
         )}
 
+        {activeCampaign.program?.status !== 'rejected' && (
+          <>
       {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 max-w-6xl mx-auto">
         {/* Total Donatur */}
@@ -322,14 +324,14 @@ const ManageCampaignPage = () => {
       {/* DAFTAR LAPORAN YANG SUDAH DITERBITKAN */}
       <div>
         <h3 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
-          <MessageSquare size={24} className="text-[#147D73]" /> Laporan Kabar Terbaru ({activeCampaign.updates?.length || 0})
+          <MessageSquare size={24} className="text-[#147D73]" /> Laporan Kabar Terbaru ({activeCampaign.program?.updates?.length || 0})
         </h3>
         <div className="space-y-4">
-          {activeCampaign.updates && activeCampaign.updates.length > 0 ? (
-            activeCampaign.updates.map((upd) => (
+          {activeCampaign.program?.updates && activeCampaign.program.updates.length > 0 ? (
+            activeCampaign.program.updates.map((upd) => (
               <div key={upd.id} className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm">
-                <p className="text-xs font-bold text-slate-400 mb-2">{upd.date}</p>
-                <p className="text-slate-700 font-medium leading-relaxed">{upd.text}</p>
+                <p className="text-xs font-bold text-slate-400 mb-2">{upd.date ? formatDate(upd.date, 'long') : 'Baru saja'}</p>
+                <p className="text-slate-700 font-medium leading-relaxed">{upd.content || upd.text}</p>
               </div>
             ))
           ) : (
@@ -339,6 +341,8 @@ const ManageCampaignPage = () => {
           )}
         </div>
       </div>
+      </>
+      )}
       </div>
       </div>
     </MainLayout>

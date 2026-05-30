@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import api from '../utils/api';
@@ -12,6 +12,22 @@ const CreateCampaignPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [beneficiaryType, setBeneficiaryType] = useState(editData?.beneficiary_type || 'diri_sendiri');
   const [durationMode, setDurationMode] = useState(editData?.end_date ? 'date' : 'days');
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      navigate('/');
+    } else if (!user.is_verified) {
+      Swal.fire({
+        title: 'Akun Belum Diverifikasi!',
+        text: 'Anda harus menunggu admin memverifikasi akun Anda sebelum dapat membuat galang dana.',
+        icon: 'warning',
+        confirmButtonColor: '#147D73'
+      }).then(() => {
+        navigate('/');
+      });
+    }
+  }, [navigate]);
 
   const [formData, setFormData] = useState({
     title: editData?.program_name || '',
@@ -30,6 +46,9 @@ const CreateCampaignPage = () => {
 
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(editData?.image_url || '');
+  const [ktpFile, setKtpFile] = useState(null);
+  const [selfieFile, setSelfieFile] = useState(null);
+  const [supportingDocs, setSupportingDocs] = useState([]);
   const [rabItems, setRabItems] = useState(
     editData?.rab_items?.length > 0
       ? editData.rab_items.map((item, idx) => ({
@@ -147,54 +166,40 @@ const CreateCampaignPage = () => {
       }
     }
 
-    const hasFile = imageFile !== null;
-    const payload = hasFile ? new FormData() : {
-      program_name: formData.title.trim(),
-      category: formData.category,
-      end_date: endDate.toISOString().split('T')[0],
-      start_date: startDate.toISOString().split('T')[0],
-      target_amount: parseFloat(formData.target.replace(/\./g, '')),
-      description: formData.description.trim(),
-      recipient_name: formData.recipientName.trim(),
-      beneficiary_type: beneficiaryType,
-      bank_name: formData.bankName,
-      account_number: formData.accountNumber.trim(),
-      account_owner: formData.accountOwner.trim(),
-      status: 'pending',
-      created_by: userId,
-      rab_items: rabItems.map(item => ({
-        ...item,
-        amount: parseFloat(item.amount.toString().replace(/\./g, '')) || 0
-      }))
-    };
-
-    if (hasFile) {
-      payload.append('_method', editData?.program_id ? 'PATCH' : 'POST');
-      payload.append('program_name', formData.title.trim());
-      payload.append('category', formData.category);
-      payload.append('end_date', endDate.toISOString().split('T')[0]);
-      payload.append('start_date', startDate.toISOString().split('T')[0]);
-      payload.append('target_amount', parseFloat(formData.target.replace(/\./g, '')));
-      payload.append('description', formData.description.trim());
-      payload.append('recipient_name', formData.recipientName.trim());
-      payload.append('beneficiary_type', beneficiaryType);
-      payload.append('bank_name', formData.bankName);
-      payload.append('account_number', formData.accountNumber.trim());
-      payload.append('account_owner', formData.accountOwner.trim());
-      payload.append('status', 'pending');
-      payload.append('created_by', userId);
-      payload.append('image', imageFile);
-      rabItems.forEach((item, i) => {
-        payload.append(`rab_items[${i}][description]`, item.description);
-        payload.append(`rab_items[${i}][amount]`, parseFloat(item.amount.toString().replace(/\./g, '')) || 0);
-      });
+    const payload = new FormData();
+    if (editData?.program_id) {
+      payload.append('_method', 'PATCH');
     }
+    payload.append('program_name', formData.title.trim());
+    payload.append('category', formData.category);
+    payload.append('end_date', endDate.toISOString().split('T')[0]);
+    payload.append('start_date', startDate.toISOString().split('T')[0]);
+    payload.append('target_amount', parseFloat(formData.target.replace(/\./g, '')));
+    payload.append('description', formData.description.trim());
+    payload.append('recipient_name', formData.recipientName.trim());
+    payload.append('beneficiary_type', beneficiaryType);
+    payload.append('bank_name', formData.bankName);
+    payload.append('account_number', formData.accountNumber.trim());
+    payload.append('account_owner', formData.accountOwner.trim());
+    payload.append('status', 'pending');
+    payload.append('created_by', userId);
+    
+    if (imageFile) payload.append('image', imageFile);
+    if (ktpFile) payload.append('ktp_file', ktpFile);
+    if (selfieFile) payload.append('selfie_file', selfieFile);
+    supportingDocs.forEach((doc, i) => {
+      payload.append(`supporting_docs[${i}]`, doc);
+    });
+    rabItems.forEach((item, i) => {
+      payload.append(`rab_items[${i}][description]`, item.description);
+      payload.append(`rab_items[${i}][amount]`, parseFloat(item.amount.toString().replace(/\./g, '')) || 0);
+    });
 
-    const config = hasFile ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+    const config = { headers: { 'Content-Type': 'multipart/form-data' } };
 
     try {
       if (editData?.program_id) {
-        await (hasFile ? api.post(`/programs/${editData.program_id}`, payload, config) : api.patch(`/programs/${editData.program_id}`, payload));
+        await api.post(`/programs/${editData.program_id}`, payload, config);
         await Swal.fire({
           title: 'Perubahan Tersimpan!',
           text: 'Revisi kampanye berhasil disimpan dan masuk ke dalam antrean persetujuan admin!',
@@ -601,16 +606,40 @@ const CreateCampaignPage = () => {
                 <p className="text-xs text-slate-500 mb-6">Kami membutuhkan identitas Anda untuk memastikan keamanan dan mencegah penipuan di platform kami.</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="border-2 border-dashed border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#147D73] transition-colors">
-                    <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
-                    <p className="text-xs font-bold text-[#147D73]">Unggah Foto KTP <span className="text-slate-500 font-normal">(Bypassed)</span></p>
-                    <p className="text-[10px] text-slate-400 mt-1">PNG, JPG up to 5MB</p>
-                  </div>
-                  <div className="border-2 border-dashed border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#147D73] transition-colors">
-                    <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <p className="text-xs font-bold text-[#147D73]">Unggah Foto Selfie dengan KTP <span className="text-slate-500 font-normal">(Bypassed)</span></p>
-                    <p className="text-[10px] text-slate-400 mt-1">Pastikan wajah & KTP jelas</p>
-                  </div>
+                  <label className="border-2 border-dashed border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#147D73] transition-colors relative">
+                    <input type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" onChange={(e) => {
+                      if (e.target.files[0]) setKtpFile(e.target.files[0]);
+                    }} />
+                    {ktpFile ? (
+                      <div className="flex flex-col items-center gap-2 text-[#147D73]">
+                        <svg className="w-8 h-8 text-[#147D73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                        <p className="text-xs font-bold line-clamp-1">{ktpFile.name}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+                        <p className="text-xs font-bold text-[#147D73]">Unggah Foto KTP</p>
+                        <p className="text-[10px] text-slate-400 mt-1">PNG, JPG up to 5MB</p>
+                      </>
+                    )}
+                  </label>
+                  <label className="border-2 border-dashed border-gray-200 bg-white rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#147D73] transition-colors relative">
+                    <input type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" onChange={(e) => {
+                      if (e.target.files[0]) setSelfieFile(e.target.files[0]);
+                    }} />
+                    {selfieFile ? (
+                      <div className="flex flex-col items-center gap-2 text-[#147D73]">
+                        <svg className="w-8 h-8 text-[#147D73]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                        <p className="text-xs font-bold line-clamp-1">{selfieFile.name}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <svg className="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <p className="text-xs font-bold text-[#147D73]">Unggah Foto Selfie dengan KTP</p>
+                        <p className="text-[10px] text-slate-400 mt-1">Pastikan wajah & KTP jelas</p>
+                      </>
+                    )}
+                  </label>
                 </div>
               </div>
 
@@ -667,11 +696,29 @@ const CreateCampaignPage = () => {
                   <span className="bg-[#E8F3F1] text-[#147D73] text-[10px] font-extrabold px-2 py-1 rounded uppercase tracking-wider">Opsional / Sesuai Kategori</span>
                 </div>
                 <p className="text-sm text-slate-500 mb-4">Unggah dokumen pendukung medis (rekam medis), surat keterangan tidak mampu (SKTM), atau dokumen legal yayasan untuk memperkuat kampanye Anda.</p>
-                <div className="border-2 border-dashed border-gray-200 bg-slate-50 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors">
-                  <svg className="w-6 h-6 text-[#147D73] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                  <p className="font-bold text-[#147D73] text-sm">Unggah Dokumen Tambahan (Demo Bypass)</p>
-                  <p className="text-[10px] text-slate-400 mt-1">PDF, PNG, JPG up to 10MB (Maks. 5 file)</p>
-                </div>
+                <label className="border-2 border-dashed border-gray-200 bg-slate-50 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors">
+                  <input type="file" multiple accept=".pdf,.png,.jpg,.jpeg" className="hidden" onChange={(e) => {
+                    if (e.target.files.length > 0) {
+                      const filesArray = Array.from(e.target.files).slice(0, 5); // limit to 5
+                      setSupportingDocs(filesArray);
+                    }
+                  }} />
+                  {supportingDocs.length > 0 ? (
+                    <div className="flex flex-col items-center text-[#147D73]">
+                      <svg className="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <p className="font-bold text-sm">{supportingDocs.length} File Terpilih</p>
+                      <div className="mt-2 text-xs text-slate-500 max-w-xs break-words">
+                        {supportingDocs.map(f => f.name).join(', ')}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <svg className="w-6 h-6 text-[#147D73] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                      <p className="font-bold text-[#147D73] text-sm">Unggah Dokumen Tambahan</p>
+                      <p className="text-[10px] text-slate-400 mt-1">PDF, PNG, JPG up to 10MB (Maks. 5 file)</p>
+                    </>
+                  )}
+                </label>
               </div>
 
             </div>
@@ -697,14 +744,26 @@ const CreateCampaignPage = () => {
                 type="button"
                 onClick={() => {
                   // Validasi ringan tiap step
-                  if (currentStep === 1 && (!formData.title.trim() || !formData.target)) {
-                    Swal.fire({
-                      title: 'Form Belum Lengkap',
-                      text: 'Silakan isi judul kampanye dan target dana terlebih dahulu.',
-                      icon: 'warning',
-                      confirmButtonColor: '#147D73'
-                    });
-                    return;
+                  if (currentStep === 1) {
+                    if (!formData.title.trim() || !formData.target) {
+                      Swal.fire({
+                        title: 'Form Belum Lengkap',
+                        text: 'Silakan isi judul kampanye dan target dana terlebih dahulu.',
+                        icon: 'warning',
+                        confirmButtonColor: '#147D73'
+                      });
+                      return;
+                    }
+                    const rawTarget = parseFloat(formData.target.replace(/\./g, '')) || 0;
+                    if (rawTarget < 1000000) {
+                      Swal.fire({
+                        title: 'Target Dana Terlalu Rendah!',
+                        text: 'Minimal target dana penggalangan adalah Rp 1.000.000.',
+                        icon: 'warning',
+                        confirmButtonColor: '#147D73'
+                      });
+                      return;
+                    }
                   }
                   if (currentStep === 2) {
                     const maxTarget = parseFloat(formData.target.replace(/\D/g, '')) || 0;

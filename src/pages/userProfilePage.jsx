@@ -238,6 +238,11 @@ const UserProfilePage = () => {
                         {/* NAV MENU */}
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-3">
                             <nav className="space-y-1">
+                                <button onClick={() => navigate('/manage-campaign')} className="w-full flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-slate-50 group transition-all">
+                                    <div className="flex items-center gap-3"><Megaphone size={20} /><span>Kelola Kampanye Saya</span></div>
+                                    <ChevronRight size={16} className="text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
+                                </button>
+                                <div className="my-2 border-t border-slate-50"></div>
                                 <button onClick={() => setActiveTab('riwayat')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'riwayat' ? 'bg-slate-50 text-[#147D73] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
                                     <div className="flex items-center gap-3"><History size={20} /><span>Riwayat Donasi</span></div>
                                     <ChevronRight size={16} />
@@ -248,15 +253,6 @@ const UserProfilePage = () => {
                                 </button>
                                 <button onClick={() => setActiveTab('dampak')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'dampak' ? 'bg-slate-50 text-[#147D73] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
                                     <div className="flex items-center gap-3"><HandHeart size={20} /><span>Dampak Sosial</span></div>
-                                    <ChevronRight size={16} />
-                                </button>
-                                <div className="my-2 border-t border-slate-50"></div>
-                                <button onClick={() => navigate('/manage-campaign')} className="w-full flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-slate-50 group transition-all">
-                                    <div className="flex items-center gap-3"><Megaphone size={20} /><span>Kelola Kampanye Saya</span></div>
-                                    <ChevronRight size={16} className="text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
-                                </button>
-                                <button className="w-full flex items-center justify-between p-4 rounded-2xl text-slate-600 hover:bg-slate-50 group">
-                                    <div className="flex items-center gap-3"><Settings size={20} /><span>Pengaturan Akun</span></div>
                                     <ChevronRight size={16} />
                                 </button>
                                 <button onClick={handleLogout} className="w-full flex items-center justify-between p-4 rounded-2xl text-red-500 hover:bg-red-50 transition-all">
@@ -465,7 +461,7 @@ const UserProfilePage = () => {
                                             <Heart size={28} fill="currentColor" />
                                         </div>
                                         <h3 className="font-bold text-lg">Siap Melanjutkan Perjalanan Ini?</h3>
-                                        <button className="w-full bg-[#147D73] text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-[#0F655C] transition-all">
+                                        <button onClick={() => navigate('/donasi')} className="w-full bg-[#147D73] text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-[#0F655C] transition-all">
                                             Donasi Lagi
                                         </button>
                                     </div>

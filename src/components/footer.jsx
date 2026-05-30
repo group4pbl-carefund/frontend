@@ -19,9 +19,9 @@ const Footer = () => {
         <div>
           <h4 className="mb-4 font-bold text-slate-900">Program</h4>
           <ul className="space-y-2 text-sm text-slate-500">
-            <li><a href="#" className="hover:text-[#147D73]">Pendidikan</a></li>
-            <li><a href="#" className="hover:text-[#147D73]">Kesehatan</a></li>
-            <li><a href="#" className="hover:text-[#147D73]">Bencana Alam</a></li>
+            <li><Link to="/donasi?category=Pendidikan" className="hover:text-[#147D73]">Pendidikan</Link></li>
+            <li><Link to="/donasi?category=Kesehatan" className="hover:text-[#147D73]">Kesehatan</Link></li>
+            <li><Link to="/donasi?category=Bencana%20Alam" className="hover:text-[#147D73]">Bencana Alam</Link></li>
           </ul>
         </div>
 
@@ -30,7 +30,6 @@ const Footer = () => {
           <ul className="space-y-2 text-sm text-slate-500">
             <li><Link to="/about-us" className="hover:text-[#147D73]">Tentang Kami</Link></li>
             <li><Link to="/accept-terms" className="hover:text-[#147D73]">Syarat & Ketentuan</Link></li>
-            <li><a href="#" className="hover:text-[#147D73]">Kebijakan Privasi</a></li>
           </ul>
         </div>
 

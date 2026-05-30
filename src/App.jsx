@@ -35,15 +35,15 @@ function App() {
         <Route path="/about-us" element={<AboutUsPage />} />
         <Route path="/accept-terms" element={<TermsAcceptancePage />} />
         
-        {/* Pindah ke sini: Biar orang bisa liat detail donasi tanpa keblokir Guard */}
+        {/* Public routes (can be accessed without login) */}
         <Route path="/donasi/:id" element={<DonationDetailPage />} />
+        <Route path="/edukasi" element={<EducationPage />} />
+        <Route path="/edukasi/:id" element={<ArtikelDetail />} />
+        <Route path="/donasi" element={<ProgramsPage />} />
 
         <Route element={<TermsGuard />}>
           <Route path="/user-profile" element={<UserProfilePage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/edukasi" element={<EducationPage />} />
-          <Route path="/edukasi/:id" element={<ArtikelDetail />} />
-          <Route path="/donasi" element={<ProgramsPage />} />
           
           {/* 1. Rute User/Campaigner */}
           <Route path="/manage-campaign" element={<ManageCampaignPage />} />

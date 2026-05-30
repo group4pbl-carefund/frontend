@@ -60,7 +60,7 @@ const TermsGuard = () => {
   }
 
   if (!token || !userStr) {
-    return <Outlet />;
+    return <Navigate to="/" replace state={{ from: location.pathname }} />;
   }
 
   let user = null;

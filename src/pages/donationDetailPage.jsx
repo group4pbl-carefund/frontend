@@ -200,8 +200,26 @@ const DonationDetailPage = () => {
                             )}
 
                             {activeTab === 'update' && (
-                                <div className="py-10 text-center animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <p className="text-slate-500 font-medium">Belum ada update terbaru untuk kampanye ini.</p>
+                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                    {(!displayCampaign.program?.updates || displayCampaign.program.updates.length === 0) ? (
+                                        <div className="py-10 text-center">
+                                            <p className="text-slate-500 font-medium">Belum ada update terbaru untuk kampanye ini.</p>
+                                        </div>
+                                    ) : (
+                                        displayCampaign.program.updates.map((update, idx) => (
+                                            <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative pl-10">
+                                                <div className="absolute left-0 top-6 bottom-6 w-1 bg-slate-100 rounded-r-full"></div>
+                                                <div className="absolute left-[-5px] top-6 w-3 h-3 bg-[#147D73] rounded-full ring-4 ring-white"></div>
+                                                <div className="mb-3">
+                                                    <h3 className="font-bold text-slate-900 text-lg">{update.title || 'Kabar Terbaru'}</h3>
+                                                    <p className="text-xs font-bold text-[#147D73] mt-1">{formatDate(update.date || new Date())}</p>
+                                                </div>
+                                                <p className="text-slate-600 text-[15px] leading-relaxed whitespace-pre-line">
+                                                    {update.content}
+                                                </p>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             )}
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, Users, ClipboardList, CheckCircle } from 'lucide-react';
 import { Bar, Doughnut } from 'react-chartjs-2';
+import { useNavigate } from 'react-router-dom';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -25,7 +26,11 @@ ChartJS.register(
 );
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [currentPageAct, setCurrentPageAct] = useState(1);
+  const [currentPageDist, setCurrentPageDist] = useState(1);
+  const itemsPerPage = 4;
   const [dashboardData, setDashboardData] = useState({
     stats: {},
     donation_trend: { labels: [], data: [] },
@@ -86,6 +91,12 @@ const DashboardPage = () => {
 
   const { featured_programs: featuredPrograms, activities, distributions } = dashboardData;
 
+  const totalPagesAct = Math.ceil(activities.length / itemsPerPage);
+  const currentActivities = activities.slice((currentPageAct - 1) * itemsPerPage, currentPageAct * itemsPerPage);
+
+  const totalPagesDist = Math.ceil(distributions.length / itemsPerPage);
+  const currentDistributions = distributions.slice((currentPageDist - 1) * itemsPerPage, currentPageDist * itemsPerPage);
+
   if (loading) {
     return (
       <MainLayout>
@@ -140,14 +151,18 @@ const DashboardPage = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Program Unggulan</h2>
             <div className="space-y-4">
               {featuredPrograms.map((program, index) => (
-                <div key={index} className="bg-white rounded-lg shadow p-6">
+                <div 
+                  key={index} 
+                  onClick={() => navigate(`/donasi/${program.campaign_id}`)}
+                  className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-md transition-shadow"
+                >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="bg-[#E8F3F1] text-[#147D73] text-xs font-extrabold px-2.5 py-1 rounded uppercase tracking-wider">{program.category}</span>
                         <span className="text-gray-500 text-sm">{program.location}</span>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{program.title}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-[#147D73] transition-colors">{program.title}</h3>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         <span>{program.collected} dari {program.target}</span>
                         <span>•</span>
@@ -170,10 +185,10 @@ const DashboardPage = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-6 flex flex-col h-full">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Aktivitas Terkini</h2>
-              <div className="space-y-3">
-                {activities.map((activity, index) => (
+              <div className="space-y-3 flex-grow">
+                {currentActivities.map((activity, index) => (
                   <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
                     <div>
                       <p className="font-medium text-gray-900">{activity.title}</p>
@@ -183,27 +198,69 @@ const DashboardPage = () => {
                   </div>
                 ))}
               </div>
+              {/* Pagination UI for Activities */}
+              {activities.length > itemsPerPage && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                  <span className="text-xs text-gray-500">
+                    Menampilkan {Math.min((currentPageAct - 1) * itemsPerPage + 1, activities.length)}-{Math.min(currentPageAct * itemsPerPage, activities.length)} dari {activities.length}
+                  </span>
+                  <div className="flex gap-1">
+                    <button 
+                      onClick={() => setCurrentPageAct(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPageAct === 1}
+                      className="p-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <button 
+                      onClick={() => setCurrentPageAct(prev => Math.min(prev + 1, totalPagesAct))}
+                      disabled={currentPageAct === totalPagesAct}
+                      className="p-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-6 flex flex-col h-full">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Distribusi Dana (Program Aktif)</h2>
-              <div className="space-y-3">
-                {distributions.map((dist, index) => (
+              <div className="space-y-3 flex-grow">
+                {currentDistributions.map((dist, index) => (
                   <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
-                    <span className="font-medium text-gray-900">{dist.amount}</span>
-                    <span className={`text-xs font-medium px-2.5 py-0.5 rounded ${dist.status === 'SELESAI' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                    <div>
+                      <p className="font-medium text-gray-900 line-clamp-1">{dist.program_name}</p>
+                      <p className="text-sm font-bold text-[#147D73]">{dist.amount}</p>
+                      <p className="text-xs text-gray-500">{dist.date}</p>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${dist.status === 'COMPLETED' || dist.status === 'SELESAI' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
                       {dist.status}
                     </span>
                   </div>
                 ))}
               </div>
+              {/* Pagination UI for Distributions */}
+              {distributions.length > itemsPerPage && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                  <span className="text-xs text-gray-500">
+                    Menampilkan {Math.min((currentPageDist - 1) * itemsPerPage + 1, distributions.length)}-{Math.min(currentPageDist * itemsPerPage, distributions.length)} dari {distributions.length}
+                  </span>
+                  <div className="flex gap-1">
+                    <button 
+                      onClick={() => setCurrentPageDist(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPageDist === 1}
+                      className="p-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <button 
+                      onClick={() => setCurrentPageDist(prev => Math.min(prev + 1, totalPagesDist))}
+                      disabled={currentPageDist === totalPagesDist}
+                      className="p-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-50">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-
-          <div className="text-center">
-            <button className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-[#147D73]/10 hover:shadow-xl active:scale-[0.98]">
-              Lihat Seluruh Riwayat Distribusi
-            </button>
           </div>
         </div>
       </div>

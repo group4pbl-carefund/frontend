@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import CampaignCard from '../components/donationCard';
 import SearchBar from '../components/searchBar';
@@ -9,7 +9,21 @@ import { useMemo } from 'react';
 
 const ProgramsPage = () => {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState('Semua');
+  const location = useLocation();
+  
+  const [activeCategory, setActiveCategory] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('category') || 'Semua';
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const cat = params.get('category');
+    if (cat) {
+      setActiveCategory(cat);
+    }
+  }, [location.search]);
+
   const [searchQuery, setSearchQuery] = useState('');
 
   const [allCampaigns, setAllCampaigns] = useState([]);

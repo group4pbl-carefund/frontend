@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import MainLayout from '../layouts/mainLayout';
 import CampaignCard from '../components/donationCard';
@@ -11,6 +11,11 @@ import { formatRupiah, formatRupiahFull } from '../utils/format';
 const LandingPage = () => {
   const [activeCampaigns, setActiveCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const donationSectionRef = useRef(null);
+
+  const scrollToDonation = () => {
+    donationSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
     api.get('/program-campaigns')
@@ -20,7 +25,18 @@ const LandingPage = () => {
         const filtered = allCampaigns
           .filter(c => {
             const status = (c.program?.status || c.status || '').toLowerCase();
-            return status === 'active' || status === 'completed' || status === 'approved';
+            const collected = Number(c.current_amount || c.collected || 0);
+            const target = Number(c.program?.target_amount || c.target || 1);
+            const progress = (collected / target) * 100;
+            
+            // Hanya tampilkan yang aktif/approved dan belum 100% terkumpul
+            return (status === 'active' || status === 'approved') && progress < 100;
+          })
+          .sort((a, b) => {
+            // Urutkan berdasarkan tanggal dibuat (terbaru di atas)
+            const dateA = new Date(a.created_at || a.program?.created_at || 0);
+            const dateB = new Date(b.created_at || b.program?.created_at || 0);
+            return dateB - dateA;
           })
           .slice(0, 6);
           
@@ -35,10 +51,10 @@ const LandingPage = () => {
 
   return (
     <MainLayout>
-      <HeroSection />
+      <HeroSection onScrollToDonate={scrollToDonation} />
       <StatsSection />
 
-      <section className="px-8 py-16 md:px-16 lg:px-24 bg-white">
+      <section ref={donationSectionRef} className="px-8 py-16 md:px-16 lg:px-24 bg-white">
         <div className="flex items-end justify-between mb-8">
           <div>
             <h2 className="text-4xl font-bold text-slate-900">Program donasi aktif</h2>

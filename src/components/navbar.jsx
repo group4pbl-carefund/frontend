@@ -52,19 +52,9 @@ const Navbar = () => {
 
         {isLoggedIn && (
           <>
-            {userRole === 'admin' ? (
-              <>
-                <Link to="/admin" className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors">
-                  Admin Dashboard
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors">
-                  Dashboard
-                </Link>
-              </>
-            )}
+            <Link to="/dashboard" className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors">
+              Dashboard
+            </Link>
 
             <Link
               to={userRole === 'admin' ? '/admin/edukasi' : '/edukasi'}
@@ -78,6 +68,12 @@ const Navbar = () => {
         <Link to="/about-us" className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors">
           Tentang Kami
         </Link>
+        
+        {isLoggedIn && userRole === 'admin' && (
+          <Link to="/admin" className="text-lg font-bold text-slate-600 hover:text-[#147D73] transition-colors">
+            Admin Dashboard
+          </Link>
+        )}
       </div>
 
       {/* Right Section */}

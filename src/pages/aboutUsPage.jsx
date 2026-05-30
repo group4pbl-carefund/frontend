@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../utils/api';
 import MainLayout from '../layouts/mainLayout';
 import { 
   Heart, 
@@ -17,6 +18,26 @@ import {
 } from 'lucide-react';
 
 const AboutUsPage = () => {
+  const [stats, setStats] = useState({
+    donatur_aktif: '0+',
+    dana_tersalurkan: 'Rp 0',
+    kampanye_sukses: '0+'
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get('/public-stats');
+        if (response.data?.success) {
+          setStats(response.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch public stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
+
   return (
     <MainLayout>
       <div className="bg-[#F4F7F6] min-h-screen text-slate-800 font-sans">
@@ -96,17 +117,17 @@ const AboutUsPage = () => {
             </p>
             <div className="flex items-center gap-6 pt-4">
               <div>
-                <h4 className="text-3xl font-black text-[#147D73]">10K+</h4>
+                <h4 className="text-3xl font-black text-[#147D73]">{stats.donatur_aktif}</h4>
                 <p className="text-[10px] text-gray-400 font-bold uppercase">Donatur Aktif</p>
               </div>
               <div className="w-px h-8 bg-gray-200"></div>
               <div>
-                <h4 className="text-3xl font-black text-[#147D73]">Rp 2.4 M</h4>
+                <h4 className="text-3xl font-black text-[#147D73]">{stats.dana_tersalurkan}</h4>
                 <p className="text-[10px] text-gray-400 font-bold uppercase">Dana Tersalurkan</p>
               </div>
               <div className="w-px h-8 bg-gray-200"></div>
               <div>
-                <h4 className="text-3xl font-black text-[#147D73]">150+</h4>
+                <h4 className="text-3xl font-black text-[#147D73]">{stats.kampanye_sukses}</h4>
                 <p className="text-[10px] text-gray-400 font-bold uppercase">Kampanye Sukses</p>
               </div>
             </div>
