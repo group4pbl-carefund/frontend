@@ -12,6 +12,10 @@ const LandingPage = () => {
   const [activeCampaigns, setActiveCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const donationSectionRef = useRef(null);
+  useEffect(() => {
+    // Scroll to top on mount
+    window.scrollTo(0, 0);
+  }, []);
 
   const scrollToDonation = () => {
     donationSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -29,8 +33,18 @@ const LandingPage = () => {
             const target = Number(c.program?.target_amount || c.target || 1);
             const progress = (collected / target) * 100;
             
-            // Hanya tampilkan yang aktif/approved dan belum 100% terkumpul
-            return (status === 'active' || status === 'approved') && progress < 100;
+            let isNotExpired = true;
+            const endDateStr = c.program?.end_date || c.end_date;
+            if (endDateStr) {
+                const endDate = new Date(endDateStr);
+                const now = new Date();
+                if (endDate < now) {
+                    isNotExpired = false;
+                }
+            }
+            
+            // Hanya tampilkan yang aktif/approved, belum 100% terkumpul, dan belum expired
+            return (status === 'active' || status === 'approved') && progress < 100 && isNotExpired;
           })
           .sort((a, b) => {
             // Urutkan berdasarkan tanggal dibuat (terbaru di atas)

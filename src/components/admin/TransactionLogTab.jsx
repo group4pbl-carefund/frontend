@@ -24,6 +24,12 @@ const TransactionLogTab = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStatus, setActiveStatus] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeStatus]);
 
 
   useEffect(() => {
@@ -125,6 +131,9 @@ const TransactionLogTab = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const totalPages = Math.ceil(filteredTrx.length / itemsPerPage);
+  const paginatedTrx = filteredTrx.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -132,10 +141,10 @@ const TransactionLogTab = () => {
           <h2 className="text-2xl font-bold text-gray-800">Log Transaksi</h2>
           <p className="text-gray-500">Memantau dan mengaudit semua dana yang masuk dan keluar.</p>
         </div>
-        <button className="flex items-center gap-2 bg-[#147D73] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#0F655C] transition-colors shadow-sm">
+        {/* <button className="flex items-center gap-2 bg-[#147D73] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#0F655C] transition-colors shadow-sm">
           <Download className="w-4 h-4" />
           Export Report
-        </button>
+        </button> */}
       </div>
 
       {/* Stats Grid */}
@@ -249,7 +258,7 @@ const TransactionLogTab = () => {
           <option value="Pending">PENDING</option>
           <option value="Failed">FAILED</option>
         </select>
-        <button 
+       {/* <button 
           onClick={() => {
             setSearchQuery('');
             setActiveStatus('All');
@@ -257,7 +266,7 @@ const TransactionLogTab = () => {
           className="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold hover:bg-gray-300 transition-all"
         >
           Reset
-        </button>
+        </button> */}
       </div>
 
       {/* Transaction Table */}
@@ -277,8 +286,8 @@ const TransactionLogTab = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTrx.length > 0 ? (
-                filteredTrx.map((trx, idx) => (
+              {paginatedTrx.length > 0 ? (
+                paginatedTrx.map((trx, idx) => (
                   <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
                     <td className="px-8 py-6 text-sm font-bold text-teal-700">{trx.id}</td>
                     <td className="px-8 py-6">
@@ -311,9 +320,9 @@ const TransactionLogTab = () => {
                       </span>
                     </td>
                     <td className="px-8 py-6 text-right">
-                      <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                      {/* <button className="text-gray-400 hover:text-gray-600 transition-colors">
                         <MoreVertical className="w-5 h-5" />
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))
@@ -329,14 +338,32 @@ const TransactionLogTab = () => {
         </div>
 
         {/* Pagination */}
-        <div className="p-8 border-t border-gray-50 flex items-center justify-between">
-          <p className="text-xs text-gray-400">Menampilkan {filteredTrx.length} dari {logsList.length} transaksi</p>
-          <div className="flex items-center gap-1">
-            <button className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg transition-all"><ChevronLeft className="w-5 h-5" /></button>
-            <button className="w-8 h-8 rounded-lg text-xs font-bold bg-[#147D73] text-white">1</button>
-            <button className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg transition-all"><ChevronRight className="w-5 h-5" /></button>
+        {totalPages > 1 && (
+          <div className="p-8 border-t border-gray-50 flex items-center justify-between">
+            <p className="text-xs text-gray-400">
+              Menampilkan {(currentPage - 1) * itemsPerPage + 1} hingga {Math.min(currentPage * itemsPerPage, filteredTrx.length)} dari {filteredTrx.length} transaksi
+            </p>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg transition-all disabled:opacity-50">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              
+              <button className="w-8 h-8 rounded-lg text-xs font-bold bg-[#147D73] text-white">
+                {currentPage}
+              </button>
+
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-1 text-gray-400 hover:bg-gray-100 rounded-lg transition-all disabled:opacity-50">
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

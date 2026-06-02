@@ -16,6 +16,7 @@ const DonationDetailPage = () => {
 
     const quickAmounts = [50000, 100000, 250000, 500000, 1000000];
     const MIN_DONATION = 10000;
+    const MAX_DONATION = 100000000;
 
     const [activeTab, setActiveTab] = useState('deskripsi');
     const [selectedAmount, setSelectedAmount] = useState('');
@@ -79,9 +80,19 @@ const DonationDetailPage = () => {
     const percentage = Math.min(Math.round((currentAmount / targetAmount) * 100), 100);
     
     const handleCheckout = () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+
         const amount = Number(selectedAmount);
         if (!amount || amount < MIN_DONATION) {
             setAmountError(`Minimal donasi Rp ${MIN_DONATION.toLocaleString('id-ID')}`);
+            return;
+        }
+        if (amount > MAX_DONATION) {
+            setAmountError(`Maksimal donasi Rp ${MAX_DONATION.toLocaleString('id-ID')}`);
             return;
         }
         setAmountError('');
@@ -116,7 +127,12 @@ const DonationDetailPage = () => {
                         {/* Gambar & Kategori */}
                         <div className="relative rounded-3xl overflow-hidden aspect-[16/9] md:aspect-[21/9] bg-slate-200">
                             {displayImage ? (
-                                <img src={displayImage} alt={displayTitle} className="w-full h-full object-cover" />
+                                <img 
+                                    src={displayImage} 
+                                    alt={displayTitle} 
+                                    className="w-full h-full object-cover" 
+                                    onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/eeeeee/999999?text=No+Image"; }}
+                                />
                             ) : (
                                 <div className="w-full h-full bg-slate-300"></div>
                             )}

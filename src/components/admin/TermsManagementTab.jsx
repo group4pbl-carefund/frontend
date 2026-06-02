@@ -308,14 +308,14 @@ const TermsManagementTab = () => {
           <p className="text-gray-500">Kelola dokumen hukum platform dan pantau kepatuhan pengguna terhadap versi T&C terbaru.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          {/* <button
             onClick={handleResetSimulatedUser}
             className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold rounded-xl hover:bg-amber-100 transition-all"
             title="Degradasi persetujuan user@carefund.com agar dia terblokir dan wajib menyetujui ulang."
           >
             <ShieldAlert className="w-4 h-4 text-amber-600" />
             Simulasi Reset User (v1.0)
-          </button>
+          </button> */}
           
           <button 
             onClick={() => {

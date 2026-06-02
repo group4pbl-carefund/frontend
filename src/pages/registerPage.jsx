@@ -77,6 +77,24 @@ const RegisterPage = () => {
   // Step 1 -> Step 2
   const handleNextStep = async (e) => {
     e.preventDefault();
+    if (formData.password.length < 8 || formData.password.length > 21) {
+      return Swal.fire({
+        title: 'Gagal!',
+        text: 'Kata sandi harus antara 8 hingga 21 karakter!',
+        icon: 'error',
+        confirmButtonText: 'Coba Lagi',
+        confirmButtonColor: '#147D73'
+      });
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(formData.password)) {
+      return Swal.fire({
+        title: 'Gagal!',
+        text: 'Kata sandi hanya boleh berisi kombinasi huruf dan angka!',
+        icon: 'error',
+        confirmButtonText: 'Coba Lagi',
+        confirmButtonColor: '#147D73'
+      });
+    }
     if (formData.password !== formData.confirm_password) {
       return Swal.fire({
         title: 'Gagal!',

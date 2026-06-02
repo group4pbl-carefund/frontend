@@ -247,10 +247,10 @@ const UserProfilePage = () => {
                                     <div className="flex items-center gap-3"><History size={20} /><span>Riwayat Donasi</span></div>
                                     <ChevronRight size={16} />
                                 </button>
-                                <button onClick={() => setActiveTab('sertifikat')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'sertifikat' ? 'bg-slate-50 text-[#147D73] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
+                                {/*<button onClick={() => setActiveTab('sertifikat')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'sertifikat' ? 'bg-slate-50 text-[#147D73] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
                                     <div className="flex items-center gap-3"><Award size={20} /><span>Sertifikat Saya</span></div>
                                     <ChevronRight size={16} />
-                                </button>
+                                </button> */}
                                 <button onClick={() => setActiveTab('dampak')} className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${activeTab === 'dampak' ? 'bg-slate-50 text-[#147D73] font-bold' : 'text-slate-600 hover:bg-slate-50'}`}>
                                     <div className="flex items-center gap-3"><HandHeart size={20} /><span>Dampak Sosial</span></div>
                                     <ChevronRight size={16} />
@@ -277,7 +277,7 @@ const UserProfilePage = () => {
                             <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden animate-in fade-in duration-500 text-left">
                                 <div className="p-6 border-b border-slate-50 flex justify-between items-center">
                                     <h2 className="text-xl font-bold text-slate-900">Riwayat Donasi</h2>
-                                    <button className="text-sm font-bold text-[#147D73] hover:underline">Lihat Semua</button>
+                                    {/*<button className="text-sm font-bold text-[#147D73] hover:underline">Lihat Semua</button>*/}
                                 </div>
                                 <div className="divide-y divide-slate-50">
                                     {isLoading ? (

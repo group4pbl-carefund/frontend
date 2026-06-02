@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Search, ChevronLeft, ChevronRight, FileCheck, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Package, Search, ChevronLeft, ChevronRight, FileCheck, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '../../utils/api';
 import { formatRupiahFull, formatRupiah, formatDate } from '../../utils/format';
@@ -32,7 +32,13 @@ const ManageCampaignTab = () => {
           return type;
         };
 
-        const mapped = data.map(item => ({
+        const mapped = data.map(item => {
+          let calculatedDaysLeft = 0;
+          if (item.end_date) {
+            calculatedDaysLeft = Math.max(0, Math.ceil((new Date(item.end_date) - new Date()) / (1000 * 60 * 60 * 24)));
+          }
+
+          return {
           id: item.program_id,
           title: item.program_name || 'Kampanye Donasi',
           category: item.category || 'Umum',
@@ -43,6 +49,7 @@ const ManageCampaignTab = () => {
           rawTarget: item.target_amount || 0,
           rawCurrent: item.current_amount || 0,
           deadline: item.end_date || 'Tidak ditentukan',
+          daysLeft: calculatedDaysLeft,
           image: item.image_url || '',
           story: item.description || "Tidak ada deskripsi",
           rab: Array.isArray(item.rab_items) ? item.rab_items : [],
@@ -62,7 +69,8 @@ const ManageCampaignTab = () => {
             evidenceUrl: item.distribution.evidence_url || null,
             date: item.distribution.created_at || '-',
           } : null
-        }));
+        };
+        });
 
         setCampaigns(mapped);
       }
@@ -334,10 +342,15 @@ const ManageCampaignTab = () => {
                               ✓ Telah Disalurkan
                             </span>
                           )}
+                          {!isCompleted && campaign.deadline !== 'Tidak ditentukan' && (
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold w-fit flex items-center gap-1.5 ${campaign.daysLeft === 0 ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'}`}>
+                              <Clock size={12} strokeWidth={3} /> Sisa: {campaign.daysLeft} Hari
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
-                        {isCompleted && !isDistributed && (
+                        {(isCompleted || campaign.daysLeft === 0) && !isDistributed && (
                           <button
                             onClick={() => handleOpenDistribute(campaign)}
                             className="inline-flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold transition-colors">

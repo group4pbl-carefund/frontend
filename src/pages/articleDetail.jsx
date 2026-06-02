@@ -126,6 +126,7 @@ const ArtikelDetail = () => {
               src={article.thumbnail_url || ''} 
               alt="Ilustrasi Artikel" 
               className="w-full aspect-21/9 object-cover rounded-xl shadow-sm"
+              onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x400/eeeeee/999999?text=No+Image"; }}
             />
           </div>
 

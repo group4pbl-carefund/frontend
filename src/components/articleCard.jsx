@@ -13,6 +13,7 @@ const ArticleCard = ({ id, category, image, readTime, title }) => {
           src={image}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/eeeeee/999999?text=No+Image"; }}
         />
         {/* Badge Category */}
         <div className="absolute top-4 left-4 bg-[#147D73] text-white text-xs font-semibold px-3 py-1.5 rounded-full">

@@ -117,9 +117,9 @@ const DonationDetailModal = ({ donation, onClose }) => {
                 <div className="p-6 border-t border-slate-50 bg-slate-50/50 flex gap-3">
                     {isSuccess ? (
                         <>
-                            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-all text-sm shadow-sm">
+                           {/* <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-all text-sm shadow-sm">
                                 <Receipt size={16} /> Invoice
-                            </button>
+                            </button> */}
                             <Link to={`/donasi/${donation.program?.id}`} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#147D73] text-white font-bold rounded-xl hover:bg-[#0F655C] hover:shadow-lg hover:shadow-teal-900/20 transition-all text-sm">
                                 <HandHeart size={16} /> Donasi Lagi
                             </Link>

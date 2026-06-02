@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Calendar, Plus, ChevronRight, Share2, MessageSquare, ArrowLeft } from 'lucide-react';
+import { Users, Calendar, Plus, ChevronRight, Share2, MessageSquare, ArrowLeft, FileCheck, CheckCircle2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../../layouts/mainLayout';
@@ -169,6 +169,8 @@ const ManageCampaignPage = () => {
     Math.max(0, Math.ceil((new Date(activeCampaign.program.end_date) - new Date()) / (1000 * 60 * 60 * 24))) 
     : (activeCampaign.daysLeft || 0);
 
+  const isFinished = daysLeft === 0 || progressPercentage >= 100;
+
   return (
     <MainLayout>
       <div className="p-10 bg-[#F4F7F6] min-h-screen">
@@ -289,9 +291,15 @@ const ManageCampaignPage = () => {
           <p className="text-xs font-black text-teal-400 uppercase tracking-widest">Sisa Waktu</p>
           <div className="flex items-end gap-2">
             <h2 className="text-3xl font-black text-slate-900 mt-1">{daysLeft} <span className="text-sm font-medium">Hari</span></h2>
-            <button onClick={handleExtendDays} className="mb-1 text-[#147D73] hover:scale-110 transition-all"><Plus size={20}/></button>
+            {!isFinished && (
+              <button onClick={handleExtendDays} className="mb-1 text-[#147D73] hover:scale-110 transition-all"><Plus size={20}/></button>
+            )}
           </div>
-          <p className="text-[10px] text-[#147D73] font-bold mt-2 uppercase underline cursor-pointer" onClick={handleExtendDays}>Perpanjang Durasi (Extend)</p>
+          {!isFinished ? (
+            <p className="text-[10px] text-[#147D73] font-bold mt-2 uppercase underline cursor-pointer" onClick={handleExtendDays}>Perpanjang Durasi (Extend)</p>
+          ) : (
+            <p className="text-[10px] text-red-500 font-bold mt-2 uppercase">Batas waktu telah usai</p>
+          )}
         </div>
 
         {/* Persentase Dana */}
@@ -308,18 +316,66 @@ const ManageCampaignPage = () => {
       </div>
 
       {/* UPDATE SECTION */}
-      <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center mb-10 max-w-6xl mx-auto gap-6">
-        <div>
-          <h3 className="text-xl font-black text-slate-800">Update Kabar Terbaru</h3>
-          <p className="text-slate-400 text-sm mt-1">Berikan laporan penggunaan dana agar donatur tetap percaya.</p>
+      {!isFinished ? (
+        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center mb-10 max-w-6xl mx-auto gap-6">
+          <div>
+            <h3 className="text-xl font-black text-slate-800">Update Kabar Terbaru</h3>
+            <p className="text-slate-400 text-sm mt-1">Berikan laporan penggunaan dana agar donatur tetap percaya.</p>
+          </div>
+          <button 
+            onClick={handleCreateUpdate}
+            className="bg-[#147D73] text-white px-8 py-4 rounded-2xl font-black hover:bg-[#0e5e57] transition-all shadow-xl shadow-teal-900/10"
+          >
+            Buat Laporan
+          </button>
         </div>
-        <button 
-          onClick={handleCreateUpdate}
-          className="bg-[#147D73] text-white px-8 py-4 rounded-2xl font-black hover:bg-[#0e5e57] transition-all shadow-xl shadow-teal-900/10"
-        >
-          Buat Laporan
-        </button>
-      </div>
+      ) : (
+        <div className="bg-amber-50 p-10 rounded-[3rem] border border-amber-100 shadow-sm flex flex-col items-center justify-center text-center mb-10 max-w-6xl mx-auto gap-2">
+          <h3 className="text-xl font-black text-amber-800">Kampanye Telah Berakhir</h3>
+          <p className="text-amber-700/70 text-sm">Anda tidak dapat lagi membuat laporan baru karena kampanye telah selesai atau tenggat waktu telah habis.</p>
+        </div>
+      )}
+
+      {/* DISTRIBUTION EVIDENCE */}
+      {isFinished && activeCampaign.program?.distribution && (
+        <div className="mb-10 max-w-6xl mx-auto">
+          <div className="bg-[#f2fdf5] border border-emerald-100 rounded-3xl p-8 shadow-sm">
+            <h4 className="text-emerald-700 font-bold mb-6 flex items-center gap-2 text-xl">
+              <CheckCircle2 size={24} /> Informasi Penyaluran Dana
+            </h4>
+            <div className="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <p className="text-xs font-bold text-emerald-800 uppercase tracking-widest mb-1">Disalurkan Kepada</p>
+                <p className="font-bold text-slate-900 text-base">{activeCampaign.program.distribution.recipient_name || 'Tidak diketahui'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-emerald-800 uppercase tracking-widest mb-1">Nominal Disalurkan</p>
+                <p className="font-bold text-[#147D73] text-base">{activeCampaign.program.distribution.formatted_amount || 'Rp -'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-emerald-800 uppercase tracking-widest mb-1">Status</p>
+                <p className="font-bold text-slate-900 text-base">Tersalurkan</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-emerald-800 uppercase tracking-widest mb-1">Tanggal</p>
+                <p className="font-bold text-slate-900 text-base">{activeCampaign.program.distribution.created_at ? formatDate(activeCampaign.program.distribution.created_at, 'long') : 'Baru saja'}</p>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-emerald-800 uppercase tracking-widest mb-3">Bukti Transfer</p>
+              <div className="rounded-2xl overflow-hidden border border-emerald-100 bg-white">
+                 {activeCampaign.program.distribution.evidence_url ? (
+                   <img src={activeCampaign.program.distribution.evidence_url} alt="Bukti Transfer" className="w-full max-h-96 object-contain bg-slate-50" />
+                 ) : (
+                   <div className="w-full h-48 bg-emerald-50 flex items-center justify-center">
+                     <p className="text-emerald-600/50 font-bold text-xs uppercase">Belum ada lampiran</p>
+                   </div>
+                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* DAFTAR LAPORAN YANG SUDAH DITERBITKAN */}
       <div>

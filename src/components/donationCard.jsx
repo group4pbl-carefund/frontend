@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const CampaignCard = ({ 
   id,
@@ -11,14 +11,35 @@ const CampaignCard = ({
   progressPercentage, 
   targetAmount 
 }) => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+
+  const handleCardClick = () => {
+    navigate(`/donasi/${id}`);
+  };
+
+  const handleDonateClick = (e) => {
+    e.stopPropagation();
+    if (!token) {
+      navigate('/login');
+    } else {
+      navigate(`/donasi/${id}`);
+    }
+  };
+
   return (
-    <Link 
-      to={`/donasi/${id}`} 
+    <div 
+      onClick={handleCardClick}
       className="group overflow-hidden rounded-[24px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 flex flex-col hover:shadow-lg transition-all cursor-pointer"
     >
       {/* Bagian Gambar & Badge Kategori */}
       <div className="relative h-48 w-full bg-gray-200">
-         <img src={imageSrc} alt={category} className="h-full w-full object-cover" />
+         <img 
+           src={imageSrc} 
+           alt={category} 
+           className="h-full w-full object-cover" 
+           onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/eeeeee/999999?text=No+Image"; }}
+         />
          <div className="absolute top-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#147D73]">
            {category}
          </div>
@@ -50,12 +71,15 @@ const CampaignCard = ({
             Target: {targetAmount}
           </div>
           
-          <button className="w-full rounded-xl bg-[#F0F2F1] py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-gray-200">
+          <button 
+            onClick={handleDonateClick}
+            className="w-full rounded-xl bg-[#F0F2F1] py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-gray-200"
+          >
             Donasi Sekarang
           </button>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

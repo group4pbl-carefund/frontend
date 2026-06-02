@@ -53,8 +53,20 @@ const ProgramsPage = () => {
     fetchCampaigns();
   }, []);
 
-  // Filter hanya kampanye dengan status 'approved' pada program
-  const activeCampaigns = allCampaigns.filter(c => c.program?.status === 'approved' || c.status === 'approved');
+  // Filter hanya kampanye dengan status 'approved' atau 'active' dan belum kedaluwarsa
+  const activeCampaigns = allCampaigns.filter(c => {
+    const status = c.program?.status || c.status;
+    let isNotExpired = true;
+    const endDateStr = c.program?.end_date || c.end_date;
+    if (endDateStr) {
+        const endDate = new Date(endDateStr);
+        const now = new Date();
+        if (endDate < now) {
+            isNotExpired = false;
+        }
+    }
+    return (status === 'approved' || status === 'active') && isNotExpired;
+  });
 
   const filteredCampaigns = activeCampaigns.filter(campaign => {
     const campaignCategory = campaign.program?.category || campaign.category || 'Umum';

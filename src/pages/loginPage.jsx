@@ -35,6 +35,27 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    if (formData.password.length < 8 || formData.password.length > 21) {
+      return Swal.fire({
+        title: 'Peringatan!',
+        text: 'Kata sandi harus antara 8 hingga 21 karakter!',
+        icon: 'warning',
+        confirmButtonText: 'Coba Lagi',
+        confirmButtonColor: '#147D73'
+      });
+    }
+
+    if (!/^[a-zA-Z0-9]+$/.test(formData.password)) {
+      return Swal.fire({
+        title: 'Peringatan!',
+        text: 'Kata sandi hanya boleh berisi kombinasi huruf dan angka!',
+        icon: 'warning',
+        confirmButtonText: 'Coba Lagi',
+        confirmButtonColor: '#147D73'
+      });
+    }
+
     setLoading(true);
     
     try {
@@ -94,8 +115,11 @@ const LoginPage = () => {
     if (resetData.password !== resetData.password_confirmation) {
       return Swal.fire('Error', 'Konfirmasi password tidak cocok!', 'error');
     }
-    if (resetData.password.length < 8) {
-      return Swal.fire('Error', 'Password minimal 8 karakter!', 'error');
+    if (resetData.password.length < 8 || resetData.password.length > 21) {
+      return Swal.fire('Error', 'Password harus antara 8 hingga 21 karakter!', 'error');
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(resetData.password)) {
+      return Swal.fire('Error', 'Password hanya boleh berisi kombinasi huruf dan angka!', 'error');
     }
     
     setModalLoading(true);

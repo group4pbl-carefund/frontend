@@ -266,17 +266,22 @@ const EditArticlePage = () => {
               {/* Featured Image */}
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Featured Image</label>
-                <label className="border-2 border-dashed border-gray-200 bg-slate-50 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors group relative overflow-hidden h-48">
-                  {thumbnailPreview ? (
-                    <img src={thumbnailPreview} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                <label className="border-2 border-dashed border-gray-200 bg-slate-50 rounded-2xl p-0 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-slate-100 transition-colors group relative overflow-hidden h-48 w-full">
+                  {(thumbnailPreview || article.thumbnail_url) ? (
+                    <>
+                      <img src={thumbnailPreview || article.thumbnail_url} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10">
+                        <svg className="w-8 h-8 text-white mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                        <p className="font-bold text-white mb-1 text-sm">Replace featured image</p>
+                      </div>
+                    </>
                   ) : (
-                    <img src={article.thumbnail_url || ''} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-20" />
+                    <div className="p-8 w-full flex flex-col items-center justify-center">
+                      <svg className="w-8 h-8 text-[#147D73] mx-auto mb-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                      <p className="font-bold text-slate-700 mb-1 text-sm">Click to upload image</p>
+                      <p className="text-[10px] text-slate-400">PNG, JPG up to 5MB</p>
+                    </div>
                   )}
-                  <div className="relative z-10">
-                    <svg className="w-8 h-8 text-[#147D73] mx-auto mb-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                    <p className="font-bold text-slate-700 mb-1 text-sm">{thumbnailPreview || article.thumbnail_url ? 'Replace featured image' : 'Click to upload image'}</p>
-                    <p className="text-[10px] text-slate-400">PNG, JPG up to 10MB</p>
-                  </div>
                   <input type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {

@@ -205,7 +205,7 @@ const CheckoutPage = () => {
                             className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 px-8 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-teal-900/20"
                         >
                             <ShieldCheck className="w-5 h-5" />
-                            Lihat Sertifikat Donasi
+                            Lihat Riwayat Donasi
                         </button>
                         <button
                             onClick={() => navigate('/dashboard')}
