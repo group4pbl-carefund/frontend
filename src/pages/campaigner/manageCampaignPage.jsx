@@ -170,6 +170,7 @@ const ManageCampaignPage = () => {
     : (activeCampaign.daysLeft || 0);
 
   const isFinished = daysLeft === 0 || progressPercentage >= 100;
+  const isPending = activeCampaign.program?.status === 'pending';
 
   return (
     <MainLayout>
@@ -291,12 +292,16 @@ const ManageCampaignPage = () => {
           <p className="text-xs font-black text-teal-400 uppercase tracking-widest">Sisa Waktu</p>
           <div className="flex items-end gap-2">
             <h2 className="text-3xl font-black text-slate-900 mt-1">{daysLeft} <span className="text-sm font-medium">Hari</span></h2>
-            {!isFinished && (
+            {!isFinished && !isPending && (
               <button onClick={handleExtendDays} className="mb-1 text-[#147D73] hover:scale-110 transition-all"><Plus size={20}/></button>
             )}
           </div>
           {!isFinished ? (
-            <p className="text-[10px] text-[#147D73] font-bold mt-2 uppercase underline cursor-pointer" onClick={handleExtendDays}>Perpanjang Durasi (Extend)</p>
+             isPending ? (
+                 <p className="text-[10px] text-amber-500 font-bold mt-2 uppercase">Menunggu Persetujuan</p>
+             ) : (
+                 <p className="text-[10px] text-[#147D73] font-bold mt-2 uppercase underline cursor-pointer" onClick={handleExtendDays}>Perpanjang Durasi (Extend)</p>
+             )
           ) : (
             <p className="text-[10px] text-red-500 font-bold mt-2 uppercase">Batas waktu telah usai</p>
           )}
@@ -316,7 +321,8 @@ const ManageCampaignPage = () => {
       </div>
 
       {/* UPDATE SECTION */}
-      {!isFinished ? (
+      {/* UPDATE SECTION */}
+      {!isFinished && !isPending ? (
         <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center mb-10 max-w-6xl mx-auto gap-6">
           <div>
             <h3 className="text-xl font-black text-slate-800">Update Kabar Terbaru</h3>
@@ -328,6 +334,11 @@ const ManageCampaignPage = () => {
           >
             Buat Laporan
           </button>
+        </div>
+      ) : isPending ? (
+        <div className="bg-amber-50 p-10 rounded-[3rem] border border-amber-100 shadow-sm flex flex-col items-center justify-center text-center mb-10 max-w-6xl mx-auto gap-2">
+          <h3 className="text-xl font-black text-amber-800">Menunggu Persetujuan</h3>
+          <p className="text-amber-700/70 text-sm">Anda belum dapat membuat laporan perkembangan karena kampanye ini sedang dalam proses peninjauan oleh Admin.</p>
         </div>
       ) : (
         <div className="bg-amber-50 p-10 rounded-[3rem] border border-amber-100 shadow-sm flex flex-col items-center justify-center text-center mb-10 max-w-6xl mx-auto gap-2">

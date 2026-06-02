@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '../components/navbar';
 import Footer from '../components/footer';
+import PendingTransactionWidget from '../components/pendingTransactionWidget';
 
 const MainLayout = ({ children }) => {
   return (
@@ -11,6 +12,7 @@ const MainLayout = ({ children }) => {
         {children}
       </main>
       
+      <PendingTransactionWidget />
       <Footer />
     </div>
   );

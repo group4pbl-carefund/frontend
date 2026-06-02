@@ -1,13 +1,18 @@
 import React from 'react';
 import { X, Copy, CheckCircle2, Clock, CreditCard, Receipt, HandHeart, Download, ChevronRight } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const DonationDetailModal = ({ donation, onClose }) => {
+    const navigate = useNavigate();
     if (!donation) return null;
 
     const isSuccess = ['success', 'paid', 'settlement', 'completed'].includes(donation.payment_status?.toLowerCase());
-    
+    const isFailedBackend = ['deny', 'cancel', 'expire', 'failure', 'failed'].includes(donation.payment_status?.toLowerCase());
+    const createdAt = new Date(donation.created_at).getTime();
+    const expiresAt = createdAt + 15 * 60 * 1000;
+    const isExpired = !isSuccess && (!isFailedBackend && Date.now() > expiresAt) || isFailedBackend;
+
     const handleCopy = (text) => {
         navigator.clipboard.writeText(text);
         Swal.fire({
@@ -60,13 +65,17 @@ const DonationDetailModal = ({ donation, onClose }) => {
                             <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mb-3">
                                 <CheckCircle2 size={32} className="text-emerald-500" />
                             </div>
+                        ) : isExpired ? (
+                            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-3">
+                                <X size={32} className="text-rose-500" />
+                            </div>
                         ) : (
                             <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mb-3">
                                 <Clock size={32} className="text-amber-500" />
                             </div>
                         )}
-                        <h3 className={`text-xl font-black ${isSuccess ? 'text-emerald-600' : 'text-amber-600'}`}>
-                            {isSuccess ? 'Donasi Berhasil' : 'Menunggu Pembayaran'}
+                        <h3 className={`text-xl font-black ${isSuccess ? 'text-emerald-600' : isExpired ? 'text-rose-600' : 'text-amber-600'}`}>
+                            {isSuccess ? 'Donasi Berhasil' : isExpired ? 'Dibatalkan / Kedaluwarsa' : 'Menunggu Pembayaran'}
                         </h3>
                         <p className="text-slate-500 text-sm mt-1">{donation.date}</p>
                     </div>
@@ -124,8 +133,29 @@ const DonationDetailModal = ({ donation, onClose }) => {
                                 <HandHeart size={16} /> Donasi Lagi
                             </Link>
                         </>
+                    ) : isExpired ? (
+                        <button 
+                            disabled
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-200 text-slate-500 font-bold rounded-xl cursor-not-allowed text-sm">
+                            Waktu Habis / Gagal
+                        </button>
                     ) : (
-                        <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 hover:shadow-lg transition-all text-sm shadow-sm">
+                        <button 
+                            onClick={() => {
+                                onClose();
+                                navigate(`/donasi/${donation.program?.id || 1}/checkout`, {
+                                    state: {
+                                        existingDonation: true,
+                                        donationId: donation.id,
+                                        orderId: donation.transaction_id,
+                                        amount: parseFloat(donation.raw_amount || donation.amount || 0),
+                                        paymentMethod: donation.payment_method,
+                                        campaignTitle: donation.program?.title || 'Program Donasi Care Fund',
+                                        createdAt: donation.created_at
+                                    }
+                                });
+                            }}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 hover:shadow-lg transition-all text-sm shadow-sm">
                             Selesaikan Pembayaran <ChevronRight size={16} />
                         </button>
                     )}
