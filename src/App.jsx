@@ -1,121 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import LandingPage from './pages/landingPage';
+import LoginPage from './pages/loginPage';
+import RegisterPage from './pages/registerPage';
+import UserProfilePage from './pages/userProfilePage';
+import DashboardPage from './pages/dashboardPage';
+import AdminDashboardPage from './pages/admin/adminDashboardPage';
+import EducationPage from './pages/educationPage';
+import ArtikelDetail from './pages/articleDetail';
+import DonationDetailPage from './pages/donationDetailPage';
+import ProgramsPage from './pages/programsPage';
+import CheckoutPage from './pages/checkoutPage';
+import AdminEducationPage from './pages/admin/adminEducationPage';
+import CmsEdukasiPage from './pages/admin/cmsEdukasiPage';
+import CreateArticlePage from './pages/admin/createArticlePage';
+import EditArticlePage from './pages/admin/editArticlePage';
+import CreateCampaignPage from './pages/createCampaignPage';
+
+// New components & pages
+import TermsAcceptancePage from './pages/termsAcceptancePage';
+import AboutUsPage from './pages/aboutUsPage';
+import TermsGuard from './components/termsGuard';
+import CampaignApprovalPage from './pages/admin/campaignApprovalPage'; 
+import ManageCampaignPage from './pages/campaigner/manageCampaignPage';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/about-us" element={<AboutUsPage />} />
+        <Route path="/accept-terms" element={<TermsAcceptancePage />} />
+        
+        {/* Public routes (can be accessed without login) */}
+        <Route path="/donasi/:id" element={<DonationDetailPage />} />
+        <Route path="/edukasi" element={<EducationPage />} />
+        <Route path="/edukasi/:id" element={<ArtikelDetail />} />
+        <Route path="/donasi" element={<ProgramsPage />} />
 
-      <div className="ticks"></div>
+        <Route element={<TermsGuard />}>
+          <Route path="/user-profile" element={<UserProfilePage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          
+          {/* 1. Rute User/Campaigner */}
+          <Route path="/manage-campaign" element={<ManageCampaignPage />} />
+          <Route path="/buat-kampanye" element={<CreateCampaignPage />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+          {/* Rute Admin */}
+          <Route path="/admin/approval-campaign" element={<CampaignApprovalPage />} />
+          <Route path="/admin/edukasi/manage/create" element={<CreateArticlePage />} />
+          <Route path="/admin/edukasi/manage/edit/:id" element={<EditArticlePage />} />
+          <Route path="/admin/edukasi/manage" element={<CmsEdukasiPage />} />
+          <Route path="/admin/edukasi" element={<AdminEducationPage />} />
+          
+          <Route path="/admin/*" element={<AdminDashboardPage />} />
+          
+          <Route path="/donasi/:id/checkout" element={<CheckoutPage />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
