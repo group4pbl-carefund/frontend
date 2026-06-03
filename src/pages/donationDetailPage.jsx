@@ -65,7 +65,7 @@ const DonationDetailPage = () => {
     const displayStory = displayCampaign.program?.description || displayCampaign.story || '';
     const displayCategory = displayCampaign.program?.category || 'Umum';
     const displayImage = displayCampaign.program?.image_url || displayCampaign.image_url || '';
-    
+
     // Calculate days left
     let displayDaysLeft = 0;
     let endDateStr = 'Tidak Terbatas';
@@ -78,7 +78,7 @@ const DonationDetailPage = () => {
     const currentAmount = Number(displayCurrent) || 0;
     const targetAmount = Number(displayTarget) || 1;
     const percentage = Math.min(Math.round((currentAmount / targetAmount) * 100), 100);
-    
+
     const handleCheckout = () => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -107,30 +107,30 @@ const DonationDetailPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F4F7F6] text-slate-900 pb-20">
+        <div className="min-h-screen flex flex-col bg-[#F8FAFA] font-sans selection:bg-[#147D73] selection:text-white">
             {/* Header */}
             <Navbar />
 
-            <main className="max-w-[1200px] mx-auto px-6 pt-6">
-                <button 
-                    onClick={() => navigate(-1)} 
+            <main className="flex-grow max-w-[1200px] w-full mx-auto px-6 pt-6 pb-24">
+                <button
+                    onClick={() => navigate(-1)}
                     className="mb-6 p-2 rounded-full hover:bg-slate-200 transition-colors inline-flex"
                 >
                     <ArrowLeft className="w-6 h-6 text-slate-800" />
                 </button>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
-                    
+
                     {/* KOLOM KIRI (KONTEN) */}
                     <div className="lg:col-span-2 space-y-8">
-                        
+
                         {/* Gambar & Kategori */}
                         <div className="relative rounded-3xl overflow-hidden aspect-[16/9] md:aspect-[21/9] bg-slate-200">
                             {displayImage ? (
-                                <img 
-                                    src={displayImage} 
-                                    alt={displayTitle} 
-                                    className="w-full h-full object-cover" 
+                                <img
+                                    src={displayImage}
+                                    alt={displayTitle}
+                                    className="w-full h-full object-cover"
                                     onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/eeeeee/999999?text=No+Image"; }}
                                 />
                             ) : (
@@ -162,7 +162,7 @@ const DonationDetailPage = () => {
                         {/* TABS */}
                         <div className="flex gap-8 border-b border-slate-200">
                             {['deskripsi', 'update', 'donatur'].map(tab => (
-                                <button 
+                                <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
                                     className={`pb-3 text-sm font-bold capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-[#147D73] text-[#147D73]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
@@ -174,7 +174,7 @@ const DonationDetailPage = () => {
 
                         {/* TAB KONTEN */}
                         <div className="min-h-[300px]">
-                            
+
                             {activeTab === 'deskripsi' && (
                                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                     <div>
@@ -183,7 +183,7 @@ const DonationDetailPage = () => {
                                             {displayStory}
                                         </p>
                                     </div>
-                                    
+
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         <div className="bg-[#EAF3F2] p-4 rounded-2xl">
                                             <Target className="w-5 h-5 text-[#147D73] mb-3" />
@@ -194,11 +194,11 @@ const DonationDetailPage = () => {
                                             <Users className="w-5 h-5 text-[#147D73] mb-3" />
                                             <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Penerima Manfaat</p>
                                             <p className="font-bold text-slate-900 text-sm mt-1">
-                                                {displayCampaign.program?.beneficiary_type === 'diri_sendiri' ? 'Diri Sendiri' : 
-                                                 displayCampaign.program?.beneficiary_type === 'keluarga' ? 'Keluarga' : 
-                                                 displayCampaign.program?.beneficiary_type === 'orang_lain' ? 'Orang Lain' :
-                                                 displayCampaign.program?.beneficiary_type === 'banyak_orang' ? 'Banyak Orang' :
-                                                 displayCampaign.program?.beneficiary_type === 'yayasan' ? 'Yayasan/Lembaga' : 'Banyak Orang'}
+                                                {displayCampaign.program?.beneficiary_type === 'diri_sendiri' ? 'Diri Sendiri' :
+                                                    displayCampaign.program?.beneficiary_type === 'keluarga' ? 'Keluarga' :
+                                                        displayCampaign.program?.beneficiary_type === 'orang_lain' ? 'Orang Lain' :
+                                                            displayCampaign.program?.beneficiary_type === 'banyak_orang' ? 'Banyak Orang' :
+                                                                displayCampaign.program?.beneficiary_type === 'yayasan' ? 'Yayasan/Lembaga' : 'Banyak Orang'}
                                             </p>
                                         </div>
                                         <div className="bg-[#EAF3F2] p-4 rounded-2xl">
@@ -274,7 +274,7 @@ const DonationDetailPage = () => {
                     <div className="lg:col-span-1">
                         <div className="bg-white p-8 rounded-[2rem] shadow-sm sticky top-24 border border-white">
                             <h2 className="text-lg font-extrabold text-slate-900 mb-6">Berdonasi Sekarang</h2>
-                            
+
                             {/* Progress Section */}
                             <div className="mb-6">
                                 <div className="flex justify-between items-end mb-2">
@@ -285,11 +285,11 @@ const DonationDetailPage = () => {
                                     </div>
                                 </div>
                                 <p className="text-xs text-slate-500 mb-3 font-medium">Terkumpul dari {formatRupiahFull(targetAmount)}</p>
-                                
+
                                 <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                                     <div className="h-full bg-[#147D73] rounded-full transition-all duration-1000 ease-out" style={{ width: `${percentage}%` }}></div>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-1.5 mt-4 text-xs font-bold text-slate-700">
                                     <HeartHandshake className="w-4 h-4 text-[#147D73]" />
                                     <span>{donors.length}</span> orang telah berdonasi
@@ -303,12 +303,16 @@ const DonationDetailPage = () => {
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <span className="font-bold text-[#147D73]">Rp</span>
                                     </div>
-                                    <input 
-                                        type="number"
+                                    <input
+                                        type="text"
+                                        inputMode="numeric"
                                         value={selectedAmount}
-                                        onChange={(e) => { setSelectedAmount(e.target.value); setAmountError(''); }}
-                                        onWheel={(e) => e.target.blur()}
-                                        className="w-full bg-[#F4F7F6] text-slate-900 font-black py-4 pl-12 pr-4 rounded-xl outline-none focus:ring-2 focus:ring-[#147D73]/20 transition-all text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[^0-9]/g, '');
+                                            setSelectedAmount(val);
+                                            setAmountError('');
+                                        }}
+                                        className="w-full bg-[#F4F7F6] text-slate-900 font-black py-4 pl-12 pr-4 rounded-xl outline-none focus:ring-2 focus:ring-[#147D73]/20 transition-all text-lg"
                                         placeholder="10000"
                                     />
                                 </div>
@@ -338,9 +342,9 @@ const DonationDetailPage = () => {
                                     ].map(method => (
                                         <label key={method.id} className={`flex items-center justify-between p-3.5 border rounded-xl cursor-pointer transition-colors ${selectedMethod === method.id ? 'border-[#147D73] bg-[#F4F7F6]' : 'border-slate-100 hover:bg-slate-50'}`}>
                                             <div className="flex items-center gap-3">
-                                                <input 
-                                                    type="radio" 
-                                                    name="paymentMethod" 
+                                                <input
+                                                    type="radio"
+                                                    name="paymentMethod"
                                                     value={method.id}
                                                     checked={selectedMethod === method.id}
                                                     onChange={(e) => setSelectedMethod(e.target.value)}
@@ -360,7 +364,7 @@ const DonationDetailPage = () => {
                             <div className="mb-8 space-y-4">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pesan atau Doa (Opsional)</label>
-                                    <textarea 
+                                    <textarea
                                         rows="2"
                                         placeholder="Tulis dukungan Anda..."
                                         value={comment}
@@ -371,9 +375,9 @@ const DonationDetailPage = () => {
                                 <label className="flex items-center justify-between p-3 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
                                     <div className="pr-2">
                                         <p className="text-xs font-bold text-slate-700">Sembunyikan nama saya</p>
-                                        <p className="text-[9px] text-slate-500 mt-0.5">Tampil sebagai "Orang Baik"</p>
+                                        <p className="text-[9px] text-slate-500 mt-0.5">Tampil sebagai "Hamba Allah"</p>
                                     </div>
-                                    <input 
+                                    <input
                                         type="checkbox"
                                         checked={anonymous}
                                         onChange={(e) => setAnonymous(e.target.checked)}
@@ -382,7 +386,7 @@ const DonationDetailPage = () => {
                                 </label>
                             </div>
 
-                            <button 
+                            <button
                                 onClick={handleCheckout}
                                 className="w-full bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-4 rounded-2xl transition-colors shadow-lg shadow-teal-900/20 mb-6"
                             >
@@ -404,7 +408,7 @@ const DonationDetailPage = () => {
 
                 </div>
             </main>
-            
+
             <Footer />
 
         </div>
