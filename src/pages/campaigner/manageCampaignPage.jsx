@@ -204,7 +204,7 @@ const ManageCampaignPage = () => {
               </select>
             </div>
           )}
-          <button 
+          {/* <button 
             onClick={() => {
               Swal.fire({
                 title: 'Bagikan Kampanye!',
@@ -216,7 +216,7 @@ const ManageCampaignPage = () => {
             className="flex items-center justify-center gap-2 px-6 py-3 border-2 border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all w-full md:w-auto"
           >
             <Share2 size={18} /> Bagikan
-          </button>
+          </button> */}
         </div>
       </div>
 

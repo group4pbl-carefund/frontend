@@ -223,12 +223,12 @@ const UserManagementTab = () => {
           <h2 className="text-2xl font-bold text-gray-800">Manajemen User</h2>
           <p className="text-gray-500">Pantau dan kelola seluruh pengguna platform secara realtime.</p>
         </div>
-        <button 
+        {/* <button 
           onClick={handleCreateUser}
           className="bg-[#147D73] hover:bg-[#0E5E57] text-white font-bold py-2.5 px-6 rounded-xl flex items-center gap-2 transition-all shadow-sm text-sm"
         >
           <UserPlus size={16} /> Tambah User
-        </button>
+        </button> */}
       </div>
 
       {/* Stats Grid */}

@@ -137,7 +137,7 @@ const ArtikelDetail = () => {
             <article className="lg:col-span-2 text-slate-700 text-[15px] md:text-base leading-relaxed">
               
               <div 
-                className="prose max-w-none space-y-6"
+                className="prose max-w-none space-y-6 break-words"
                 dangerouslySetInnerHTML={{ __html: article.content || '<p>Tidak ada konten artikel.</p>' }}
               />
 
