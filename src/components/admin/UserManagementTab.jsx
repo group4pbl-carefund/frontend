@@ -282,10 +282,10 @@ const UserManagementTab = () => {
               />
               <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-100 transition-all">
+            {/* <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-100 transition-all">
               <Download className="w-4 h-4" />
               Export
-            </button>
+            </button> */}
           </div>
         </div>
 
