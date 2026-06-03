@@ -307,7 +307,8 @@ const DonationDetailPage = () => {
                                         type="number"
                                         value={selectedAmount}
                                         onChange={(e) => { setSelectedAmount(e.target.value); setAmountError(''); }}
-                                        className="w-full bg-[#F4F7F6] text-slate-900 font-black py-4 pl-12 pr-4 rounded-xl outline-none focus:ring-2 focus:ring-[#147D73]/20 transition-all text-lg"
+                                        onWheel={(e) => e.target.blur()}
+                                        className="w-full bg-[#F4F7F6] text-slate-900 font-black py-4 pl-12 pr-4 rounded-xl outline-none focus:ring-2 focus:ring-[#147D73]/20 transition-all text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         placeholder="10000"
                                     />
                                 </div>
@@ -394,7 +395,7 @@ const DonationDetailPage = () => {
                                     <span className="text-[10px] font-black uppercase tracking-wider">Keamanan Terjamin</span>
                                 </div>
                                 <p className="text-[9px] text-slate-400 max-w-[200px] mx-auto leading-relaxed">
-                                    Donasi akan dikelola transparan. Potongan operasional 5% untuk keberlangsungan sistem.
+                                    Donasi akan dikelola transparan. Tambahan operasional sebesar Rp. 2.500,- untuk keberlangsungan sistem.
                                 </p>
                             </div>
 

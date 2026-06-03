@@ -463,6 +463,16 @@ const UserManagementTab = () => {
               {/* Data KTP */}
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
                 <h3 className="font-bold text-slate-900 mb-4 border-b pb-2">Dokumen Identitas (KTP)</h3>
+                
+                {selectedUser.raw_user.identities && selectedUser.raw_user.identities.length > 0 && (
+                  <div className="mb-4 bg-slate-50 p-4 rounded-xl border border-gray-100 flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nomor Induk Kependudukan (NIK)</p>
+                      <p className="font-black text-slate-800 tracking-wider">{selectedUser.raw_user.identities[0].identity_number || 'Belum diatur'}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex-grow flex items-center justify-center bg-slate-50 rounded-2xl overflow-hidden border border-gray-200">
                   {selectedUser.raw_user.identities && selectedUser.raw_user.identities.length > 0 ? (
                     <img src={selectedUser.raw_user.identities[0].identity_image.startsWith('http') ? selectedUser.raw_user.identities[0].identity_image : `http://localhost:8000${selectedUser.raw_user.identities[0].identity_image}`} alt="KTP" className="max-w-full max-h-[60vh] object-contain" />

@@ -33,11 +33,35 @@ const CheckoutPage = () => {
         if (isPending && timeLeft > 0) {
             const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
             return () => clearTimeout(timerId);
+        } else if (isPending && timeLeft === 0) {
+            setIsPending(false);
+            setError("Waktu pembayaran telah habis. Transaksi dibatalkan secara otomatis.");
         }
     }, [isPending, timeLeft]);
 
     useEffect(() => {
         const submitDonation = async () => {
+            if (location.state?.existingDonation) {
+                if (hasPosted.current) return;
+                hasPosted.current = true;
+                
+                setDonationId(location.state.donationId);
+                setOrderId(location.state.orderId);
+                setCampaignTitle(location.state.campaignTitle);
+                
+                if (location.state.createdAt) {
+                    const created = new Date(location.state.createdAt).getTime();
+                    const expires = created + 15 * 60 * 1000;
+                    setTimeLeft(Math.max(0, Math.floor((expires - Date.now()) / 1000)));
+                } else {
+                    setTimeLeft(898);
+                }
+                
+                setIsPending(true);
+                setLoading(false);
+                return;
+            }
+
             if (hasPosted.current) return;
             hasPosted.current = true;
 
@@ -65,11 +89,21 @@ const CheckoutPage = () => {
 
                 const response = await api.post('/donations', payload);
 
+                const responseData = response.data?.data || response.data;
                 // Simpan donation ID dari backend
-                const createdDonationId = response.data?.data?.id || response.data?.id;
+                const createdDonationId = responseData?.id;
                 if (createdDonationId) setDonationId(createdDonationId);
 
-                setOrderId(`#CF-${response.data?.data?.id || response.data?.id || Date.now()}`);
+                setOrderId(`#CF-${responseData?.id || Date.now()}`);
+                
+                if (responseData?.created_at) {
+                    const created = new Date(responseData.created_at).getTime();
+                    const expires = created + 15 * 60 * 1000;
+                    setTimeLeft(Math.max(0, Math.floor((expires - Date.now()) / 1000)));
+                } else {
+                    setTimeLeft(898);
+                }
+                
                 setIsPending(true);
 
             } catch (err) {
@@ -99,6 +133,18 @@ const CheckoutPage = () => {
         }
         setIsPending(false);
         setIsSuccess(true);
+    };
+
+    const handleCancelTransaction = async () => {
+        try {
+            if (donationId) {
+                await api.patch(`/donations/${donationId}/cancel`);
+            }
+        } catch (err) {
+            console.error("Failed to cancel donation", err);
+        }
+        setIsPending(false);
+        setError("Transaksi berhasil dibatalkan.");
     };
 
     if (loading) {
@@ -250,7 +296,7 @@ const CheckoutPage = () => {
                                             <span className="text-xl font-black text-blue-800">VA</span>
                                         </div>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Nomor Virtual Account</p>
-                                        <p className="text-xl font-mono font-black text-slate-800 tracking-widest">{orderId}</p>
+                                        <p className="text-xl font-mono font-black text-slate-800 tracking-widest">1234 5678 9012</p>
                                     </div>
                                 ) : (
                                     <div className="w-64 h-64 bg-white rounded-3xl mx-auto flex items-center justify-center p-4 border border-slate-100 mb-10 shadow-sm relative">
@@ -344,11 +390,12 @@ const CheckoutPage = () => {
                                 >
                                     sudah bayar <CheckCircle2 className="w-5 h-5" />
                                 </button>
-                                {paymentMethod === 'Transfer QRIS' && (
-                                    <button className="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-4 rounded-xl transition-colors">
-                                        Download QR Code
-                                    </button>
-                                )}
+                                <button 
+                                    onClick={handleCancelTransaction}
+                                    className="w-full bg-white border border-rose-500 hover:bg-rose-50 text-rose-600 font-bold py-4 rounded-xl transition-colors"
+                                >
+                                    Batalkan Transaksi
+                                </button>
                             </div>
 
                             <p className="text-center text-xs text-slate-500 mt-8">

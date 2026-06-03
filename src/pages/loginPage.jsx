@@ -14,6 +14,8 @@ const LoginPage = () => {
   // Modal States
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetData, setResetData] = useState({ password: '', password_confirmation: '', token: '', email: '' });
   const [modalLoading, setModalLoading] = useState(false);
@@ -59,10 +61,30 @@ const LoginPage = () => {
     setLoading(true);
     
     try {
-      const response = await api.post('/login', {
+      const payload = {
         email: formData.email,
         password: formData.password
-      });
+      };
+      
+      if (otpCode) {
+        payload.otp_code = otpCode;
+      }
+
+      const response = await api.post('/login', payload);
+
+      if (response.data.requires_otp) {
+        setShowOtpModal(true);
+        Swal.fire({
+          title: 'Perangkat Baru!',
+          text: response.data.message,
+          icon: 'info',
+          confirmButtonColor: '#147D73'
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (showOtpModal) setShowOtpModal(false);
 
       const user = response.data.data.user;
       localStorage.setItem('token', response.data.data.access_token);
@@ -304,10 +326,53 @@ const LoginPage = () => {
               </div>
               <button 
                 type="submit"
-                disabled={modalLoading || !resetData.password || !resetData.password_confirmation}
+                disabled={modalLoading}
                 className="w-full bg-[#147D73] hover:bg-[#0F655C] text-white py-4 rounded-2xl font-bold shadow-lg shadow-[#147D73]/20 transition-all active:scale-[0.98] disabled:opacity-50"
               >
-                {modalLoading ? 'Updating Password...' : 'Update Password'}
+                {modalLoading ? 'Resetting Password...' : 'Reset Password'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* OTP Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl relative">
+            <button 
+              onClick={() => setShowOtpModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full"
+            >
+              ×
+            </button>
+            <div className="text-center mb-6">
+              <div className="bg-[#147D73]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ShieldCheck className="text-[#147D73] w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800">Verifikasi Perangkat</h3>
+              <p className="text-gray-500 text-sm mt-2">Kami telah mengirimkan 6 digit kode OTP ke email Anda untuk memverifikasi login dari perangkat baru ini.</p>
+            </div>
+            
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Kode OTP</label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  className="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-[#147D73]/20 focus:bg-white transition-all text-center tracking-[0.5em] text-2xl font-black text-slate-800"
+                  placeholder="------"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
+                  required
+                />
+              </div>
+              <button 
+                type="submit"
+                disabled={loading || otpCode.length !== 6}
+                className="w-full bg-[#147D73] hover:bg-[#0F655C] text-white py-4 rounded-2xl font-bold shadow-lg shadow-[#147D73]/20 transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {loading ? 'Memverifikasi...' : 'Verifikasi OTP'}
               </button>
             </form>
           </div>
