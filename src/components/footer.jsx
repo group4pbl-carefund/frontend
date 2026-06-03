@@ -33,7 +33,7 @@ const Footer = () => {
           </ul>
         </div>
 
-        <div>
+       {/* <div>
           <h4 className="mb-4 font-bold text-slate-900">Ikuti Kami</h4>
           <div className="flex space-x-3">
             <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-slate-500 hover:bg-[#147D73] hover:text-white cursor-pointer">IG</div>
@@ -41,7 +41,7 @@ const Footer = () => {
             <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-slate-500 hover:bg-[#147D73] hover:text-white cursor-pointer">FB</div>
           </div>
         </div>
-        
+        */}
       </div>
       
       <div className="mt-12 text-center text-xs text-slate-400">
