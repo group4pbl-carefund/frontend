@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { PartyPopper } from 'lucide-react';
+import { PartyPopper, Eye, EyeOff } from 'lucide-react';
 import api from '../utils/api';
 
 const RegisterPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -377,15 +379,25 @@ const RegisterPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Password</label>
-                  <input type="password" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="••••••••"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
+                  <div className="relative">
+                    <input type={showPassword ? "text" : "password"} className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all pr-12" placeholder="••••••••"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-[#147D73]">
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-2 uppercase">Confirm Password</label>
-                  <input type="password" className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all" placeholder="••••••••"
-                    value={formData.confirm_password}
-                    onChange={(e) => setFormData({ ...formData, confirm_password: e.target.value })} required />
+                  <div className="relative">
+                    <input type={showConfirmPassword ? "text" : "password"} className="w-full bg-gray-100 p-3.5 rounded-xl outline-none focus:bg-gray-50 border border-transparent focus:border-[#147D73] transition-all pr-12" placeholder="••••••••"
+                      value={formData.confirm_password}
+                      onChange={(e) => setFormData({ ...formData, confirm_password: e.target.value })} required />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-[#147D73]">
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
               </div>
               <button className="w-full bg-[#147D73] text-white py-4 rounded-xl font-bold transition-all hover:bg-[#0F655C] active:scale-[0.99]">

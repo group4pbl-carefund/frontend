@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
-  UserCheck, 
-  UserPlus, 
-  Search, 
-  Filter, 
-  Download, 
+import {
+  Users,
+  UserCheck,
+  UserPlus,
+  Search,
+  Filter,
+  Download,
   MoreVertical,
   ChevronLeft,
   ChevronRight,
@@ -35,7 +35,7 @@ const UserManagementTab = () => {
             return (name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
           };
           const dateObj = new Date(item.created_at || Date.now());
-          
+
           return {
             id: item.id,
             name: item.full_name || 'No Name',
@@ -70,7 +70,8 @@ const UserManagementTab = () => {
       role: user.raw_user.role || 'user',
       gender: user.raw_user.gender || '',
       phone: user.raw_user.phone || '',
-      address: user.raw_user.address || ''
+      address: user.raw_user.address || '',
+      nik: user.raw_user.identities?.[0]?.identity_number || ''
     });
   };
 
@@ -80,7 +81,25 @@ const UserManagementTab = () => {
 
   const handleSaveUser = async () => {
     try {
-      await api.patch(`/users/${selectedUser.id}`, editForm);
+      const userPayload = {
+        full_name: editForm.full_name,
+        date_of_birth: editForm.date_of_birth,
+        role: editForm.role,
+        gender: editForm.gender,
+        phone: editForm.phone,
+        address: editForm.address
+      };
+      await api.patch(`/users/${selectedUser.id}`, userPayload);
+
+      if (selectedUser.raw_user.identities && selectedUser.raw_user.identities.length > 0) {
+        const identityId = selectedUser.raw_user.identities[0].id;
+        if (identityId && editForm.nik !== selectedUser.raw_user.identities[0].identity_number) {
+          await api.patch(`/user-identities/${identityId}`, {
+            identity_number: editForm.nik
+          });
+        }
+      }
+
       Swal.fire({
         title: 'Berhasil!',
         text: 'Data pengguna berhasil diperbarui.',
@@ -100,7 +119,7 @@ const UserManagementTab = () => {
 
     let nextKyc = 'Verified';
     if (u.kyc === 'Verified') nextKyc = 'Pending';
-    else if (u.kyc === 'Pending') nextKyc = 'Unverified';
+    else if (u.kyc === 'Pending') nextKyc = 'Verified'; // Bypass Unverified temporarily
     else nextKyc = 'Verified';
 
     const nextIsVerifiedBoolean = nextKyc === 'Verified';
@@ -159,7 +178,7 @@ const UserManagementTab = () => {
 
       try {
         await api.post('/users', newUserPayload);
-        
+
         // Refresh data from API
         const response = await api.get('/users');
         const data = response.data?.data || response.data;
@@ -173,7 +192,7 @@ const UserManagementTab = () => {
               avatar: getInitials(item.full_name || 'No Name'),
               kyc: item.is_verified ? 'Verified' : 'Unverified',
               raw_is_verified: item.is_verified,
-               date: formatDate(new Date(item.created_at || Date.now()), 'short')
+              date: formatDate(new Date(item.created_at || Date.now()), 'short')
             };
           });
           setUsersList(mappedUsers);
@@ -204,15 +223,15 @@ const UserManagementTab = () => {
 
   const stats = [
     { label: 'Total Users', value: totalUsers, change: 'LIVE UPDATE', icon: Users, color: 'text-teal-600', bg: 'bg-teal-50' },
-    { label: 'Verified KYC', value: verifiedCount, change: totalUsers > 0 ? `${Math.round((verifiedCount/totalUsers)*100)}% DARI TOTAL` : '0% DARI TOTAL', icon: UserCheck, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Verified KYC', value: verifiedCount, change: totalUsers > 0 ? `${Math.round((verifiedCount / totalUsers) * 100)}% DARI TOTAL` : '0% DARI TOTAL', icon: UserCheck, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { label: 'Pending Verification', value: pendingCount, change: 'BUTUH TINJAUAN', icon: Clock, color: 'text-rose-600', bg: 'bg-rose-50' },
   ];
 
   // Filter & Search Logic
   const filteredUsers = usersList.filter(u => {
     const matchesFilter = activeFilter === 'Semua' || u.kyc === activeFilter;
-    const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          u.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -236,7 +255,7 @@ const UserManagementTab = () => {
         {stats.map((stat, idx) => (
           <div key={idx} className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100 relative group overflow-hidden">
             <div className="flex justify-between items-start mb-6">
-               <div className={`${stat.bg} p-3 rounded-2xl`}>
+              <div className={`${stat.bg} p-3 rounded-2xl`}>
                 <stat.icon className={`${stat.color} w-6 h-6`} />
               </div>
               <div className={`text-[10px] font-bold px-3 py-1 rounded-full ${stat.bg} ${stat.color}`}>
@@ -256,15 +275,14 @@ const UserManagementTab = () => {
         {/* Table Header / Filters */}
         <div className="p-8 border-b border-gray-50 flex flex-wrap items-center justify-between gap-4">
           <div className="flex bg-gray-50 p-1.5 rounded-2xl gap-1">
-            {['Semua', 'Verified', 'Pending', 'Unverified'].map((tab) => (
-              <button 
-                key={tab} 
+            {['Semua', 'Verified', 'Pending'].map((tab) => (
+              <button
+                key={tab}
                 onClick={() => setActiveFilter(tab)}
-                className={`px-6 py-2 text-xs font-bold rounded-xl transition-all ${
-                  activeFilter === tab 
-                    ? 'bg-[#147D73] text-white shadow-lg shadow-teal-900/10' 
+                className={`px-6 py-2 text-xs font-bold rounded-xl transition-all ${activeFilter === tab
+                    ? 'bg-[#147D73] text-white shadow-lg shadow-teal-900/10'
                     : 'text-gray-500 hover:text-gray-700'
-                }`}
+                  }`}
               >
                 {tab}
               </button>
@@ -314,36 +332,34 @@ const UserManagementTab = () => {
                   </td>
                   <td className="px-10 py-6 text-sm text-gray-500">{user.email}</td>
                   <td className="px-10 py-6">
-                    <button 
+                    <button
                       onClick={() => toggleKyc(user.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full w-fit hover:opacity-80 transition-all ${
-                        user.kyc === 'Verified' ? 'bg-emerald-50 text-emerald-600' :
-                        user.kyc === 'Pending' ? 'bg-orange-50 text-orange-600' : 'bg-gray-100 text-gray-600'
-                      }`}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full w-fit hover:opacity-80 transition-all ${user.kyc === 'Verified' ? 'bg-emerald-50 text-emerald-600' :
+                          user.kyc === 'Pending' ? 'bg-orange-50 text-orange-600' : 'bg-gray-100 text-gray-600'
+                        }`}
                     >
-                      <div className={`w-1.5 h-1.5 rounded-full ${
-                        user.kyc === 'Verified' ? 'bg-emerald-500' :
-                        user.kyc === 'Pending' ? 'bg-orange-500' : 'bg-gray-500'
-                      }`}></div>
+                      <div className={`w-1.5 h-1.5 rounded-full ${user.kyc === 'Verified' ? 'bg-emerald-500' :
+                          user.kyc === 'Pending' ? 'bg-orange-500' : 'bg-gray-500'
+                        }`}></div>
                       <span className="text-[10px] font-bold uppercase tracking-tight">{user.kyc}</span>
                     </button>
                   </td>
                   <td className="px-10 py-6 text-sm text-gray-600 font-medium">{user.date}</td>
                   <td className="px-10 py-6">
                     <div className="flex items-center justify-center gap-4">
-                      <button 
+                      <button
                         onClick={() => handleOpenModal(user)}
                         className="flex items-center gap-1.5 text-blue-600 text-xs font-bold hover:underline"
                       >
                         Cek Detail
                       </button>
-                      <button 
+                      <button
                         onClick={() => toggleKyc(user.id)}
                         className="flex items-center gap-1.5 text-[#147D73] text-xs font-bold hover:underline"
                       >
                         Ubah Status
                       </button>
-                      <button 
+                      <button
                         onClick={async () => {
                           const result = await Swal.fire({
                             title: 'Apakah Anda Yakin?',
@@ -428,15 +444,15 @@ const UserManagementTab = () => {
                 <h3 className="font-bold text-slate-900 mb-4 border-b pb-2">Informasi & Edit Profil</h3>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">Nama Lengkap</label>
-                  <input type="text" className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.full_name} onChange={e => setEditForm({...editForm, full_name: e.target.value})} />
+                  <input type="text" className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.full_name} onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">Tanggal Lahir</label>
-                  <input type="date" className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.date_of_birth} onChange={e => setEditForm({...editForm, date_of_birth: e.target.value})} />
+                  <input type="date" className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.date_of_birth} onChange={e => setEditForm({ ...editForm, date_of_birth: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">Jenis Kelamin</label>
-                  <select className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.gender} onChange={e => setEditForm({...editForm, gender: e.target.value})}>
+                  <select className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.gender} onChange={e => setEditForm({ ...editForm, gender: e.target.value })}>
                     <option value="">Pilih...</option>
                     <option value="male">Laki-laki</option>
                     <option value="female">Perempuan</option>
@@ -444,15 +460,15 @@ const UserManagementTab = () => {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">No HP</label>
-                  <input type="text" className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} />
+                  <input type="text" className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.phone} onChange={e => setEditForm({ ...editForm, phone: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">Alamat</label>
-                  <textarea className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" rows="2" value={editForm.address} onChange={e => setEditForm({...editForm, address: e.target.value})}></textarea>
+                  <textarea className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" rows="2" value={editForm.address} onChange={e => setEditForm({ ...editForm, address: e.target.value })}></textarea>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">Role Akun</label>
-                  <select className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.role} onChange={e => setEditForm({...editForm, role: e.target.value})}>
+                  <select className="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-2 text-sm" value={editForm.role} onChange={e => setEditForm({ ...editForm, role: e.target.value })}>
                     <option value="user">User Biasa</option>
                     <option value="admin">Administrator</option>
                   </select>
@@ -463,13 +479,11 @@ const UserManagementTab = () => {
               {/* Data KTP */}
               <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col">
                 <h3 className="font-bold text-slate-900 mb-4 border-b pb-2">Dokumen Identitas (KTP)</h3>
-                
+
                 {selectedUser.raw_user.identities && selectedUser.raw_user.identities.length > 0 && (
-                  <div className="mb-4 bg-slate-50 p-4 rounded-xl border border-gray-100 flex items-center justify-between">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nomor Induk Kependudukan (NIK)</p>
-                      <p className="font-black text-slate-800 tracking-wider">{selectedUser.raw_user.identities[0].identity_number || 'Belum diatur'}</p>
-                    </div>
+                  <div className="mb-4 bg-slate-50 p-4 rounded-xl border border-gray-100">
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Nomor Induk Kependudukan (NIK)</label>
+                    <input type="text" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-black text-slate-800 tracking-wider focus:outline-none focus:ring-2 focus:ring-[#147D73] focus:border-transparent transition-all" value={editForm.nik} onChange={e => setEditForm({ ...editForm, nik: e.target.value })} maxLength={16} />
                   </div>
                 )}
 

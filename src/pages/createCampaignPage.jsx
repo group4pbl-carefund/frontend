@@ -10,6 +10,7 @@ const CreateCampaignPage = () => {
   const editData = location.state?.editData;
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [beneficiaryType, setBeneficiaryType] = useState(editData?.beneficiary_type || 'diri_sendiri');
   const [durationMode, setDurationMode] = useState(editData?.end_date ? 'date' : 'days');
 
@@ -108,6 +109,9 @@ const CreateCampaignPage = () => {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     if (!formData.title.trim() || !formData.target || !formData.description.trim() || !formData.recipientName.trim()) {
       Swal.fire({
         title: 'Formulir Belum Lengkap!',
@@ -115,6 +119,7 @@ const CreateCampaignPage = () => {
         icon: 'warning',
         confirmButtonColor: '#147D73'
       });
+      setIsSubmitting(false);
       return;
     }
 
@@ -126,6 +131,7 @@ const CreateCampaignPage = () => {
         icon: 'warning',
         confirmButtonColor: '#147D73'
       });
+      setIsSubmitting(false);
       return;
     }
 
@@ -144,6 +150,7 @@ const CreateCampaignPage = () => {
         icon: 'error',
         confirmButtonColor: '#147D73'
       });
+      setIsSubmitting(false);
       return;
     }
 
@@ -162,6 +169,7 @@ const CreateCampaignPage = () => {
           icon: 'warning',
           confirmButtonColor: '#147D73'
         });
+        setIsSubmitting(false);
         return;
       }
     }
@@ -227,6 +235,7 @@ const CreateCampaignPage = () => {
         icon: 'error',
         confirmButtonColor: '#147D73'
       });
+      setIsSubmitting(false);
     }
   };
 
@@ -788,10 +797,11 @@ const CreateCampaignPage = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="bg-[#147D73] hover:bg-[#0F655C] text-white font-bold py-3.5 px-8 rounded-xl flex items-center transition-colors shadow-sm"
+                disabled={isSubmitting}
+                className={`text-white font-bold py-3.5 px-8 rounded-xl flex items-center transition-colors shadow-sm ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#147D73] hover:bg-[#0F655C]'}`}
               >
-                {editData ? 'Simpan Revisi' : 'Ajukan Kampanye'}
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                {isSubmitting ? 'Memproses...' : (editData ? 'Simpan Revisi' : 'Ajukan Kampanye')}
+                {!isSubmitting && <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>}
               </button>
             )}
           </div>
