@@ -1,6 +1,6 @@
 # 📱 Carefund PBL - Frontend Documentation
 
-> Dokumentasi lengkap aplikasi Frontend Carefund berbasis React Vite dengan integrasi Axios ke API Backend.
+> Dokumentasi lengkap aplikasi Frontend Carefund berbasis React Vite dengan integrasi Axios ke API Backend (Laravel).
 
 ## 🚀 Quick Start
 
@@ -133,3 +133,15 @@ Jalankan perintah ini saat siap di-deploy:
 npm run build
 ```
 Vite akan membuat folder `dist/` yang siap di-host di Vercel, Netlify, atau Nginx.
+
+---
+
+## Atribusi
+Project tersebut adalah project kolaborasi antara Program Studi Keuangan dan Perbankan dengan Program Studi Teknologi Informasi Fakultas Vokasi Universitas Brawijaya
+### Nama Inisiator
+- Indah Maulidina (243141507111048) 
+- Deka Arisa Aprilia (243141507111063)
+### Nama Developer
+- Moch Azriel Alyandra Permana (253140701111053)
+- Naufal Rakha Putra (253140701111060)
+- Nada Arina Cucu Sarrahni (253140707111081)
